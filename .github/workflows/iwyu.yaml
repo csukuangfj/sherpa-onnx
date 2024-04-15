@@ -81,6 +81,12 @@ jobs:
 
           /tmp/iwyu-install/bin/include-what-you-use --version
 
+      - name: Upload IWYU tool
+        uses: actions/upload-artifact@v4
+        with:
+          name: iwyu-tool
+          path: /tmp/iwyu-install/*
+
       - name: setup path
         shell: bash
         run: |
@@ -93,11 +99,6 @@ jobs:
           which include-what-you-use
 
           include-what-you-use --help
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: iwyu-install
-          path: /tmpiwyu-install/*
 
       - name: Check
         shell: bash

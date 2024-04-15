@@ -14,6 +14,7 @@ Config = namedtuple(
 
 class State:
     skip_file: bool = False
+    in_c_api_examples: bool = False
 
 
 def parse_config(config: Config):
@@ -44,6 +45,11 @@ def filter(line: str, config: Config, state: State):
         return None
 
     if line.endswith(" should add these lines:\n"):
+        if 'c-api-examples' in line:
+            state.in_c_api_examples = True
+        else:
+            state.in_c_api_examples = False
+
         for s in config.ignore_files:
             if s.search(line):
                 state.skip_file = True
@@ -54,6 +60,9 @@ def filter(line: str, config: Config, state: State):
             return None
 
     for s, r in config.replace_lines:
+        if state.in_c_api_examples:
+            break
+
         if s.search(line):
             return s.sub(r, line)
 
