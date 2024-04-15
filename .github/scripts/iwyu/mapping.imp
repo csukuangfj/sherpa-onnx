@@ -1,0 +1,5 @@
+# See also https://github.com/chemfiles/chemfiles/blob/master/cmake/chemfiles-iwyu.imp
+[
+  {symbol: ["websocketpp::lib::error_code", "private", "\"websocketpp/common/system_error.hpp\"", "public"]},
+  {symbol: ["std::copy", "private", "<algorithm>", "public"]},
+]

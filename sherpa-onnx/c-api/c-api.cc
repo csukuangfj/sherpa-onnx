@@ -4,23 +4,49 @@
 
 #include "sherpa-onnx/c-api/c-api.h"
 
+#include <string.h>
+
 #include <algorithm>
+#include <functional>
 #include <memory>
 #include <string>
 #include <utility>
 #include <vector>
 
+#include "sherpa-onnx/csrc/audio-tagging-model-config.h"
 #include "sherpa-onnx/csrc/audio-tagging.h"
 #include "sherpa-onnx/csrc/circular-buffer.h"
 #include "sherpa-onnx/csrc/display.h"
+#include "sherpa-onnx/csrc/endpoint.h"
+#include "sherpa-onnx/csrc/features.h"
 #include "sherpa-onnx/csrc/keyword-spotter.h"
 #include "sherpa-onnx/csrc/macros.h"
+#include "sherpa-onnx/csrc/offline-lm-config.h"
+#include "sherpa-onnx/csrc/offline-model-config.h"
+#include "sherpa-onnx/csrc/offline-nemo-enc-dec-ctc-model-config.h"
+#include "sherpa-onnx/csrc/offline-paraformer-model-config.h"
+#include "sherpa-onnx/csrc/offline-punctuation-model-config.h"
 #include "sherpa-onnx/csrc/offline-punctuation.h"
 #include "sherpa-onnx/csrc/offline-recognizer.h"
+#include "sherpa-onnx/csrc/offline-stream.h"
+#include "sherpa-onnx/csrc/offline-tdnn-model-config.h"
+#include "sherpa-onnx/csrc/offline-transducer-model-config.h"
+#include "sherpa-onnx/csrc/offline-tts-model-config.h"
+#include "sherpa-onnx/csrc/offline-tts-vits-model-config.h"
+#include "sherpa-onnx/csrc/offline-whisper-model-config.h"
+#include "sherpa-onnx/csrc/offline-zipformer-audio-tagging-model-config.h"
+#include "sherpa-onnx/csrc/online-ctc-fst-decoder-config.h"
+#include "sherpa-onnx/csrc/online-model-config.h"
+#include "sherpa-onnx/csrc/online-paraformer-model-config.h"
 #include "sherpa-onnx/csrc/online-recognizer.h"
+#include "sherpa-onnx/csrc/online-stream.h"
+#include "sherpa-onnx/csrc/online-transducer-model-config.h"
+#include "sherpa-onnx/csrc/online-zipformer2-ctc-model-config.h"
+#include "sherpa-onnx/csrc/silero-vad-model-config.h"
 #include "sherpa-onnx/csrc/speaker-embedding-extractor.h"
 #include "sherpa-onnx/csrc/speaker-embedding-manager.h"
 #include "sherpa-onnx/csrc/spoken-language-identification.h"
+#include "sherpa-onnx/csrc/vad-model-config.h"
 #include "sherpa-onnx/csrc/voice-activity-detector.h"
 #include "sherpa-onnx/csrc/wave-reader.h"
 #include "sherpa-onnx/csrc/wave-writer.h"

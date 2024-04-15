@@ -15,8 +15,8 @@
 // clang-format on
 
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 
 #include "sherpa-onnx/c-api/c-api.h"
 

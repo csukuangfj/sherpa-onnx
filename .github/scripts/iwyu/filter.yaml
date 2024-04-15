@@ -20,6 +20,8 @@ replace_lines:
   - "^#include <unistd\\.h>": "#include <cunistd>"
   - "^#include <stdint\\.h>": "#include <cstdint>"
   - "^#include <stdlib.h>": "#include <cstdlib>"
+  - "^#include <mutex>": "#include <mutex>  // NOLINT"
+  - "^#include <thread>": "#include <thread>  // NOLINT"
 
 ignore_files:
   - ".*_deps/"
