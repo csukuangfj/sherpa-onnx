@@ -556,6 +556,8 @@ def main():
         },
     )
 
+    add_meta_data(filename=decoder_filename, meta_data=encoder_meta_data)
+
     if "large" in args.model:
         # it causes errors for large models, so skip it.
         return

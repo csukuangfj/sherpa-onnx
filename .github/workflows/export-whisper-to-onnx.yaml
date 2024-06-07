@@ -79,9 +79,10 @@ jobs:
           cd ..
           mkdir -p $src
           mv -v whisper/*.onnx $src/
-          mv -v whisper/*.data $src/
+          mv -v whisper/*encoder*.data $src/
+          mv -v whisper/*decoder*.data $src/
+          mv -v whisper/*tokens* $src/
           rm -rf whisper
-
 
           echo "------------------------------"
 
@@ -112,6 +113,7 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
+          model=${{ matrix.model }}
           src=sherpa-onnx-whisper-${{ matrix.model }}
 
           git config --global user.email "csukuangfj@gmail.com"
@@ -126,8 +128,8 @@ jobs:
             rm -rf huggingface/*
           fi
 
-          cp -v $src/*.onnx ./huggingface
-          cp -v $src/*.data ./huggingface || true
+          cp -v $src/*$model*.onnx ./huggingface || true
+          cp -v $src/*$model*.data ./huggingface || true
           cp -v $src/*tokens* ./huggingface
           cp -av $src/test_wavs ./huggingface
 
@@ -152,7 +154,21 @@ jobs:
           src=sherpa-onnx-whisper-$model
           ls -lh $src
           ls -lh $src/*
+          cp -v $src/*.onnx .
+          cp -v $src/*.data .
+          cp -v $src/*tokens* .
 
+          echo "test 1"
+          python3 scripts/whisper/test.py \
+            --encoder ./$model-encoder.onnx \
+            --decoder ./$model-decoder.onnx \
+            --tokens ./$model-tokens.txt \
+            $src/test_wavs/0.wav
+
+          echo "test 2"
+          rm -v *.onnx
+          rm -v *.data
+          rm -v *.txt
           python3 scripts/whisper/test.py \
             --encoder $src/$model-encoder.onnx \
             --decoder $src/$model-decoder.onnx \
