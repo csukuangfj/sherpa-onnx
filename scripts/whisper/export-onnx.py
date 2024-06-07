@@ -68,7 +68,17 @@ def add_meta_data(filename: str, meta_data: Dict[str, Any]):
         meta.key = key
         meta.value = str(value)
 
-    onnx.save(model, filename)
+    if "large" not in filename:
+        onnx.save(model, filename)
+    else:
+        external_filename = filename.split(".onnx")[0]
+        onnx.save(
+            model,
+            filename,
+            save_as_external_data=True,
+            all_tensors_to_one_file=True,
+            location=external_filename + ".data",
+        )
 
 
 def modified_audio_encoder_forward(self: AudioEncoder, x: torch.Tensor):

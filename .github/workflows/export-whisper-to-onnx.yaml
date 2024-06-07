@@ -1,6 +1,9 @@
 name: export-whisper-to-onnx
 
 on:
+  push:
+    branches:
+      - whisper
   workflow_dispatch:
 
 concurrency:
@@ -17,7 +20,8 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         # model: ["distil-medium.en", "distil-small.en",  "tiny.en", "base.en", "small.en", "medium.en", "tiny", "base", "small", "medium", "large", "large-v1", "large-v2", "distil-large-v2"]
-        model: ["distil-medium.en", "distil-small.en",  "tiny.en", "base.en", "small.en", "medium.en", "tiny", "base", "small", "medium", "medium-aishell"]
+        # model: ["distil-medium.en", "distil-small.en",  "tiny.en", "base.en", "small.en", "medium.en", "tiny", "base", "small", "medium", "medium-aishell"]
+        model: ["large-v1"]
         python-version: ["3.8"]
 
     steps:
@@ -41,16 +45,16 @@ jobs:
           model=${{ matrix.model }}
           echo "model: $model"
           if [[ $model == distil-medium.en ]]; then
-            wget -q -O distil-medium-en-original-model.bin https://huggingface.co/distil-whisper/distil-medium.en/resolve/main/original-model.bin
+            curl -SL -O distil-medium-en-original-model.bin https://huggingface.co/distil-whisper/distil-medium.en/resolve/main/original-model.bin
             ls -lh
           elif [[ $model == distil-large-v2 ]]; then
-            wget -q -O distil-large-v2-original-model.bin https://huggingface.co/distil-whisper/distil-large-v2/resolve/main/original-model.bin
+            curl -SL -O distil-large-v2-original-model.bin https://huggingface.co/distil-whisper/distil-large-v2/resolve/main/original-model.bin
             ls -lh
           elif [[ $model == distil-small.en ]]; then
-            wget -q -O distil-small-en-original-model.bin https://huggingface.co/distil-whisper/distil-small.en/resolve/main/original-model.bin
+            curl -SL -O distil-small-en-original-model.bin https://huggingface.co/distil-whisper/distil-small.en/resolve/main/original-model.bin
             ls -lh
           elif [[ $model == medium-aishell ]]; then
-            wget -q -O medium-aishell.pt https://huggingface.co/yuekai/icefall_asr_aishell_whisper/resolve/main/exp_medium/whisper-medium-aishell1-epoch-10-avg-4.pt
+            curl -SL -O medium-aishell.pt https://huggingface.co/yuekai/icefall_asr_aishell_whisper/resolve/main/exp_medium/whisper-medium-aishell1-epoch-10-avg-4.pt
             ls -lh
           fi
           python3 ./export-onnx.py --model ${{ matrix.model }}
@@ -74,7 +78,11 @@ jobs:
           src=sherpa-onnx-whisper-${{ matrix.model }}
 
           cd ..
-          mv whisper $src
+          mkdir -p $src
+          mv -v whisper/*.onnx $src/
+          mv -v whisper/*.data $src/
+          rm -rf whisper
+
 
           echo "------------------------------"
 
@@ -97,27 +105,9 @@ jobs:
           ls -lh $src
           echo "--------------------"
 
-          if [[ $model == large || $model == large-v1 || $model == large-v2 || $model == distil-large-v2 ]]; then
-            #tar cvjf - $src | split --bytes=1024MB - $src.tar.bz2.
-            tar cvjf $src.tar.bz2 $src
-            split -b 1G $src.tar.bz2 $src.tar.bz2.
-            rm $src.tar.bz2
-            # cat $src.tar.gz.* | tar xjf -
-          else
-            tar cvjf $src.tar.bz2 $src
-          fi
+          tar cvjf $src.tar.bz2 $src
           ls -lh
-
-
-      - name: Release
-        uses: svenstaro/upload-release-action@v2
-        with:
-          file_glob: true
-          file: ./*.tar*
-          overwrite: true
-          repo_name: k2-fsa/sherpa-onnx
-          repo_token: ${{ secrets.UPLOAD_GH_SHERPA_ONNX_TOKEN }}
-          tag: asr-models
+          rm -rf $src
 
       - name: Test ${{ matrix.model }}
         shell: bash
@@ -144,19 +134,17 @@ jobs:
 
           export GIT_CLONE_PROTECTION_ACTIVE=false
 
+          rm -rf huggingface
           GIT_LFS_SKIP_SMUDGE=1 git clone https://huggingface.co/csukuangfj/sherpa-onnx-whisper-${{ matrix.model }} huggingface
 
           if [[ $model != medium-aishell ]]; then
             rm -rf huggingface/*
           fi
 
-          if [[ $model == large || $model == large-v1 || $model == large-v2 || $model == distil-large-v2 ]]; then
-            mv $src.tar* ./huggingface
-          else
-            cp -v $src/*.onnx ./huggingface
-            cp -v $src/*tokens* ./huggingface
-            cp -av $src/test_wavs ./huggingface
-          fi
+          cp -v $src/*.onnx ./huggingface
+          cp -v $src/*.data ./huggingface
+          cp -v $src/*tokens* ./huggingface
+          cp -av $src/test_wavs ./huggingface
 
           cd huggingface
 
@@ -164,7 +152,18 @@ jobs:
           ls -lh
           git lfs track "*gz*"
           git lfs track "*onnx*"
+          git lfs track "*data*"
 
           git add .
           git commit -m "upload ${{ matrix.model }}"
           git push https://csukuangfj:$HF_TOKEN@huggingface.co/csukuangfj/sherpa-onnx-whisper-${{ matrix.model }} main
+
+      - name: Release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          file_glob: true
+          file: ./*.tar*
+          overwrite: true
+          repo_name: k2-fsa/sherpa-onnx
+          repo_token: ${{ secrets.UPLOAD_GH_SHERPA_ONNX_TOKEN }}
+          tag: asr-models
