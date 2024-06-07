@@ -106,9 +106,6 @@ jobs:
 
           tar cvjf $src.tar.bz2 $src
           ls -lh
-          rm -rf $src
-
-
 
       - name: Publish ${{ matrix.model }} to huggingface
         shell: bash
