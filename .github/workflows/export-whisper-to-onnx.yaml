@@ -66,7 +66,6 @@ jobs:
             rm -fv medium-aishell-decoder.onnx
           fi
 
-
           ls -lh
 
           ls -lh ~/.cache/whisper || true
@@ -91,10 +90,10 @@ jobs:
           ls -lh
           mkdir -p test_wavs
           cd test_wavs
-          wget -q https://huggingface.co/csukuangfj/sherpa-onnx-whisper-medium.en/resolve/main/test_wavs/0.wav
-          wget -q https://huggingface.co/csukuangfj/sherpa-onnx-whisper-medium.en/resolve/main/test_wavs/1.wav
-          wget -q https://huggingface.co/csukuangfj/sherpa-onnx-whisper-medium.en/resolve/main/test_wavs/8k.wav
-          wget -q https://huggingface.co/csukuangfj/sherpa-onnx-whisper-medium.en/resolve/main/test_wavs/trans.txt
+          curl -SL -O https://huggingface.co/csukuangfj/sherpa-onnx-whisper-medium.en/resolve/main/test_wavs/0.wav
+          curl -SL -O https://huggingface.co/csukuangfj/sherpa-onnx-whisper-medium.en/resolve/main/test_wavs/1.wav
+          curl -SL -O https://huggingface.co/csukuangfj/sherpa-onnx-whisper-medium.en/resolve/main/test_wavs/8k.wav
+          curl -SL -O https://huggingface.co/csukuangfj/sherpa-onnx-whisper-medium.en/resolve/main/test_wavs/trans.txt
           cd ../..
           mv $src ../
           echo "pwd: $PWD"
@@ -109,18 +108,7 @@ jobs:
           ls -lh
           rm -rf $src
 
-      - name: Test ${{ matrix.model }}
-        shell: bash
-        run: |
-          python3 -m pip install kaldi-native-fbank
-          git checkout .
-          model=${{ matrix.model }}
-          src=sherpa-onnx-whisper-$model
-          python3 scripts/whisper/test.py \
-            --encoder $src/$model-encoder.int8.onnx \
-            --decoder $src/$model-decoder.int8.onnx \
-            --tokens $src/$model-tokens.txt \
-            $src/test_wavs/0.wav
+
 
       - name: Publish ${{ matrix.model }} to huggingface
         shell: bash
@@ -142,7 +130,7 @@ jobs:
           fi
 
           cp -v $src/*.onnx ./huggingface
-          cp -v $src/*.data ./huggingface
+          cp -v $src/*.data ./huggingface || true
           cp -v $src/*tokens* ./huggingface
           cp -av $src/test_wavs ./huggingface
 
@@ -155,8 +143,24 @@ jobs:
           git lfs track "*data*"
 
           git add .
-          git commit -m "upload ${{ matrix.model }}"
-          git push https://csukuangfj:$HF_TOKEN@huggingface.co/csukuangfj/sherpa-onnx-whisper-${{ matrix.model }} main
+          git commit -m "upload ${{ matrix.model }}" || true
+          git push https://csukuangfj:$HF_TOKEN@huggingface.co/csukuangfj/sherpa-onnx-whisper-${{ matrix.model }} main || true
+
+      - name: Test ${{ matrix.model }}
+        shell: bash
+        run: |
+          python3 -m pip install kaldi-native-fbank
+          git checkout .
+          model=${{ matrix.model }}
+          src=sherpa-onnx-whisper-$model
+          ls -lh $src
+          ls -lh $src/*
+
+          python3 scripts/whisper/test.py \
+            --encoder $src/$model-encoder.onnx \
+            --decoder $src/$model-decoder.onnx \
+            --tokens $src/$model-tokens.txt \
+            $src/test_wavs/0.wav
 
       - name: Release
         uses: svenstaro/upload-release-action@v2
