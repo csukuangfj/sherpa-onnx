@@ -84,6 +84,11 @@ if(SHERPA_ONNX_HAS_ALSA)
   endif()
 endif()
 
+if(WIN32 AND (CMAKE_VS_PLATFORM_NAME STREQUAL ARM64 OR CMAKE_VS_PLATFORM_NAME STREQUAL arm64))
+  message(STATUS "PYTHON_LIBRARIES: ${PYTHON_LIBRARIES}")
+  target_link_libraries(_sherpa_onnx PRIVATE ${PYTHON_LIBRARIES})
+endif()
+
 install(TARGETS _sherpa_onnx
   DESTINATION ../
 )
