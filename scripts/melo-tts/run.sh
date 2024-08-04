@@ -6,8 +6,11 @@ function install() {
   pip install torch==2.3.1+cpu torchaudio==2.3.1+cpu -f https://download.pytorch.org/whl/torch_stable.html
 
   pushd /tmp
-  git clone https://github.com/myshell-ai/MeloTTS
+  # git clone https://github.com/myshell-ai/MeloTTS
+  git clone https://github.com/csukuangfj/MeloTTS
   cd MeloTTS
+  git fetch
+  git checkout fix-cuda
   pip install -r ./requirements.txt
 
   pip install soundfile onnx==1.15.0 onnxruntime==1.16.3

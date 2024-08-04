@@ -35,12 +35,42 @@ jobs:
           cd scripts/melo-tts
           ./run.sh
 
+      - name: Prepare files
+        shell: bash
+        run: |
+          src=scripts/melo-tts
+          dst=vits-melo-zh_en-fixed
+          mkdir -p $dst
+          cp -v $src/*.onnx $dst/
+          cp -v $src/lexicon.txt $dst
+          cp -v $src/tokens.txt $dst
+          cd $dst
+
+          curl -SL -O https://raw.githubusercontent.com/myshell-ai/MeloTTS/main/LICENSE
+
+          curl -SL -O https://huggingface.co/csukuangfj/icefall-tts-aishell3-vits-low-2024-04-06/resolve/main/data/new_heteronym.fst
+          curl -SL -O https://huggingface.co/csukuangfj/icefall-tts-aishell3-vits-low-2024-04-06/resolve/main/data/date.fst
+          curl -SL -O https://huggingface.co/csukuangfj/icefall-tts-aishell3-vits-low-2024-04-06/resolve/main/data/number.fst
+          curl -SL -O https://huggingface.co/csukuangfj/icefall-tts-aishell3-vits-low-2024-04-06/resolve/main/data/phone.fst
+          curl -SL -O https://github.com/csukuangfj/cppjieba/releases/download/sherpa-onnx-2024-04-19/dict.tar.bz2
+          tar xvf dict.tar.bz2
+          rm dict.tar.bz2
+
+          cd ..
+          tar cjfv $dst.tar.bz2 $dst
+
       - uses: actions/upload-artifact@v4
         with:
           name: test.wav
           path: scripts/melo-tts/test.wav
 
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fix-for-cuda
+          path: vits-melo-*.tar.bz2
+
       - name: Publish to huggingface
+        if: false
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         uses: nick-fields/retry@v3
@@ -103,6 +133,7 @@ jobs:
             rm -rf $dst
 
       - name: Release
+        if: false
         uses: svenstaro/upload-release-action@v2
         with:
           file_glob: true
