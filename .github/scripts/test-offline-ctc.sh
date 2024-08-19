@@ -63,7 +63,7 @@ done
 
 rm -rf $repo
 
-if true; then
+if false; then
   # It has problems with onnxruntime 1.18
   log "------------------------------------------------------------"
   log "Run Wenet models"
