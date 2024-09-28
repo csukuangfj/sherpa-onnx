@@ -56,7 +56,8 @@ jobs:
           df -h
 
       - name: Free more space
-        if: matrix.os == 'ubuntu-latest'
+        # if: matrix.os == 'ubuntu-latest'
+        if: false
         shell: bash
         run: |
           # https://github.com/orgs/community/discussions/25678
@@ -68,7 +69,8 @@ jobs:
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
 
       - name: Free Disk Space (Ubuntu)
-        if: matrix.os == 'ubuntu-latest'
+        # if: matrix.os == 'ubuntu-latest'
+        if: false
         uses: jlumbroso/free-disk-space@main
         with:
           # this might remove tools that are actually needed,
@@ -110,7 +112,7 @@ jobs:
             -DCMAKE_BUILD_TYPE=Release \
             -DSHERPA_ONNX_ENABLE_WEBSOCKET=OFF \
             -DBUILD_ESPEAK_NG_EXE=OFF \
-            -DSHERPA_ONNX_ENABLE_BINARY=ON \
+            -DSHERPA_ONNX_ENABLE_BINARY=OFF \
             ..
 
           cmake --build . --target install --config Release
@@ -148,7 +150,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: ubuntu-latest
-          path: /tmp/linux
+          path: /tmp/linux-x64
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -165,8 +167,8 @@ jobs:
           echo "----------/tmp/----------"
           ls -lh /tmp/
 
-          echo "----------/tmp/linux----------"
-          ls -lh /tmp/linux
+          echo "----------/tmp/linux-x64----------"
+          ls -lh /tmp/linux-x64
 
       - name: Build
         shell: bash

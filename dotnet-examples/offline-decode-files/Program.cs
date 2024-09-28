@@ -273,10 +273,22 @@ to download pre-trained Tdnn models.
     // display results
     for (int i = 0; i != files.Length; ++i)
     {
-      var text = streams[i].Result.Text;
+      var result = streams[i].Result;
+      var text = result.Text;
+      var tokens = result.Tokens;
+      var timestamps = result.Timestamps;
+      var lang = result.Lang;
+      var emotion = result.Emotion;
+      var eve = result.Event;
+
       Console.WriteLine("--------------------");
       Console.WriteLine(files[i]);
       Console.WriteLine(text);
+      Console.WriteLine(tokens);
+      Console.WriteLine(timestamps);
+      Console.WriteLine(lang);
+      Console.WriteLine(emotion);
+      Console.WriteLine(eve);
     }
     Console.WriteLine("--------------------");
   }
