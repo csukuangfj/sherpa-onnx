@@ -32,7 +32,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest] #, windows-latest]
+        os: [ubuntu-latest, macos-latest, ubuntu-22.04-arm] #, windows-latest]
 
     steps:
       - uses: actions/checkout@v4
@@ -85,7 +85,9 @@ jobs:
         shell: bash
         run: |
           if [[ ${{ matrix.os }} == ubuntu-latest ]]; then
-            os=linux
+            os=linux-x64
+          elif [[ ${{ matrix.os }} == ubuntu-22.04-arm ]]; then
+            os=linux-aarch64
           elif [[ ${{ matrix.os }} == macos-latest ]]; then
             os=macos
           elif [[ ${{ matrix.os }} == windows-latest ]]; then
@@ -94,13 +96,30 @@ jobs:
 
           if [[ $os == windows ]]; then
             cp -fv build/install/lib/*.dll ./flutter/sherpa_onnx_$os/$os
-          else
-            cp -fv build/install/lib/lib* ./flutter/sherpa_onnx_$os/$os
+          elif [[ $os == linux-x64 ]]; then
+            cp -fv build/install/lib/lib* ./flutter/sherpa_onnx_linux/linux/x86_64
+          elif [[ $os == linux-aarch64 ]]; then
+            cp -fv build/install/lib/lib* ./flutter/sherpa_onnx_linux/linux/aarch64
+          elif [[ $os == macos ]]; then
+            cp -fv build/install/lib/lib* ./flutter/sherpa_onnx_macos/macos
           fi
 
           echo "--------------------"
 
-          ls -lh ./flutter/sherpa_onnx_$os/$os
+          ls -lh ./flutter/sherpa_onnx_*/*
+
+      - name: Fix for Linux
+        if: matrix.os == 'ubuntu-22.04-arm' || matrix.os == 'ubuntu-latest'
+        shell: bash
+        run: |
+          cd dart-api-examples/vad/bin
+          if [[ ${{ matrix.os }} == ubuntu-22.04-arm ]]; then
+            sed -i.bak 's%linux%linux/aarch64%' ./init.dart
+          elif [[ ${{ matrix.os }} == ubuntu-latest ]]; then
+            sed -i.bak 's%linux%linux/x86_64%' ./init.dart
+          fi
+
+          git diff
 
       - name: Run tests
         shell: bash
