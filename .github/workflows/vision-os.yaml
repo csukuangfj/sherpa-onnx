@@ -3,7 +3,7 @@ name: visionOS
 on:
   push:
     branches:
-      - vision-os
+      - vision-os-2
 
   workflow_dispatch:
 
