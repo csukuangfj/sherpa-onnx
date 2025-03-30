@@ -8,3 +8,5 @@
 *.*embedding
 _Const*
 onnx__*
+*.sh
+*.rknn

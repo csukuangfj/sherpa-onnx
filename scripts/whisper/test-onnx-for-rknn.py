@@ -321,8 +321,7 @@ def main():
     #  max_token_id = logits.argmax(dim=-1)
     results = []
     pop_id = 12
-    #  for i in range(model.n_text_ctx):
-    for i in range(30):
+    for i in range(model.n_text_ctx // 2):
         logits = model.run_decoder(
             tokens=torch.tensor([tokens], dtype=torch.int64),
             n_layer_cross_k=n_layer_cross_k,
