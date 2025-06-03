@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   sherpa_onnx_linux:
-    # if: false
+    if: false
     permissions:
       id-token: write # Required for authentication using OIDC
     name: sherpa_onnx_linux
@@ -112,7 +112,7 @@ jobs:
           flutter pub publish --force
 
   sherpa_onnx_macos:
-    # if: false
+    if: false
     permissions:
       id-token: write # Required for authentication using OIDC
     name: sherpa_onnx_macos
@@ -214,11 +214,11 @@ jobs:
           flutter pub publish --force
 
   sherpa_onnx_windows:
-    # if: false
+    if: false
     permissions:
       id-token: write # Required for authentication using OIDC
     name: sherpa_onnx_windows
-    runs-on: windows-2019
+    runs-on: windows-2022
 
     steps:
       - uses: actions/checkout@v4
@@ -298,7 +298,7 @@ jobs:
           flutter pub publish --force
 
   sherpa_onnx_android:
-    # if: false
+    if: false
     permissions:
       id-token: write # Required for authentication using OIDC
     name: sherpa_onnx_android
@@ -429,7 +429,7 @@ jobs:
           flutter pub publish --force
 
   sherpa_onnx_ios:
-    # if: false
+    if: false
     permissions:
       id-token: write # Required for authentication using OIDC
     name: sherpa_onnx_ios
@@ -507,7 +507,7 @@ jobs:
           flutter pub publish --force
 
   sherpa_onnx:
-    needs: [sherpa_onnx_linux, sherpa_onnx_macos, sherpa_onnx_windows, sherpa_onnx_android, sherpa_onnx_ios]
+    # needs: [sherpa_onnx_linux, sherpa_onnx_macos, sherpa_onnx_windows, sherpa_onnx_android, sherpa_onnx_ios]
     # if: false
     permissions:
       id-token: write # Required for authentication using OIDC
