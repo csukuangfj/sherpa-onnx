@@ -749,7 +749,20 @@ def get_pt_models():
     ]
 
     pt_PT = [
-        PiperModel(name="tugão", kind="medium", sr=22050, ns=1),
+        PiperModel(
+            name="tugao",
+            kind="medium",
+            sr=22050,
+            ns=1,
+            url="https://huggingface.co/rhasspy/piper-voices/tree/main/pt/pt_PT/tugão/medium",
+            cmd="""
+            wget -qq https://huggingface.co/rhasspy/piper-voices/resolve/main/pt/pt_PT/tugão/medium/pt_PT-tugão-medium.onnx
+            wget -qq https://huggingface.co/rhasspy/piper-voices/resolve/main/pt/pt_PT/tugão/medium/pt_PT-tugão-medium.onnx.json
+            wget -qq https://huggingface.co/rhasspy/piper-voices/resolve/main/pt/pt_PT/tugão/medium/MODEL_CARD
+            mv -v pt_PT-tugão-medium.onnx pt_PT-tugao-medium.onnx
+            mv -v pt_PT-tugão-medium.onnx.json pt_PT-tugao-medium.onnx.json
+            """,
+        ),
     ]
 
     for m in pt_BR:
