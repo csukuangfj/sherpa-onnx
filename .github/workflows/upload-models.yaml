@@ -322,6 +322,31 @@ jobs:
           done
           ls -lh *.tar.bz2
 
+      - name: sense-voice-int8
+        if: true
+        shell: bash
+        run: |
+          rm -rf models
+          mkdir models
+          pushd models
+
+          wget https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17.tar.bz2
+          tar xvf sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17.tar.bz2
+          rm sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17.tar.bz2
+
+          src=sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17
+          dst=sherpa-onnx-sense-voice-zh-en-ja-ko-yue-int8-2024-07-17
+          mv $src $dst
+          rm $dst/model.onnx
+          tar cjfv $dst.tar.bz2 $dst
+          ls -lh
+          mv $dst.tar.bz2 ..
+          popd
+          rm -rf models
+
+
+
+
       - name: vosk-model-ru (zipformer)
         if: false
         shell: bash
