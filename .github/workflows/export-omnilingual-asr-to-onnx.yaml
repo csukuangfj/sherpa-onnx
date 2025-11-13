@@ -3,7 +3,7 @@ name: export-omnilingual-asr-to-onnx
 on:
   push:
     branches:
-      - export-omnilingual-asr
+      - small-fixes
   workflow_dispatch:
 
 concurrency:
@@ -66,7 +66,6 @@ jobs:
 
           curl -SL -O https://raw.githubusercontent.com/facebookresearch/omnilingual-asr/refs/heads/main/README.md
           curl -SL -O https://raw.githubusercontent.com/facebookresearch/omnilingual-asr/refs/heads/main/LICENSE
-          curl -SL -O https://raw.githubusercontent.com/facebookresearch/omnilingual-asr/refs/heads/main/LICENSE-CC-BY-4.0.md
 
           curl -SL -O https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/en.wav
           curl -SL -O https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/es.wav
@@ -86,7 +85,7 @@ jobs:
           mv -v model.onnx $d
           cp -v tokens.txt $d
           cp -v README.md $d
-          cp -v LICENSE* $d
+          cp -v LICENSE $d
           cp -v *.wav $d/test_wavs
 
           ls -lh $d
@@ -102,7 +101,7 @@ jobs:
           mv -v model.int8.onnx $d
           cp -v tokens.txt $d
           cp -v README.md $d
-          cp -v LICENSE* $d
+          cp -v LICENSE $d
           cp -v *.wav $d/test_wavs
           ls -lh $d
 
@@ -140,6 +139,7 @@ jobs:
               rm -rf huggingface
               git clone https://csukuangfj:$HF_TOKEN@huggingface.co/csukuangfj/$d huggingface
               pushd huggingface
+              rm -rf ./*
 
               git fetch
               git pull
