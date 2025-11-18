@@ -41,6 +41,7 @@
 #endif
 
 #if SHERPA_ONNX_ENABLE_ASCEND_NPU
+#include "sherpa-onnx/csrc/ascend/offline-recognizer-omnilingual-asr-ctc-ascend-impl.h"
 #include "sherpa-onnx/csrc/ascend/offline-recognizer-paraformer-ascend-impl.h"
 #include "sherpa-onnx/csrc/ascend/offline-recognizer-sense-voice-ascend-impl.h"
 #endif
@@ -80,10 +81,13 @@ std::unique_ptr<OfflineRecognizerImpl> OfflineRecognizerImpl::Create(
       return std::make_unique<OfflineRecognizerSenseVoiceAscendImpl>(config);
     } else if (!config.model_config.paraformer.model.empty()) {
       return std::make_unique<OfflineRecognizerParaformerAscendImpl>(config);
+    } else if (!config.model_config.omnilingual.model.empty()) {
+      return std::make_unique<OfflineRecognizerOmnilingualAsrCtcAscendImpl>(
+          config);
     } else {
       SHERPA_ONNX_LOGE(
-          "Only SenseVoice and Paraformer models are currently supported "
-          "by Ascend NPU for non-streaming ASR.");
+          "Only SenseVoice, Paraformer, and Omnilingual ASR models are "
+          "currently supported by Ascend NPU for non-streaming ASR.");
       SHERPA_ONNX_EXIT(-1);
       return nullptr;
     }
@@ -336,10 +340,15 @@ std::unique_ptr<OfflineRecognizerImpl> OfflineRecognizerImpl::Create(
     } else if (!config.model_config.paraformer.model.empty()) {
       return std::make_unique<OfflineRecognizerParaformerAscendImpl>(mgr,
                                                                      config);
+    } else if (!config.model_config.omnilingual.model.empty()) {
+      return std::make_unique<OfflineRecognizerOmnilingualAsrCtcAscendImpl>(
+          mgr, config);
     } else {
       SHERPA_ONNX_LOGE(
-          "Only SenseVoice and Paraformer models are currently supported "
-          "by Ascend NPU for non-streaming ASR. Fallback to CPU");
+          "Only SenseVoice, Paraformer, and Omnilingual ASR models are "
+          "currently supported by Ascend NPU for non-streaming ASR.");
+      SHERPA_ONNX_EXIT(-1);
+      return nullptr;
     }
 #else
     SHERPA_ONNX_LOGE(
