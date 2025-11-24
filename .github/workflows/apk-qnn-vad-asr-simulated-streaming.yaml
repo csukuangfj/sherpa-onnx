@@ -3,7 +3,7 @@ name: apk-qnn-vad-asr-simulated-streaming
 on:
   push:
     branches:
-      - apk
+      - apk-debug
       - android-qnn-2
 
   workflow_dispatch:

@@ -800,6 +800,7 @@ fun getOfflineModelConfig(type: Int): OfflineModelConfig? {
                     ),
                 ),
                 tokens = "$modelDir/tokens.txt",
+                debug = true,
             )
         }
 
