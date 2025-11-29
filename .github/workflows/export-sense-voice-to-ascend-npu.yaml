@@ -3,7 +3,7 @@ name: export-sense-voice-to-ascend-npu
 on:
   push:
     branches:
-      - refactor-ascend-export-script
+      - fix-ci
   workflow_dispatch:
 
 concurrency:
@@ -73,10 +73,11 @@ jobs:
 
 
           source /usr/local/Ascend/ascend-toolkit/set_env.sh
-          export LD_LIBRARY_PATH=/usr/local/Ascend/ascend-toolkit/latest/x86_64-linux/devlib/linux/x86_64:$LD_LIBRARY_PATH
 
           # for cann 7.0.0
           export LD_LIBRARY_PATH=/usr/local/Ascend/ascend-toolkit/latest/x86_64-linux/devlib/x86_64:$LD_LIBRARY_PATH
+
+          export LD_LIBRARY_PATH=/usr/local/Ascend/ascend-toolkit/latest/x86_64-linux/devlib/linux/x86_64:$LD_LIBRARY_PATH
 
           echo "CANN environment:"
           which atc || echo "atc not found"
@@ -120,10 +121,11 @@ jobs:
           ls -lh *.onnx
 
           source /usr/local/Ascend/ascend-toolkit/set_env.sh
-          export LD_LIBRARY_PATH=/usr/local/Ascend/ascend-toolkit/latest/x86_64-linux/devlib/linux/x86_64:$LD_LIBRARY_PATH
 
           # for cann 7.0.0
           export LD_LIBRARY_PATH=/usr/local/Ascend/ascend-toolkit/latest/x86_64-linux/devlib/x86_64:$LD_LIBRARY_PATH
+
+          export LD_LIBRARY_PATH=/usr/local/Ascend/ascend-toolkit/latest/x86_64-linux/devlib/linux/x86_64:$LD_LIBRARY_PATH
 
           soc_version=${{ matrix.soc_version }}
           cann=${{ matrix.cann }}
@@ -190,10 +192,11 @@ jobs:
           ls -lh *.onnx
 
           source /usr/local/Ascend/ascend-toolkit/set_env.sh
-          export LD_LIBRARY_PATH=/usr/local/Ascend/ascend-toolkit/latest/x86_64-linux/devlib/linux/x86_64:$LD_LIBRARY_PATH
 
           # for cann 7.0.0
           export LD_LIBRARY_PATH=/usr/local/Ascend/ascend-toolkit/latest/x86_64-linux/devlib/x86_64:$LD_LIBRARY_PATH
+
+          export LD_LIBRARY_PATH=/usr/local/Ascend/ascend-toolkit/latest/x86_64-linux/devlib/linux/x86_64:$LD_LIBRARY_PATH
 
           soc_version=${{ matrix.soc_version }}
           cann=${{ matrix.cann }}
