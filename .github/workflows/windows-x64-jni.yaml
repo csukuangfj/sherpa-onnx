@@ -48,11 +48,12 @@ jobs:
             -DBUILD_SHARED_LIBS=ON \
             -D SHERPA_ONNX_ENABLE_JNI=ON \
             -DCMAKE_INSTALL_PREFIX=./install \
+            -DSHERPA_ONNX_ENABLE_C_API=OFF \
             -DCMAKE_BUILD_TYPE=Release \
             -DSHERPA_ONNX_ENABLE_WEBSOCKET=OFF \
             -DBUILD_ESPEAK_NG_EXE=OFF \
             -DSHERPA_ONNX_BUILD_C_API_EXAMPLES=OFF  \
-            -DSHERPA_ONNX_ENABLE_BINARY=ON \
+            -DSHERPA_ONNX_ENABLE_BINARY=OFF \
             ..
 
       - name: Build sherpa-onnx for windows
@@ -122,12 +123,12 @@ jobs:
             git push https://csukuangfj:$HF_TOKEN@huggingface.co/csukuangfj/sherpa-onnx-libs main
 
       - name: Release pre-compiled binaries and libs for Windows x64
-        if: (github.repository_owner == 'csukuangfj' || github.repository_owner == 'k2-fsa') && github.event_name == 'push' && contains(github.ref, 'refs/tags/')
+        # if: (github.repository_owner == 'csukuangfj' || github.repository_owner == 'k2-fsa') && github.event_name == 'push' && contains(github.ref, 'refs/tags/')
         uses: svenstaro/upload-release-action@v2
         with:
           file_glob: true
           overwrite: true
           file: sherpa-onnx-*.tar.bz2
-          # repo_name: k2-fsa/sherpa-onnx
-          # repo_token: ${{ secrets.UPLOAD_GH_SHERPA_ONNX_TOKEN }}
-          # tag: v1.12.0
+          repo_name: k2-fsa/sherpa-onnx
+          repo_token: ${{ secrets.UPLOAD_GH_SHERPA_ONNX_TOKEN }}
+          tag: v1.12.18
