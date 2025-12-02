@@ -4,13 +4,7 @@ on:
   push:
     branches:
       - master
-    paths:
-      - '.github/workflows/riscv64-spacemit-linux.yaml'
-      - 'cmake/**'
-      - 'sherpa-onnx/csrc/*'
-      - 'sherpa-onnx/c-api/*'
-      - 'toolchains/riscv64-linux-gnu-spacemit.toolchain.cmake'
-      - 'build-riscv64-linux-gnu-spacemit.sh'
+      - test-riscv
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+*'
 
