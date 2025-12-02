@@ -56,7 +56,7 @@ cp -a $dst $dst_int8
 cp -a $dst $dst_fp16
 
 ls -lh *.onnx
-onnx_model=$(find . -name "*.onnx")
+onnx_model=$(ls *.onnx)
 echo "onnx_model: $onnx_model"
 
 python -m xslim -i $onnx_model -o a.onnx
@@ -84,14 +84,14 @@ tar cjf ${dst}.tar.bz2 $dst
 tar cjf ${dst_int8}.tar.bz2 $dst_int8
 tar cjf ${dst_fp16}.tar.bz2 $dst_fp16
 
-if [ -d hf ]; then
-  mkdir -p hf/piper/mp3/$lang/vits-piper-$lang-$name-$kind
-  for i in $(seq $num_speakers); do
-    i=$((i-1))
-    python3 ./generate_samples-$dst-$i.py
-  done
-  ls -lh hf/piper/mp3/$lang/vits-piper-$lang-$name-$kind
-fi
+# if [ -d hf ]; then
+#   mkdir -p hf/piper/mp3/$lang/vits-piper-$lang-$name-$kind
+#   for i in $(seq $num_speakers); do
+#     i=$((i-1))
+#     python3 ./generate_samples-$dst-$i.py
+#   done
+#   ls -lh hf/piper/mp3/$lang/vits-piper-$lang-$name-$kind
+# fi
 
 mv $dst release
 mv $dst_int8 release

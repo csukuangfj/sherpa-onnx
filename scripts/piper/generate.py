@@ -102,9 +102,9 @@ def get_ar_models():
 
 
                    wget -qq https://huggingface.co/OpenVoiceOS/phoonnx_ar-SA_dii_espeak/resolve/main/dii_ar-SA.onnx
-                   wget -qq https://huggingface.co/OpenVoiceOS/phoonnx_ar-SA_dii_espeak/resolve/main/dii_ar-SA.onnx.json
+                   wget -qq https://huggingface.co/OpenVoiceOS/phoonnx_ar-SA_dii_espeak/resolve/main/dii_ar-SA.piper.json
                    mv dii_ar-SA.onnx ar_JO-SA_dii-high.onnx
-                   mv dii_ar-SA.onnx.json ar_JO-SA_dii-high.onnx.json
+                   mv dii_ar-SA.piper.json ar_JO-SA_dii-high.onnx.json
                    """,
             url="https://huggingface.co/OpenVoiceOS/phoonnx_ar-SA_dii_espeak",
         ),
@@ -130,9 +130,9 @@ def get_ar_models():
 
 
                    wget -qq https://huggingface.co/OpenVoiceOS/phoonnx_ar-SA_miro_espeak_V2/resolve/main/miro_ar-SA.onnx.onnx
-                   wget -qq https://huggingface.co/OpenVoiceOS/phoonnx_ar-SA_miro_espeak_V2/resolve/main/miro_ar-SA.onnx.json
+                   wget -qq https://huggingface.co/OpenVoiceOS/phoonnx_ar-SA_miro_espeak_V2/resolve/main/miro_ar-SA.piper.json
                    mv miro_ar-SA.onnx.onnx ar_JO-SA_miro_V2-high.onnx
-                   mv miro_ar-SA.onnx.json ar_JO-SA_miro_V2-high.onnx.json
+                   mv miro_ar-SA.piper.json ar_JO-SA_miro_V2-high.onnx.json
                    """,
             url="https://huggingface.co/OpenVoiceOS/phoonnx_ar-SA_miro_espeak_V2",
         ),
@@ -1833,10 +1833,6 @@ def get_en_models():
         ),
     ]
 
-    en_us = [
-        PiperModel(name="lessac", kind="medium", sr=22050, ns=1),
-    ]
-
     for m in en_gb:
         m.lang = "en_GB"
         if m.model_name == "":
@@ -1848,8 +1844,6 @@ def get_en_models():
             m.model_name = f"{m.lang}-{m.name}-{m.kind}.onnx"
 
     ans = en_gb + en_us
-
-    ans = en_us
 
     for m in ans:
         m.text = "Friends fell out often because life was changing so fast. The easiest thing in the world was to lose touch with someone."
@@ -2052,45 +2046,45 @@ def get_de_models():
 
 def get_all_models():
     ans = []
-    ans += get_ar_models()
-    ans += get_ca_models()
-    ans += get_cs_models()
-    ans += get_cy_models()
-    ans += get_da_models()
-    ans += get_de_models()
-    ans += get_el_models()
-    ans += get_en_models()
-    ans += get_es_models()
-    ans += get_fa_models()
-    ans += get_fi_models()
-    ans += get_fr_models()
-    ans += get_hi_models()
-    ans += get_id_models()
-    ans += get_hu_models()
-    ans += get_is_models()
-    ans += get_it_models()
-    ans += get_ka_models()
-    ans += get_kk_models()
-    ans += get_lb_models()
-    ans += get_lv_models()
-    ans += get_ml_models()
-    ans += get_ne_models()
-    ans += get_nl_models()
-    ans += get_no_models()
-    ans += get_pl_models()
-    ans += get_pt_models()
-    ans += get_ro_models()
-    ans += get_ru_models()
-    ans += get_sk_models()
-    ans += get_sl_models()
-    ans += get_sr_models()
-    ans += get_sv_models()
-    ans += get_sw_models()
-    ans += get_tr_models()
-    ans += get_uk_models()
-    ans += get_vi_models()
-
-    ans = get_en_models()
+    if True:
+        ans += get_ar_models()
+        ans += get_ca_models()
+        ans += get_cs_models()
+        ans += get_cy_models()
+        ans += get_da_models()
+        ans += get_de_models()
+        ans += get_el_models()
+    else:
+        ans += get_en_models()
+        ans += get_es_models()
+        ans += get_fa_models()
+        ans += get_fi_models()
+        ans += get_fr_models()
+        ans += get_hi_models()
+        ans += get_id_models()
+        ans += get_hu_models()
+        ans += get_is_models()
+        ans += get_it_models()
+        ans += get_ka_models()
+        ans += get_kk_models()
+        ans += get_lb_models()
+        ans += get_lv_models()
+        ans += get_ml_models()
+        ans += get_ne_models()
+        ans += get_nl_models()
+        ans += get_no_models()
+        ans += get_pl_models()
+        ans += get_pt_models()
+        ans += get_ro_models()
+        ans += get_ru_models()
+        ans += get_sk_models()
+        ans += get_sl_models()
+        ans += get_sr_models()
+        ans += get_sv_models()
+        ans += get_sw_models()
+        ans += get_tr_models()
+        ans += get_uk_models()
+        ans += get_vi_models()
 
     for i, m in enumerate(ans):
         m.index = i
