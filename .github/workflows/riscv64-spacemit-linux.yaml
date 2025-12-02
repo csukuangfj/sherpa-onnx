@@ -253,6 +253,7 @@ jobs:
           rm sherpa-onnx-streaming-zipformer-zh-14M-2023-02-23.tar.bz2
 
           qemu-riscv64 ./build-riscv64-linux-gnu-spacemit/bin/sherpa-onnx \
+            --provider=spacemit \
             --tokens=./sherpa-onnx-streaming-zipformer-zh-14M-2023-02-23/tokens.txt \
             --encoder=./sherpa-onnx-streaming-zipformer-zh-14M-2023-02-23/encoder-epoch-99-avg-1.onnx \
             --decoder=./sherpa-onnx-streaming-zipformer-zh-14M-2023-02-23/decoder-epoch-99-avg-1.onnx \
@@ -272,6 +273,7 @@ jobs:
           rm vits-piper-en_US-lessac-medium.tar.bz2
 
           qemu-riscv64 ./build-riscv64-linux-gnu-spacemit/bin/sherpa-onnx-offline-tts \
+            --provider=spacemit \
             --vits-model=./vits-piper-en_US-lessac-medium/en_US-lessac-medium.onnx \
             --vits-data-dir=./vits-piper-en_US-lessac-medium/espeak-ng-data \
             --vits-tokens=./vits-piper-en_US-lessac-medium/tokens.txt \
