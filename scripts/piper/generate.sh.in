@@ -55,6 +55,15 @@ cp -a ./espeak-ng-data $dst/
 cp -a $dst $dst_int8
 cp -a $dst $dst_fp16
 
+ls -lh *.onnx
+onnx_model=$(find . -name "*.onnx")
+echo "onnx_model: $onnx_model"
+
+python -m xslim -i $onnx_model -o a.onnx
+ls -lh *.onnx
+mv -v a.onnx $onnx_model
+ls -lh *.onnx
+
 mv -v *.onnx  $dst/
 
 python3 ./dynamic_quantization.py \

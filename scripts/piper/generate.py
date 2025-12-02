@@ -1833,6 +1833,10 @@ def get_en_models():
         ),
     ]
 
+    en_us = [
+        PiperModel(name="lessac", kind="medium", sr=22050, ns=1),
+    ]
+
     for m in en_gb:
         m.lang = "en_GB"
         if m.model_name == "":
@@ -1844,6 +1848,8 @@ def get_en_models():
             m.model_name = f"{m.lang}-{m.name}-{m.kind}.onnx"
 
     ans = en_gb + en_us
+
+    ans = en_us
 
     for m in ans:
         m.text = "Friends fell out often because life was changing so fast. The easiest thing in the world was to lose touch with someone."
@@ -2084,6 +2090,7 @@ def get_all_models():
     ans += get_uk_models()
     ans += get_vi_models()
 
+    ans = get_en_models()
 
     for i, m in enumerate(ans):
         m.index = i
