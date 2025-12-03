@@ -129,9 +129,9 @@ def get_ar_models():
                    echo "**Important:** You must include this license when redistributing the model or any derivatives.\n" >> README.md
 
 
-                   wget -qq https://huggingface.co/OpenVoiceOS/phoonnx_ar-SA_miro_espeak_V2/resolve/main/miro_ar-SA.onnx.onnx
+                   wget -qq https://huggingface.co/OpenVoiceOS/phoonnx_ar-SA_miro_espeak_V2/resolve/main/miro_ar-SA.onnx
                    wget -qq https://huggingface.co/OpenVoiceOS/phoonnx_ar-SA_miro_espeak_V2/resolve/main/miro_ar-SA.piper.json
-                   mv miro_ar-SA.onnx.onnx ar_JO-SA_miro_V2-high.onnx
+                   mv miro_ar-SA.onnx ar_JO-SA_miro_V2-high.onnx
                    mv miro_ar-SA.piper.json ar_JO-SA_miro_V2-high.onnx.json
                    """,
             url="https://huggingface.co/OpenVoiceOS/phoonnx_ar-SA_miro_espeak_V2",
@@ -2047,15 +2047,14 @@ def get_de_models():
 def get_all_models():
     ans = []
     if True:
-        ans += get_ar_models()
-        ans += get_ca_models()
-        ans += get_cs_models()
-        ans += get_cy_models()
-        ans += get_da_models()
-        ans += get_de_models()
-        ans += get_el_models()
-    else:
-        ans += get_en_models()
+        #  ans += get_ar_models()
+        #  ans += get_ca_models()
+        #  ans += get_cs_models()
+        #  ans += get_cy_models()
+        #  ans += get_da_models()
+        #  ans += get_de_models()
+        #  ans += get_el_models()
+
         ans += get_es_models()
         ans += get_fa_models()
         ans += get_fi_models()
@@ -2065,6 +2064,9 @@ def get_all_models():
         ans += get_hu_models()
         ans += get_is_models()
         ans += get_it_models()
+
+    else:
+
         ans += get_ka_models()
         ans += get_kk_models()
         ans += get_lb_models()
