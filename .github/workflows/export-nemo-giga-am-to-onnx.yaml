@@ -201,7 +201,7 @@ jobs:
           ls -lh *.tar.bz2
 
       - name: Run Transducer v3
-        if: false
+        if: true
         shell: bash
         run: |
           pushd scripts/nemo/GigaAM
@@ -230,7 +230,7 @@ jobs:
           tar cjvf ${d}.tar.bz2 $d
 
       - name: Run Transducer v3 with punctuations
-        if: false
+        if: true
         shell: bash
         run: |
           pushd scripts/nemo/GigaAM
