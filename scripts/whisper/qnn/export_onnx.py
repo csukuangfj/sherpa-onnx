@@ -125,7 +125,8 @@ def modified_self_qkv_attention(
     qk1 = (q * scale) @ (k1 * scale).transpose(-1, -2)  # (1, 6, 1, 1)
 
     #  qk = qk + mask
-    qk.masked_fill_(mask.to(torch.bool), float("-inf"))
+    #  qk.masked_fill_(mask.to(torch.bool), float("-inf"))
+    qk.masked_fill_(mask.to(torch.bool), -1e4)
 
     qk = qk.float()
     qk1 = qk1.float()
