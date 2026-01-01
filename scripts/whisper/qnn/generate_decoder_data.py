@@ -185,10 +185,6 @@ def process(model, tokenizer, w):
 
 @torch.no_grad()
 def main():
-
-    k = features = np.fromfile(f"./en-decoder-iter-00-self_k_0.raw", dtype=np.float32)
-    print(k.shape, k.sum())
-
     model = whisper.load_model("tiny.en")
     model.eval()
     tokenizer = whisper.tokenizer.get_tokenizer(
