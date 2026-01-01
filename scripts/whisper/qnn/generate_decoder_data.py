@@ -32,7 +32,7 @@ class DecoderInput:
     tokens: torch.Tensor
     self_kv_pair: List[Tuple[torch.Tensor, torch.Tensor]]
     cross_kv_pair: List[Tuple[torch.Tensor, torch.Tensor]]
-    offset: torch.Tensor
+    pos_embedding: torch.Tensor
     mask: torch.Tensor
 
     def save_to_file(self, prefix, debug):
@@ -54,14 +54,11 @@ class DecoderInput:
             to_file(v.permute(0, 2, 1), f"{prefix}-cross_v_{i}.raw", debug)
             ans.append(f"{prefix}-cross_v_{i}.raw")
 
-        to_file(self.offset.to(torch.int32), f"{prefix}-offset.raw", debug)
-        ans.append(f"{prefix}-offset.raw")
+        to_file(self.pos_embedding, f"{prefix}-pos-embedding.raw", debug)
+        ans.append(f"{prefix}-pos-embedding.raw")
 
         to_file(self.mask.to(torch.int32), f"{prefix}-mask.raw", debug)
         ans.append(f"{prefix}-mask.raw")
-        import sys
-
-        sys.exit(0)
 
         return ans
 
@@ -93,6 +90,7 @@ def process(model, tokenizer, w):
 
     offset = torch.zeros(1, dtype=torch.int64).to(mel.device)
     mask = causal_mask_1d(offset.item(), model.dims.n_text_ctx)
+    pos_embedding = decoder.textDecoder.positional_embedding[offset].unsqueeze(0)
 
     tokens = torch.tensor([[tokenizer.sot]])
 
@@ -101,7 +99,7 @@ def process(model, tokenizer, w):
             tokens=tokens.clone(),
             self_kv_pair=deepcopy_pair(self_kv_pair),
             cross_kv_pair=deepcopy_pair(cross_kv_pair),
-            offset=offset.clone(),
+            pos_embedding=pos_embedding.clone(),
             mask=mask.clone(),
         )
     )
@@ -110,7 +108,7 @@ def process(model, tokenizer, w):
         tokens,
         self_kv_pair,
         cross_kv_pair,
-        offset,
+        pos_embedding,
         mask,
     )
     for (k_cache, v_cache), (k, v) in zip(self_kv_pair, this_self_kv_pair):
@@ -123,10 +121,11 @@ def process(model, tokenizer, w):
     offset += 1
 
     mask = causal_mask_1d(offset.item(), model.dims.n_text_ctx)
+    pos_embedding = decoder.textDecoder.positional_embedding[offset].unsqueeze(0)
 
     tokens = torch.tensor([[tokenizer.no_timestamps]])
     logits, this_self_kv_pair = decoder(
-        tokens, self_kv_pair, cross_kv_pair, offset, mask
+        tokens, self_kv_pair, cross_kv_pair, pos_embedding, mask
     )
 
     ans.append(
@@ -134,7 +133,7 @@ def process(model, tokenizer, w):
             tokens=tokens.clone(),
             self_kv_pair=deepcopy_pair(self_kv_pair),
             cross_kv_pair=deepcopy_pair(cross_kv_pair),
-            offset=offset.clone(),
+            pos_embedding=pos_embedding.clone(),
             mask=mask.clone(),
         )
     )
@@ -156,9 +155,10 @@ def process(model, tokenizer, w):
 
         offset += 1
         mask = causal_mask_1d(offset.item(), model.dims.n_text_ctx)
+        pos_embedding = decoder.textDecoder.positional_embedding[offset].unsqueeze(0)
 
         logits, this_self_kv_pair = decoder(
-            tokens, self_kv_pair, cross_kv_pair, offset, mask
+            tokens, self_kv_pair, cross_kv_pair, pos_embedding, mask
         )
 
         ans.append(
@@ -166,7 +166,7 @@ def process(model, tokenizer, w):
                 tokens=tokens.clone(),
                 self_kv_pair=deepcopy_pair(self_kv_pair),
                 cross_kv_pair=deepcopy_pair(cross_kv_pair),
-                offset=offset.clone(),
+                pos_embedding=pos_embedding.clone(),
                 mask=mask.clone(),
             )
         )

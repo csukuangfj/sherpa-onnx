@@ -68,6 +68,11 @@ def main():
 
     mask = causal_mask_1d(offset.item(), model.dims.n_text_ctx)
     pos_embedding = decoder.textDecoder.positional_embedding[offset].unsqueeze(0)
+    print(
+        pos_embedding.sum(),
+        pos_embedding.shape,
+        decoder.textDecoder.positional_embedding.shape,
+    )
 
     tokens = torch.tensor([[tokenizer.sot]])
     logits, this_self_kv_pair = decoder(
