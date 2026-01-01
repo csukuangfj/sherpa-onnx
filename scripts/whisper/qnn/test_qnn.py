@@ -41,6 +41,11 @@ def main():
 
     decoder = TextDecoderTensorCache(model.decoder, model.dims.n_text_ctx)
 
+    positional_embedding = np.fromfile("./pos_embedding.bin", dtype=np.float32).reshape(
+        448, 384
+    )
+    positional_embedding = torch.from_numpy(positional_embedding)
+
     self_kv_pair = []
     for i in range(model.dims.n_text_layer):
         k = torch.zeros(n_audio, model.dims.n_text_ctx, model.dims.n_text_state)
@@ -48,6 +53,7 @@ def main():
         self_kv_pair.append((k, v))
 
     offset = torch.zeros(1, dtype=torch.int64).to(mel.device)
+    pos_embedding = positional_embedding[offset].unsqueeze(0)
 
     mask = causal_mask_1d(offset.item(), model.dims.n_text_ctx)
 
@@ -56,7 +62,7 @@ def main():
         tokens,
         self_kv_pair,
         cross_kv_pair,
-        offset,
+        pos_embedding,
         mask,
     )
     for (k_cache, v_cache), (k, v) in zip(self_kv_pair, this_self_kv_pair):
@@ -66,10 +72,11 @@ def main():
     offset += 1
 
     mask = causal_mask_1d(offset.item(), model.dims.n_text_ctx)
+    pos_embedding = positional_embedding[offset].unsqueeze(0)
 
     tokens = torch.tensor([[tokenizer.no_timestamps]])
     logits, this_self_kv_pair = decoder(
-        tokens, self_kv_pair, cross_kv_pair, offset, mask
+        tokens, self_kv_pair, cross_kv_pair, pos_embedding, mask
     )
 
     for (k_cache, v_cache), (k, v) in zip(self_kv_pair, this_self_kv_pair):
@@ -89,9 +96,10 @@ def main():
 
         offset += 1
         mask = causal_mask_1d(offset.item(), model.dims.n_text_ctx)
+        pos_embedding = positional_embedding[offset].unsqueeze(0)
 
         logits, this_self_kv_pair = decoder(
-            tokens, self_kv_pair, cross_kv_pair, offset, mask
+            tokens, self_kv_pair, cross_kv_pair, pos_embedding, mask
         )
 
         for (k_cache, v_cache), (k, v) in zip(self_kv_pair, this_self_kv_pair):

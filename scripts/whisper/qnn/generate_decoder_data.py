@@ -59,6 +59,9 @@ class DecoderInput:
 
         to_file(self.mask.to(torch.int32), f"{prefix}-mask.raw", debug)
         ans.append(f"{prefix}-mask.raw")
+        import sys
+
+        sys.exit(0)
 
         return ans
 
@@ -68,6 +71,8 @@ def process(model, tokenizer, w):
 
     encoder = AudioEncoderTensorCache(model.encoder, model.decoder)
     cross_kv_pair = encoder(mel)
+    for k, v in cross_kv_pair:
+        print(k.shape, v.shape, k.sum(), v.sum())
 
     # cross_kv_pair[0][0]: (1, 1500, 384)
     # cross_kv_pair[0][1]: (1, 1500, 384)
@@ -109,8 +114,11 @@ def process(model, tokenizer, w):
         mask,
     )
     for (k_cache, v_cache), (k, v) in zip(self_kv_pair, this_self_kv_pair):
+        print(k.sum(), v.sum())
         k_cache[:, offset : offset + 1] = k
         v_cache[:, offset : offset + 1] = v
+
+    print("logits", logits.sum(), logits.shape, logits.argmax(dim=-1))
 
     offset += 1
 
@@ -177,6 +185,10 @@ def process(model, tokenizer, w):
 
 @torch.no_grad()
 def main():
+
+    k = features = np.fromfile(f"./en-decoder-iter-00-self_k_0.raw", dtype=np.float32)
+    print(k.shape, k.sum())
+
     model = whisper.load_model("tiny.en")
     model.eval()
     tokenizer = whisper.tokenizer.get_tokenizer(

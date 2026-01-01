@@ -276,7 +276,6 @@ class ResidualAttentionBlockTensorCache(nn.Module):
         self_v_cache: Tensor,
         cross_k: Tensor,
         cross_v: Tensor,
-        offset: Tensor,
         mask: Tensor,
     ):
         self_attn_x, self_k, self_v = self.attn(
@@ -311,7 +310,7 @@ class TextDecoderTensorCache(nn.Module):
         tokens: Tensor,
         self_kv_pair: List[Tuple[Tensor, Tensor]],
         cross_kv_pair: List[Tuple[Tensor, Tensor]],
-        offset: Tensor,
+        pos_embedding: Tensor,
         mask: Tensor,
     ) -> Tuple[Tensor, List[Tuple[Tensor, Tensor]]]:
         """
@@ -324,9 +323,16 @@ class TextDecoderTensorCache(nn.Module):
           - this_self_kv_pair
         """
         assert tokens.shape == (1, 1), tokens.shape
-        x = self.textDecoder.token_embedding(
-            tokens
-        ) + self.textDecoder.positional_embedding[offset].unsqueeze(0)
+        x = self.textDecoder.token_embedding(tokens)
+        print(
+            "x.shape",
+            x.shape,
+            self.textDecoder.positional_embedding[0].unsqueeze(0).unsqueeze(0).shape,
+            pos_embedding.shape,
+        )
+
+        #  x = x + self.textDecoder.positional_embedding[0].unsqueeze(0).unsqueeze(0)
+        x = x + pos_embedding
 
         i = 0
         this_self_kv_pair = []
@@ -342,7 +348,6 @@ class TextDecoderTensorCache(nn.Module):
                 self_v_cache=self_v_cache,
                 cross_k=cross_kv_pair[i][0],
                 cross_v=cross_kv_pair[i][1],
-                offset=offset,
                 #  mask=self.textDecoder.mask,
                 mask=mask,
             )
@@ -616,12 +621,16 @@ def main():
 
     offset = torch.zeros(1, dtype=torch.int64)
     mask = causal_mask_1d(offset.item(), model.dims.n_text_ctx)
+    pos_embedding = decoder.textDecoder.positional_embedding[offset].unsqueeze(0)
+
+    # (448, 384), float32
+    decoder.textDecoder.positional_embedding.numpy().tofile("pos_embedding.bin")
 
     logits, this_self_kv_pair = decoder(
         tokens,
         self_kv_pair,
         cross_kv_pair,
-        offset,
+        pos_embedding,
         mask,
     )
 
@@ -643,7 +652,7 @@ def main():
         v = f"{name}-cross_v_{i}"
         input_names.append(k)
         input_names.append(v)
-    input_names.append(f"{name}-offset")
+    input_names.append(f"{name}-pos-embedding")
     input_names.append(f"{name}-mask")
 
     output_names = [f"{name}-logits"]
@@ -660,7 +669,7 @@ def main():
             tokens,
             self_kv_pair,
             cross_kv_pair,
-            offset,
+            pos_embedding,
             mask,
         ),
         decoder_filename,
