@@ -22,7 +22,7 @@ class OfflineCtTransformerModel {
       const OfflinePunctuationModelConfig &config);
 
   template <typename Manager>
-  OfflineCtTransformerModel(AAssetManager *mgr,
+  OfflineCtTransformerModel(Manager *mgr,
                             const OfflinePunctuationModelConfig &config);
 
   ~OfflineCtTransformerModel();
