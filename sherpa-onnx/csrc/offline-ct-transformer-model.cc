@@ -174,6 +174,7 @@ OfflineCtTransformerModel::GetModelMetadata() const {
 #if __ANDROID_API__ >= 9
 template OfflineCtTransformerModel::OfflineCtTransformerModel(
     AAssetManager *mgr, const OfflinePunctuationModelConfig &config);
+#endif
 
 #if __OHOS__
 template OfflineCtTransformerModel::OfflineCtTransformerModel(
