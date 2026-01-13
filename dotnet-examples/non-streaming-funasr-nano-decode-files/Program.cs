@@ -3,7 +3,7 @@
 // This file shows how to use a FunASR Nano model for speech recognition.
 //
 // You can find the model doc at
-// https://k2-fsa.github.io/sherpa/onnx/funasr-nano.html
+// https://k2-fsa.github.io/sherpa/onnx/funasr-nano/index.html
 using SherpaOnnx;
 
 class NonStreamingFunAsrNano

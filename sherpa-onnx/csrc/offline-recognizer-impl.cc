@@ -11,7 +11,6 @@
 #include <vector>
 
 #if __ANDROID_API__ >= 9
-
 #include "android/asset_manager.h"
 #include "android/asset_manager_jni.h"
 #endif

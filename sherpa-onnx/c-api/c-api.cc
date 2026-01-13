@@ -2005,7 +2005,7 @@ struct SherpaOnnxOfflinePunctuation {
   std::unique_ptr<sherpa_onnx::OfflinePunctuation> impl;
 };
 
-const SherpaOnnxOfflinePunctuation *SherpaOnnxCreateOfflinePunctuation(
+static sherpa_onnx::OfflinePunctuationConfig GetOfflinePunctuationConfig(
     const SherpaOnnxOfflinePunctuationConfig *config) {
   sherpa_onnx::OfflinePunctuationConfig c;
   c.model.ct_transformer = SHERPA_ONNX_OR(config->model.ct_transformer, "");
@@ -2017,8 +2017,19 @@ const SherpaOnnxOfflinePunctuation *SherpaOnnxCreateOfflinePunctuation(
   }
 
   if (c.model.debug) {
+#if __OHOS__
+    SHERPA_ONNX_LOGE("%{public}s\n", c.ToString().c_str());
+#else
     SHERPA_ONNX_LOGE("%s\n", c.ToString().c_str());
+#endif
   }
+
+  return c;
+}
+
+const SherpaOnnxOfflinePunctuation *SherpaOnnxCreateOfflinePunctuation(
+    const SherpaOnnxOfflinePunctuationConfig *config) {
+  sherpa_onnx::OfflinePunctuationConfig c = GetOfflinePunctuationConfig(config);
 
   if (!c.Validate()) {
     SHERPA_ONNX_LOGE("Errors in config");
@@ -2509,18 +2520,43 @@ const SherpaOnnxOfflineSpeechDenoiser *
 SherpaOnnxCreateOfflineSpeechDenoiserOHOS(
     const SherpaOnnxOfflineSpeechDenoiserConfig *config,
     NativeResourceManager *mgr) {
+  if (mgr == nullptr) {
+    return SherpaOnnxCreateOfflineSpeechDenoiser(config);
+  }
+
   auto sd_config = GetOfflineSpeechDenoiserConfig(config);
 
   SherpaOnnxOfflineSpeechDenoiser *sd = new SherpaOnnxOfflineSpeechDenoiser;
 
-  sd->impl = std::make_unique<sherpa_onnx::OfflineSpeechDenoiser>(sd_config);
+  sd->impl =
+      std::make_unique<sherpa_onnx::OfflineSpeechDenoiser>(mgr, sd_config);
 
   return sd;
+}
+
+SHERPA_ONNX_API const SherpaOnnxOfflinePunctuation *
+SherpaOnnxCreateOfflinePunctuationOHOS(
+    const SherpaOnnxOfflinePunctuationConfig *config,
+    NativeResourceManager *mgr) {
+  if (mgr == nullptr) {
+    return SherpaOnnxCreateOfflinePunctuation(config);
+  }
+
+  sherpa_onnx::OfflinePunctuationConfig c = GetOfflinePunctuationConfig(config);
+
+  SherpaOnnxOfflinePunctuation *punct = new SherpaOnnxOfflinePunctuation;
+  punct->impl = std::make_unique<sherpa_onnx::OfflinePunctuation>(mgr, c);
+
+  return punct;
 }
 
 const SherpaOnnxOnlineRecognizer *SherpaOnnxCreateOnlineRecognizerOHOS(
     const SherpaOnnxOnlineRecognizerConfig *config,
     NativeResourceManager *mgr) {
+  if (mgr == nullptr) {
+    return SherpaOnnxCreateOnlineRecognizer(config);
+  }
+
   sherpa_onnx::OnlineRecognizerConfig recognizer_config =
       GetOnlineRecognizerConfig(config);
 
