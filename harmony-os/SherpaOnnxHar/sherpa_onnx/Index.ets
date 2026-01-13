@@ -66,3 +66,11 @@ export { KeywordSpotterConfig,
   KeywordSpotterResult,
   KeywordSpotter,
 } from './src/main/ets/components/KeywordSpotting';
+
+export { OfflinePunctuation,
+  OfflinePunctuationModelConfig,
+} from './src/main/ets/components/OfflinePunctuation';
+
+export { OnlinePunctuation,
+  OnlinePunctuationModelConfig,
+} from './src/main/ets/components/OnlinePunctuation';
