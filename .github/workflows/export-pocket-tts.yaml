@@ -51,10 +51,13 @@ jobs:
           echo "Download model files from https://huggingface.co/KevinAHM/pocket-tts-onnx"
 
           curl -SsL -o lm_flow.onnx https://huggingface.co/KevinAHM/pocket-tts-onnx/resolve/main/onnx/flow_lm_flow.onnx
+          curl -SsL -o lm_flow.int8.onnx https://huggingface.co/KevinAHM/pocket-tts-onnx/resolve/main/onnx/flow_lm_flow_int8.onnx
           curl -SsL -O https://huggingface.co/KevinAHM/pocket-tts-onnx/resolve/main/onnx/LICENSE
           curl -SsL -o lm_main.onnx https://huggingface.co/KevinAHM/pocket-tts-onnx/resolve/main/onnx/flow_lm_main.onnx
-          curl -SsL -o decoder.onnx https://huggingface.co/KevinAHM/pocket-tts-onnx/resolve/main/onnx/mimi_decoder.onnx
+          curl -SsL -o lm_main.int8.onnx https://huggingface.co/KevinAHM/pocket-tts-onnx/resolve/main/onnx/flow_lm_main_int8.onnx
           curl -SsL -o encoder.onnx https://huggingface.co/KevinAHM/pocket-tts-onnx/resolve/main/onnx/mimi_encoder.onnx
+          curl -SsL -o decoder.onnx https://huggingface.co/KevinAHM/pocket-tts-onnx/resolve/main/onnx/mimi_decoder.onnx
+          curl -SsL -o decoder.int8.onnx https://huggingface.co/KevinAHM/pocket-tts-onnx/resolve/main/onnx/mimi_decoder_int8.onnx
           curl -SsL -O https://huggingface.co/KevinAHM/pocket-tts-onnx/resolve/main/onnx/text_conditioner.onnx
           curl -SsL -O https://huggingface.co/KevinAHM/pocket-tts-onnx/resolve/main/tokenizer.model
 
@@ -99,6 +102,33 @@ jobs:
           src=scripts/pocket-tts
 
           cp -v $src/*.onnx $d
+          rm $d/*int8.onnx
+
+          cp -v $src/README.md $d
+          cp -v $src/LICENSE $d
+          cp -v $src/*.json $d
+          cp -v $src/*.wav $d/test_wavs
+
+          ls -lh $d/
+          tar cjfv $d.tar.bz2 $d
+
+          ls -lh $d.tar.bz2
+
+      - name: Collect results (int8)
+        shell: bash
+        run: |
+          d=sherpa-onnx-pocket-tts-int8-2026-01-26
+
+          mkdir -p $d
+          mkdir -p $d/test_wavs
+
+          src=scripts/pocket-tts
+
+          cp -v $src/*.onnx $d
+          rm $d/lm_flow.onnx
+          rm $d/lm_main.onnx
+          rm $d/decoder.onnx
+
           cp -v $src/README.md $d
           cp -v $src/LICENSE $d
           cp -v $src/*.json $d
@@ -143,6 +173,7 @@ jobs:
 
             dirs=(
               sherpa-onnx-pocket-tts-2026-01-26
+              sherpa-onnx-pocket-tts-int8-2026-01-26
             )
 
             export GIT_LFS_SKIP_SMUDGE=1
