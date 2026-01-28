@@ -3,7 +3,7 @@ name: export-matcha-zh-en-to-onnx
 on:
   push:
     branches:
-      - matcha-zh-en
+      - fix-matcha-tts-zh-en
 
   workflow_dispatch:
 
@@ -52,16 +52,17 @@ jobs:
 
           curl -SL -O https://github.com/k2-fsa/sherpa-onnx/releases/download/vocoder-models/vocos-16khz-univ.onnx
 
-          git clone https://csukuangfj:$HF_TOKEN@huggingface.co/csukuangfj/sherpa-onnx-tts-samples hf
+          git clone https://csukuangfj2:$HF_TOKEN@huggingface.co/csukuangfj2/sherpa-onnx-tts-samples hf
           mkdir -p ./hf/matcha/icefall-zh-en/mp3
 
           ./generate_samples.py
 
           pushd hf
           git pull
+          git lfs track "*.mp3"
           git add .
           git commit -m 'add samples for matcha tts zh en'
-          git push https://csukuangfj:$HF_TOKEN@huggingface.co/csukuangfj/sherpa-onnx-tts-samples main
+          git push https://csukuangfj2:$HF_TOKEN@huggingface.co/csukuangfj2/sherpa-onnx-tts-samples main
           popd
           rm -rf hf
 
@@ -121,7 +122,7 @@ jobs:
             export GIT_LFS_SKIP_SMUDGE=1
             export GIT_CLONE_PROTECTION_ACTIVE=false
 
-            git clone https://csukuangfj:$HF_TOKEN@huggingface.co/csukuangfj/matcha-icefall-zh-en huggingface
+            git clone https://csukuangfj2:$HF_TOKEN@huggingface.co/csukuangfj2/matcha-icefall-zh-en huggingface
             cd huggingface
             rm -rf ./*
             git fetch
@@ -140,7 +141,7 @@ jobs:
             git status
 
             git commit -m "add models"
-            git push https://csukuangfj:$HF_TOKEN@huggingface.co/csukuangfj/matcha-icefall-zh-en main || true
+            git push https://csukuangfj2:$HF_TOKEN@huggingface.co/csukuangfj2/matcha-icefall-zh-en main || true
 
       - name: Release
         if: github.repository_owner == 'csukuangfj'
