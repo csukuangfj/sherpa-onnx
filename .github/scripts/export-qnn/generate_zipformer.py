@@ -20,7 +20,8 @@ class Config:
 def main():
 
     #  input_in_seconds = ["5", "8", "10", "13", "15", "18", "20", "23", "25", "28", "30"]
-    input_in_seconds = ["1"]
+    #  input_in_seconds = ["1", "2", "3", "4", "6", "7", "9"]
+    input_in_seconds = ["1", "2", "3"]
     model_name_list = ["20250703", "20251222"]
 
     configs = []
@@ -29,11 +30,6 @@ def main():
         for num_seconds, model_name in itertools.product(
             input_in_seconds, model_name_list
         ):
-            if model_name == "20251222":
-                if num_seconds not in ["5"]:
-                    # TODO(fangjun): We only upload model-5-seconds.onnx right now
-                    continue
-
             configs.append(
                 Config(
                     soc=name,
