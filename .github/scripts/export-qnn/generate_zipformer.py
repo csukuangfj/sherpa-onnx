@@ -21,7 +21,8 @@ def main():
 
     #  input_in_seconds = ["5", "8", "10", "13", "15", "18", "20", "23", "25", "28", "30"]
     #  input_in_seconds = ["1", "2", "3", "4", "6", "7", "9"]
-    input_in_seconds = ["1", "2", "3"]
+    #  input_in_seconds = ["1", "2", "3"]
+    input_in_seconds = ["4", "6", "7", "8", "9", "10"]
     model_name_list = ["20250703", "20251222"]
 
     configs = []
