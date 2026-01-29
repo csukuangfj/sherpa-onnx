@@ -239,7 +239,9 @@ jobs:
           echo -e "0.raw\n1.raw\n8k.raw" > input_list.txt
 
 
-          curl -SL -O https://huggingface.co/csukuangfj2/sherpa-onnx-zipformer-ctc-zh-2025-07-03-source-models /resolve/main/model-$t-seconds.onnx
+          curl -SL -O https://huggingface.co/csukuangfj2/sherpa-onnx-zipformer-ctc-zh-2025-07-03-source-models/resolve/main/model-$t-seconds.onnx
+
+          ls -lh *.onnx
 
           python3 ../scripts/pyannote/segmentation/show-onnx.py --filename ./model-$t-seconds.onnx
 
@@ -379,6 +381,7 @@ jobs:
           echo -e "0.raw\n1.raw\n8k.raw" > input_list.txt
 
           curl -SL -O https://huggingface.co/csukuangfj2/2025-12-22/resolve/main/zipformer-ctc-models/model-$t-seconds.onnx
+          ls -lh *.onnx
 
           python3 ../scripts/pyannote/segmentation/show-onnx.py --filename ./model-$t-seconds.onnx
 
