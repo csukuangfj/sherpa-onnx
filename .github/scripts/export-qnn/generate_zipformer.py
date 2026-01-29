@@ -19,7 +19,8 @@ class Config:
 
 def main():
 
-    input_in_seconds = ["5", "8", "10", "13", "15", "18", "20", "23", "25", "28", "30"]
+    #  input_in_seconds = ["5", "8", "10", "13", "15", "18", "20", "23", "25", "28", "30"]
+    input_in_seconds = ["1"]
     model_name_list = ["20250703", "20251222"]
 
     configs = []
