@@ -1,9 +1,8 @@
 function(sherpa_onnx_add_rpath target rpath)
-  if(NOT WIN32)
-    target_link_options(${target} PRIVATE
-      "-Wl,-rpath,${rpath}"
-    )
-  endif()
+  target_link_options(${target} PRIVATE
+    "-Wl,-rpath,${rpath}"
+     $<$<NOT:WIN32>:-Wl,-rpath,${rpath}>
+  )
 endfunction()
 
 include_directories(${PROJECT_SOURCE_DIR})
