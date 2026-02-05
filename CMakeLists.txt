@@ -143,6 +143,14 @@ if(NOT WIN32)
   set(CMAKE_BUILD_RPATH ${SHERPA_ONNX_RPATH_ORIGIN})
 endif()
 
+if(WIN32)
+  # Remove any Linux/macOS specific linker flags that slipped in
+  foreach(flag IN ITEMS ${CMAKE_EXE_LINKER_FLAGS} ${CMAKE_SHARED_LINKER_FLAGS} ${CMAKE_MODULE_LINKER_FLAGS})
+    message(STATUS "${flag}, ${$flag}")
+    string(REPLACE "-Wl,-rpath,$ORIGIN" "" flag "${flag}")
+  endforeach()
+endif()
+
 if(NOT CMAKE_BUILD_TYPE)
   message(STATUS "No CMAKE_BUILD_TYPE given, default to Release")
   set(CMAKE_BUILD_TYPE Release)
