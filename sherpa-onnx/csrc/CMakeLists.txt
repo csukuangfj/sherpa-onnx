@@ -319,7 +319,8 @@ add_library(sherpa-onnx-core STATIC ${sources})
 if(WIN32 AND SHERPA_ONNX_LINK_D3D)
     target_link_libraries(sherpa-onnx-core dxguid.lib d3d12.lib dxgi.lib dxcore.lib)
 endif()
-target_compile_definitions(sherpa-onnx-core INTERFACE "LIBESPEAK_NG_EXPORT=1")
+
+
 
 
 if(TARGET directml)

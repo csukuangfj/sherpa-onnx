@@ -8,6 +8,10 @@ if(BUILD_SHARED_LIBS)
   target_compile_definitions(sherpa-onnx-c-api PUBLIC SHERPA_ONNX_BUILD_MAIN_LIB=1)
 endif()
 
+if(SHERPA_ONNX_ENABLE_TTS)
+  target_compile_definitions(sherpa-onnx-c-api PRIVATE "LIBESPEAK_NG_EXPORT=1")
+endif()
+
 add_library(sherpa-onnx-cxx-api cxx-api.cc)
 target_link_libraries(sherpa-onnx-cxx-api sherpa-onnx-c-api)
 target_include_directories(sherpa-onnx-cxx-api PUBLIC ${PROJECT_SOURCE_DIR})
