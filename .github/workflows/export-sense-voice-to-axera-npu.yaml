@@ -1,0 +1,100 @@
+name: export-sense-voice-to-axera-npu
+
+on:
+  push:
+    branches:
+      - export-sense-voice-axera-npu
+  workflow_dispatch:
+
+concurrency:
+  group: export-sense-voice-to-axera-npu-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  export-sense-voice-to-axera-npu:
+    if: github.repository_owner == 'k2-fsa' || github.repository_owner == 'csukuangfj'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        python-version: ["3.10"]
+        platform: ["ax630c"]
+        # input_in_seconds: ["5", "10", "15", "20", "25", "30"]
+        input_in_seconds: ["5"]
+        # framework: ["FunASR", "WSYue-ASR"]
+        framework: ["FunASR"]
+
+    container:
+      image: ghcr.io/csukuangfj/axera-pulsar2:4.2
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run
+        shell: bash
+        run: |
+          which pulsar2
+          pulsar2 version
+
+      - name: Install Python dependencies
+        shell: bash
+        run: |
+          python3 -m pip install --upgrade \
+            pip \
+            librosa \
+            soundfile \
+            sentencepiece \
+            kaldi_native_fbank
+
+      - name: Run SenseVoice from FunAsr
+        if: matrix.framework == 'FunASR'
+        shell: bash
+        run: |
+          cd scripts/sense-voice/rknn
+
+          wget https://hf-mirror.com/FunAudioLLM/SenseVoiceSmall/resolve/main/am.mvn
+          wget https://hf-mirror.com/FunAudioLLM/SenseVoiceSmall/resolve/main/model.pt
+          wget https://hf-mirror.com/FunAudioLLM/SenseVoiceSmall/resolve/main/chn_jpn_yue_eng_ko_spectok.bpe.model
+
+          wget https://huggingface.co/csukuangfj/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17/resolve/main/test_wavs/en.wav
+          wget https://huggingface.co/csukuangfj/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17/resolve/main/test_wavs/ja.wav
+          wget https://huggingface.co/csukuangfj/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17/resolve/main/test_wavs/ko.wav
+          wget https://huggingface.co/csukuangfj/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17/resolve/main/test_wavs/yue.wav
+          wget https://huggingface.co/csukuangfj/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17/resolve/main/test_wavs/zh.wav
+
+          rm -f README.md || true
+
+          wget https://huggingface.co/csukuangfj/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17/resolve/main/README.md
+          wget https://huggingface.co/csukuangfj/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17/resolve/main/LICENSE
+
+          echo "export to onnx"
+          t=${{ matrix.input_in_seconds }}
+
+          echo "----$t---"
+          python3 ./export-onnx.py --input-len-in-seconds $t
+
+          ls -lh *.onnx
+
+      - name: Setup tmate session
+        if: true
+        uses: mxschmitt/action-tmate@v3
+
+      - name: Run
+        shell: bash
+        run: |
+          which pulsar2
+          pulsar2 version
+
+
+# root@a00efb2aff70:/__w/sherpa-onnx/sherpa-onnx# pip list | grep torch
+# torch                    2.6.0+cu126
+# torchvision              0.21.0+cu126
+# root@a00efb2aff70:/__w/sherpa-onnx/sherpa-onnx# pip list | grep onnx
+# onnx                     1.17.0
+# onnx_graphsurgeon        0.5.6
+# onnxcli                  0.2.1
+# onnxruntime              1.21.0
+# onnxscript               0.2.2
+# onnxslim                 0.1.48
