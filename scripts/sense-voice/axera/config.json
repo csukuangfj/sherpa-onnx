@@ -1,0 +1,48 @@
+{
+    "model_type": "ONNX",
+    "npu_mode": "NPU1",
+    "target_hardware": "AX620E",
+    "quant": {
+      "input_configs": [
+        {
+          "tensor_name": "x",
+          "calibration_dataset": "./features.tar.gz",
+          "calibration_format": "Binary",
+          "calibration_size": -1
+        },
+        {
+          "tensor_name": "prompt",
+          "calibration_dataset": "./prompt.tar.gz",
+          "calibration_format": "Binary",
+          "calibration_size": -1
+        },
+      ],
+      "layer_configs": [
+          {
+          "start_tensor_names": ["DEFAULT"],
+          "end_tensor_names": ["DEFAULT"],
+          "data_type": "U16"
+          }
+      ],
+      "calibration_method": "MinMax",
+      "enable_smooth_quant": true,
+      "conv_bias_data_type": "FP32",
+      "disable_auto_refine_scale": true,
+      "precision_analysis": true,
+      "precision_analysis_method": "EndToEnd",
+      "transformer_opt_level": 1
+    },
+    "input_processors": [
+      {
+        "tensor_name": "x",
+        "src_dtype": "FP32"
+      },
+      {
+        "tensor_name": "prompt",
+        "src_dtype": "S32"
+      },
+    ],
+    "compiler": {
+      "check": 0
+    }
+}

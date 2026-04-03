@@ -37,6 +37,10 @@ jobs:
         run: |
           which pulsar2
           pulsar2 version
+          pulsar2 build -h
+
+      - name: Free Disk Space
+        uses: jlumbroso/free-disk-space@v1.3.1
 
       - name: Install Python dependencies
         shell: bash
@@ -48,26 +52,35 @@ jobs:
             sentencepiece \
             kaldi_native_fbank
 
+      - name: Setup tmate session
+        if: false
+        uses: mxschmitt/action-tmate@v3
+
       - name: Run SenseVoice from FunAsr
         if: matrix.framework == 'FunASR'
         shell: bash
         run: |
+          export OMP_NUM_THREADS=1
+          export MKL_NUM_THREADS=1
+          export NUMEXPR_NUM_THREADS=1
+          export OPENBLAS_NUM_THREADS=1
+
           cd scripts/sense-voice/rknn
 
-          wget https://hf-mirror.com/FunAudioLLM/SenseVoiceSmall/resolve/main/am.mvn
-          wget https://hf-mirror.com/FunAudioLLM/SenseVoiceSmall/resolve/main/model.pt
-          wget https://hf-mirror.com/FunAudioLLM/SenseVoiceSmall/resolve/main/chn_jpn_yue_eng_ko_spectok.bpe.model
+          wget -q https://hf-mirror.com/FunAudioLLM/SenseVoiceSmall/resolve/main/am.mvn
+          wget -q https://hf-mirror.com/FunAudioLLM/SenseVoiceSmall/resolve/main/model.pt
+          wget -q https://hf-mirror.com/FunAudioLLM/SenseVoiceSmall/resolve/main/chn_jpn_yue_eng_ko_spectok.bpe.model
 
-          wget https://huggingface.co/csukuangfj/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17/resolve/main/test_wavs/en.wav
-          wget https://huggingface.co/csukuangfj/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17/resolve/main/test_wavs/ja.wav
-          wget https://huggingface.co/csukuangfj/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17/resolve/main/test_wavs/ko.wav
-          wget https://huggingface.co/csukuangfj/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17/resolve/main/test_wavs/yue.wav
-          wget https://huggingface.co/csukuangfj/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17/resolve/main/test_wavs/zh.wav
+          wget -q https://huggingface.co/csukuangfj/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17/resolve/main/test_wavs/en.wav
+          wget -q https://huggingface.co/csukuangfj/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17/resolve/main/test_wavs/ja.wav
+          wget -q https://huggingface.co/csukuangfj/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17/resolve/main/test_wavs/ko.wav
+          wget -q https://huggingface.co/csukuangfj/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17/resolve/main/test_wavs/yue.wav
+          wget -q https://huggingface.co/csukuangfj/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17/resolve/main/test_wavs/zh.wav
 
           rm -f README.md || true
 
-          wget https://huggingface.co/csukuangfj/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17/resolve/main/README.md
-          wget https://huggingface.co/csukuangfj/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17/resolve/main/LICENSE
+          wget -q https://huggingface.co/csukuangfj/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17/resolve/main/README.md
+          wget -q https://huggingface.co/csukuangfj/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17/resolve/main/LICENSE
 
           echo "export to onnx"
           t=${{ matrix.input_in_seconds }}
@@ -77,15 +90,34 @@ jobs:
 
           ls -lh *.onnx
 
-      - name: Setup tmate session
-        if: true
-        uses: mxschmitt/action-tmate@v3
+          cd ../axera
+          mv ../rknn/*.onnx ./
+          mv ../rknn/*.wav ./
+          mv ../rknn/tokens.txt ./
 
-      - name: Run
-        shell: bash
-        run: |
-          which pulsar2
-          pulsar2 version
+          num_frames=$(python3 -c "print(int($t*100 / 6 + 0.5))")
+          ./generate.sh $num_frames
+
+          ls -lh
+
+          mkdir -p axmodel
+          taskset 0x1 pulsar2 build --input ./model-$t-seconds.onnx --config config.json --output_dir ./axmodel --output_name model.axmodel
+
+          ls -lh
+          echo "---"
+
+          find . -name "*model*"
+
+          ls -lh */
+
+          echo "collect results"
+
+          d=sherpa-onnx-axera-ax620e-$t-seconds-sense-voice-zh-en-ja-ko-yue-2024-07-17
+          mkdir -p $d
+
+      - name: Setup tmate session
+        if: false
+        uses: mxschmitt/action-tmate@v3
 
 
 # root@a00efb2aff70:/__w/sherpa-onnx/sherpa-onnx# pip list | grep torch
