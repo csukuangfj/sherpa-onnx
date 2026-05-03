@@ -30,7 +30,10 @@ jobs:
         shell: bash
         run: |
           BRANCH='main'
-          pip install git+https://github.com/NVIDIA/NeMo.git@$BRANCH#egg=nemo_toolkit[asr]
+          pip install -U pip
+          # pip install git+https://github.com/NVIDIA/NeMo.git@$BRANCH#egg=nemo_toolkit[asr]
+          pip install "nemo_toolkit[asr] @ git+https://github.com/NVIDIA/NeMo.git@$BRANCH"
+
           pip install onnxruntime ipython
           pip install kaldi-native-fbank
           pip install soundfile librosa
