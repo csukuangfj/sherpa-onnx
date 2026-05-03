@@ -45,6 +45,7 @@ jobs:
           mv -v sherpa-onnx-nemo* ../../..
 
       - name: Publish to huggingface
+        if: false
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         uses: nick-fields/retry@v3
