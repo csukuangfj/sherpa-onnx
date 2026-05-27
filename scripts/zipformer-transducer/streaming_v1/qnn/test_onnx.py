@@ -51,6 +51,15 @@ def load_audio(filename: str):
     return samples, sample_rate
 
 
+def load_model():
+    model = OnnxModel(
+        encoder="./2026-05-26/encoder-epoch-99-avg-1.onnx",
+        decoder="./2026-05-26/decoder-epoch-99-avg-1.onnx",
+        joiner="./2026-05-26/joiner-epoch-99-avg-1.onnx",
+    )
+    return model
+
+
 def compute_feat(
     samples: np.ndarray,
     sample_rate: int,
@@ -131,8 +140,8 @@ class OnnxModel:
     def get_encoder_states(self):
         states = []
         for n in self.encoder.get_inputs()[1:]:
-            assert n.type in ("tensor(float)", "tensor(int64)"), n
-            dtype = np.int64 if "int64" in n.type else np.float32
+            assert n.type in ("tensor(float)", "tensor(int32)"), n
+            dtype = np.int32 if "int32" in n.type else np.float32
             s = np.zeros(n.shape, dtype=dtype)
             states.append(s)
         return states
@@ -150,7 +159,7 @@ class OnnxModel:
         return out[0], out[1:]
 
     def run_decoder(self, hyp):
-        hyp = np.array([hyp], dtype=np.int64)
+        hyp = np.array([hyp], dtype=np.int32)
         out = self.decoder.run(
             [self.decoder.get_outputs()[0].name],
             {self.decoder.get_inputs()[0].name: hyp},
@@ -179,11 +188,8 @@ def main():
     print("features", features.shape)
 
     id2token = load_tokens("./2026-05-26/tokens.txt")
-    model = OnnxModel(
-        encoder="./2026-05-26/encoder-epoch-99-avg-1.onnx",
-        decoder="./2026-05-26/decoder-epoch-99-avg-1.onnx",
-        joiner="./2026-05-26/joiner-epoch-99-avg-1.onnx",
-    )
+
+    model = load_model()
     states = model.get_encoder_states()
     blank_id = 0
 

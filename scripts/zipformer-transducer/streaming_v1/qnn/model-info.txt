@@ -1,10 +1,10 @@
 ---encoder input---
 NodeArg(name='x', type='tensor(float)', shape=[1, 39, 80])
-NodeArg(name='cached_len_0', type='tensor(int64)', shape=[2, 1])
-NodeArg(name='cached_len_1', type='tensor(int64)', shape=[4, 1])
-NodeArg(name='cached_len_2', type='tensor(int64)', shape=[3, 1])
-NodeArg(name='cached_len_3', type='tensor(int64)', shape=[2, 1])
-NodeArg(name='cached_len_4', type='tensor(int64)', shape=[4, 1])
+NodeArg(name='cached_len_0', type='tensor(int32)', shape=[2, 1])
+NodeArg(name='cached_len_1', type='tensor(int32)', shape=[4, 1])
+NodeArg(name='cached_len_2', type='tensor(int32)', shape=[3, 1])
+NodeArg(name='cached_len_3', type='tensor(int32)', shape=[2, 1])
+NodeArg(name='cached_len_4', type='tensor(int32)', shape=[4, 1])
 NodeArg(name='cached_avg_0', type='tensor(float)', shape=[2, 1, 384])
 NodeArg(name='cached_avg_1', type='tensor(float)', shape=[4, 1, 384])
 NodeArg(name='cached_avg_2', type='tensor(float)', shape=[3, 1, 384])
@@ -37,11 +37,11 @@ NodeArg(name='cached_conv2_3', type='tensor(float)', shape=[2, 1, 384, 30])
 NodeArg(name='cached_conv2_4', type='tensor(float)', shape=[4, 1, 384, 30])
 ---encoder output---
 NodeArg(name='encoder_out', type='tensor(float)', shape=[1, 8, 512])
-NodeArg(name='new_cached_len_0', type='tensor(int64)', shape=[2, 1])
-NodeArg(name='new_cached_len_1', type='tensor(int64)', shape=[4, 1])
-NodeArg(name='new_cached_len_2', type='tensor(int64)', shape=[3, 1])
-NodeArg(name='new_cached_len_3', type='tensor(int64)', shape=[2, 1])
-NodeArg(name='new_cached_len_4', type='tensor(int64)', shape=[4, 1])
+NodeArg(name='new_cached_len_0', type='tensor(int32)', shape=[2, 1])
+NodeArg(name='new_cached_len_1', type='tensor(int32)', shape=[4, 1])
+NodeArg(name='new_cached_len_2', type='tensor(int32)', shape=[3, 1])
+NodeArg(name='new_cached_len_3', type='tensor(int32)', shape=[2, 1])
+NodeArg(name='new_cached_len_4', type='tensor(int32)', shape=[4, 1])
 NodeArg(name='new_cached_avg_0', type='tensor(float)', shape=[2, 1, 384])
 NodeArg(name='new_cached_avg_1', type='tensor(float)', shape=[4, 1, 384])
 NodeArg(name='new_cached_avg_2', type='tensor(float)', shape=[3, 1, 384])
@@ -75,7 +75,7 @@ NodeArg(name='new_cached_conv2_4', type='tensor(float)', shape=[4, 1, 384, 30])
 =====
 
 ---decoder input---
-NodeArg(name='y', type='tensor(int64)', shape=[1, 2])
+NodeArg(name='y', type='tensor(int32)', shape=[1, 2])
 ---decoder output---
 NodeArg(name='decoder_out', type='tensor(float)', shape=[1, 512])
 =====
