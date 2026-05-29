@@ -1,12 +1,34 @@
 #!/usr/bin/env python3
 # Copyright      2026  Xiaomi Corp.        (authors: Fangjun Kuang)
 
+import argparse
+
 # You can download test files used by this script from
 # https://modelscope.cn/models/csukuangfj/2026-05-26/files
 import kaldi_native_fbank as knf
 import numpy as np
 import onnxruntime as ort
 import soundfile as sf
+
+
+def get_args():
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
+
+    parser.add_argument(
+        "--chunk-size",
+        type=int,
+        required=True,
+        help="32, 64, etc",
+    )
+
+    parser.add_argument(
+        "--wav",
+        type=str,
+        required=True,
+    )
+    return parser.parse_args()
 
 
 def show_sess(sess, hint):
@@ -51,9 +73,9 @@ def load_audio(filename: str):
     return samples, sample_rate
 
 
-def load_model():
+def load_model(chunk_size):
     model = OnnxModel(
-        encoder="./2026-05-26/encoder-epoch-99-avg-1.onnx",
+        encoder=f"./2026-05-26/{chunk_size}/encoder-epoch-99-avg-1.onnx",
         decoder="./2026-05-26/decoder-epoch-99-avg-1.onnx",
         joiner="./2026-05-26/joiner-epoch-99-avg-1.onnx",
     )
@@ -178,8 +200,10 @@ class OnnxModel:
 
 
 def main():
-    wave = "./2026-05-26/0.wav"
-    samples, sample_rate = load_audio(wave)
+    args = get_args()
+    print(vars(args))
+
+    samples, sample_rate = load_audio(args.wav)
 
     features = compute_feat(
         samples=samples,
@@ -187,10 +211,19 @@ def main():
     )
     print("features", features.shape)
 
+    save_raw = True
+
     id2token = load_tokens("./2026-05-26/tokens.txt")
 
-    model = load_model()
+    model = load_model(args.chunk_size)
     states = model.get_encoder_states()
+
+    if save_raw:
+        features.tofile("features.raw")
+        for i, s in enumerate(states):
+            name = f"s{i}.raw"
+            s.tofile(name)
+
     blank_id = 0
 
     hyp = [blank_id] * model.context_size
@@ -213,6 +246,7 @@ def main():
             if token_id != blank_id:
                 hyp.append(token_id)
                 decoder_out = model.run_decoder(hyp[-model.context_size :])
+    print(hyp)
     tokens = [id2token[i] for i in hyp[model.context_size :]]
     print(tokens)
     text = "".join(tokens)
