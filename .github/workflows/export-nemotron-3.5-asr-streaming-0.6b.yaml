@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - export-nemotron-3-5-asr-streaming
+      - nemotron-3-5
   workflow_dispatch:
 
 concurrency:
