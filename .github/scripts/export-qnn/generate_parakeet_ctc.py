@@ -19,7 +19,8 @@ class Config:
 
 def main():
 
-    model_name_list = ["parakeet-ctc-0.6b"]
+    #  model_name_list = ["parakeet-ctc-0.6b", "parakeet-ctc-1.1b"]
+    model_name_list = ["parakeet-ctc-1.1b"]
     num_seconds_list = [3, 5, 8, 10, 13, 15, 18, 20, 23, 25, 28, 30]
 
     configs = []
