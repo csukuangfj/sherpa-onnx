@@ -210,13 +210,25 @@ jobs:
       - name: Download toolkit
         shell: bash
         run: |
-          curl -SL -O https://huggingface.co/csukuangfj/qnn-toolkit/resolve/main/v2.40.0.251030.zip
+          url=https://huggingface.co/csukuangfj/qnn-toolkit/resolve/main/v2.40.0.251030.zip
+          for i in $(seq 1 10); do
+            curl -SL -O $url
+            size=$(stat -c%s v2.40.0.251030.zip 2>/dev/null || stat -f%z v2.40.0.251030.zip 2>/dev/null)
+            if [ "$size" -gt 100000000 ]; then
+              echo "Download succeeded, size=$size"
+              break
+            fi
+            echo "Download failed (size=$size), retrying in 30s... ($i/10)"
+            rm -f v2.40.0.251030.zip
+            sleep 30
+          done
           ls -lh v2.40.0.251030.zip
 
       - name: Unzip toolkit
         shell: bash
         run: |
           unzip v2.40.0.251030.zip
+          rm -v v2.40.0.251030.zip
 
       - name: Show
         shell: bash
@@ -279,6 +291,11 @@ jobs:
 
           which python3
 
+      - name: Show space
+        shell: bash
+        run: |
+          df -h
+
       - name: Install onnx dependencies
         shell: bash
         run: |
@@ -297,6 +314,13 @@ jobs:
             pyyaml
 
           which python3
+
+      - name: Show space
+        shell: bash
+        run: |
+          python3 -m pip cache purge
+
+          df -h
 
       - name: Show qnn-onnx-converter help
         shell: bash
@@ -496,7 +520,7 @@ jobs:
           overwrite: true
           repo_name: k2-fsa/sherpa-onnx
           repo_token: ${{ secrets.UPLOAD_GH_SHERPA_ONNX_TOKEN }}
-          tag: asr-models-qnn
+          tag: asr-models-qnn-2
 
       - name: Release
         if: github.repository_owner == 'csukuangfj'
@@ -507,7 +531,7 @@ jobs:
           overwrite: true
           repo_name: k2-fsa/sherpa-onnx
           repo_token: ${{ secrets.UPLOAD_GH_SHERPA_ONNX_TOKEN }}
-          tag: asr-models-qnn-binary
+          tag: asr-models-qnn-binary-2
 
       - name: Release
         if: github.repository_owner == 'k2-fsa' && matrix.soc == 'SM8850'
@@ -516,7 +540,7 @@ jobs:
           file_glob: true
           file: ./so/*.tar.bz2
           overwrite: true
-          tag: asr-models-qnn
+          tag: asr-models-qnn-2
 
       - name: Release
         if: github.repository_owner == 'k2-fsa'
@@ -525,4 +549,4 @@ jobs:
           file_glob: true
           file: ./binary/*.tar.bz2
           overwrite: true
-          tag: asr-models-qnn-binary
+          tag: asr-models-qnn-binary-2
