@@ -126,12 +126,32 @@ std::string ResolveAbsolutePath(const std::string &path) {
     return path;
   }
 
-  char buffer[MAX_PATH];
-  if (GetFullPathNameA(path.c_str(), MAX_PATH, buffer, nullptr)) {
-    return std::string(buffer);
+  int wlen = MultiByteToWideChar(CP_UTF8, 0, path.c_str(),
+                                 static_cast<int>(path.size()), nullptr, 0);
+  if (wlen <= 0) {
+    return path;  // fallback on failure
   }
 
-  return path;  // fallback on failure
+  std::wstring wpath(wlen, L'\0');
+  MultiByteToWideChar(CP_UTF8, 0, path.c_str(), static_cast<int>(path.size()),
+                      wpath.data(), wlen);
+
+  wchar_t wbuffer[MAX_PATH];
+  DWORD n = GetFullPathNameW(wpath.c_str(), MAX_PATH, wbuffer, nullptr);
+  if (n == 0 || n >= MAX_PATH) {
+    return path;  // fallback on failure
+  }
+
+  int ulen = WideCharToMultiByte(CP_UTF8, 0, wbuffer, static_cast<int>(n),
+                                 nullptr, 0, nullptr, nullptr);
+  if (ulen <= 0) {
+    return path;  // fallback on failure
+  }
+
+  std::string result(ulen, '\0');
+  WideCharToMultiByte(CP_UTF8, 0, wbuffer, static_cast<int>(n), result.data(),
+                      ulen, nullptr, nullptr);
+  return result;
 
 #else
   // POSIX: absolute paths start with '/'
