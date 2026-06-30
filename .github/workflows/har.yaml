@@ -210,25 +210,22 @@ jobs:
 
           hvigorw --mode module -p product=default -p module=sherpa_onnx@default assembleHar --analyze=normal --parallel --incremental --no-daemon
 
+          export HAR_PATH="$GITHUB_WORKSPACE/harmony-os/SherpaOnnxHar/sherpa_onnx/build/default/outputs/default/sherpa_onnx.har"
+
           ls -lh ./sherpa_onnx/build/default/outputs/default/sherpa_onnx.har
 
-          mkdir -p har-patch/libs/armeabi-v7a
+          mkdir -p $GITHUB_WORKSPACE/patch-workdir/libs/armeabi-v7a
 
-          cp -v ./sherpa_onnx/src/main/cpp/libs/armeabi-v7a/*.so har-patch/libs/armeabi-v7a/
+          cp -v $GITHUB_WORKSPACE/harmony-os/SherpaOnnxHar/sherpa_onnx/src/main/cpp/libs/armeabi-v7a/libonnxruntime.so $GITHUB_WORKSPACE/patch-workdir/libs/armeabi-v7a/
+          cp -v $GITHUB_WORKSPACE/harmony-os/SherpaOnnxHar/sherpa_onnx/src/main/cpp/libs/armeabi-v7a/libsherpa-onnx-c-api.so $GITHUB_WORKSPACE/patch-workdir/libs/armeabi-v7a/
+          cp -v $GITHUB_WORKSPACE/command-line-tools-2/sdk/default/openharmony/native/llvm/lib/arm-linux-ohos/c++/a7_softfp_neon-vfpv4/libc++_shared.so $GITHUB_WORKSPACE/patch-workdir/libs/armeabi-v7a/
 
-          export OHOS_SDK_NATIVE_DIR="$GITHUB_WORKSPACE/command-line-tools/sdk/default/openharmony/native"
+          cd $GITHUB_WORKSPACE/patch-workdir
+          zip -ur "$HAR_PATH" libs/
 
-          cp -v $OHOS_SDK_NATIVE_DIR/llvm/lib/armv7-unknown-linux-ohos/libc++_shared.so har-patch/libs/armeabi-v7a/
+          unzip -l "$HAR_PATH" | grep "libs/"
 
-          cd har-patch
-          zip -ur ../sherpa_onnx/build/default/outputs/default/sherpa_onnx.har libs/
-          cd ..
-
-          cp -v ./sherpa_onnx/build/default/outputs/default/sherpa_onnx.har ../../
-
-          popd
-
-          ls -lh *.har
+          cp -v "$HAR_PATH" $GITHUB_WORKSPACE/
 
       - name: Setup tmate session
         # if: true
