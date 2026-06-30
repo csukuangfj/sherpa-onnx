@@ -4,18 +4,22 @@ on:
   push:
     branches:
       - master
-      # - ohos-har
+      - ohos-arm32
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+*'
 
   workflow_dispatch:
 
-concurrency:
-  group: har-${{ github.ref }}
-  cancel-in-progress: true
+env:
+  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
+
+# concurrency:
+#   group: har-${{ github.ref }}
+#   cancel-in-progress: true
 
 jobs:
   har:
+    if: false
     name: Har
     runs-on: ${{ matrix.os }}
     strategy:
@@ -285,3 +289,30 @@ jobs:
             git add .
             git commit -m "add more hars"
             git push https://csukuangfj2:$HF_TOKEN@huggingface.co/csukuangfj2/sherpa-onnx-harmony-os main
+
+
+  docker:
+    # see https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/get-code/gettools-acquire.md
+    name: docker
+    runs-on: ${{ matrix.os }}
+    container: swr.cn-south-1.myhuaweicloud.com/openharmony-docker/openharmony-docker:1.0.0
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+
+    steps:
+      # - uses: actions/checkout@v4
+      #   with:
+      #     fetch-depth: 0
+      #
+      # - name: Update version
+      #   shell: bash
+      #   run: |
+      #     ./new-release.sh
+      #     git diff .
+
+      - name: Setup tmate session
+        # if: true
+        # if: failure()
+        uses: mxschmitt/action-tmate@v3
