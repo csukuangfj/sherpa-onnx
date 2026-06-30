@@ -39,20 +39,47 @@ jobs:
         with:
           key: har-linux
 
-      - name: cache-toolchain
-        id: cache-toolchain-ohos
+      - name: cache-toolchain (CPU)
+        id: cache-toolchain-2
         uses: actions/cache@v4
         with:
           path: command-line-tools
-          key: commandline-tools-linux-x64-5.0.5.200.zip
+          key: ohos-sdk-windows_linux-public-5.0.0
 
       - name: Download toolchain
-        if: steps.cache-toolchain-ohos.outputs.cache-hit != 'true'
+        if: steps.cache-toolchain-2.outputs.cache-hit != 'true'
         shell: bash
         run: |
-          curl -SL -O https://huggingface.co/csukuangfj/harmonyos-commandline-tools/resolve/main/commandline-tools-linux-x64-5.0.5.200.zip
-          unzip commandline-tools-linux-x64-5.0.5.200.zip
-          rm commandline-tools-linux-x64-5.0.5.200.zip
+          curl -L -O https://github.com/openharmony-rs/ohos-sdk/releases/download/v5.0.0/ohos-sdk-windows_linux-public.tar.gz.aa
+          curl -L -O https://github.com/openharmony-rs/ohos-sdk/releases/download/v5.0.0/ohos-sdk-windows_linux-public.tar.gz.ab
+
+          cat ohos-sdk-windows_linux-public.tar.gz.aa ohos-sdk-windows_linux-public.tar.gz.ab > ohos-sdk-windows_linux-public.tar.gz
+          tar -xzf ohos-sdk-windows_linux-public.tar.gz
+          rm ohos-sdk-windows_linux-public.tar.gz*
+
+          echo "---linux---"
+          ls -lh linux
+
+          echo "---windows---"
+          ls -lh windows
+
+          pushd linux/
+          unzip native-linux-x64-5.0.0.71-Release.zip
+          ls -lh native
+          popd
+
+          dst=command-line-tools/sdk/default/openharmony
+          mkdir -p $dst
+
+          mv linux/native $dst
+
+          rm -rf linux windows
+
+          ls
+
+          echo "---"
+
+          ls -lh $dst/
 
       - name: Set environment variable
         shell: bash
@@ -98,6 +125,26 @@ jobs:
           x86_64-unknown-linux-ohos-clang++ --version
           x86_64-unknown-linux-ohos-clang --version
 
+      - name: Patch toolchain file
+        shell: bash
+        run: |
+          toolchain_file=$GITHUB_WORKSPACE/command-line-tools/sdk/default/openharmony/native/build/cmake/ohos.toolchain.cmake
+          sed -i.bak 's/set(UNIX TRUE CACHE BOOL FROCE)/set(UNIX TRUE CACHE BOOL "Force UNIX" FORCE)/g' $toolchain_file
+
+          sed -i.bak s/CMAKE_SYSTEM_NAME\ OHOS/CMAKE_SYSTEM_NAME\ Linux/g $toolchain_file
+          # Add __OHOS__ define to the toolchain so all source files see it
+          sed -i.bak 's/set(CMAKE_C_FLAGS "${OHOS_C_COMPILER_FLAGS} ${CMAKE_C_FLAGS} -D__MUSL__")/set(CMAKE_C_FLAGS "${OHOS_C_COMPILER_FLAGS} ${CMAKE_C_FLAGS} -D__MUSL__ -D__OHOS__")/' $toolchain_file
+          sed -i.bak 's/set(CMAKE_CXX_FLAGS "${OHOS_CXX_COMPILER_FLAGS} ${CMAKE_CXX_FLAGS} -D__MUSL__")/set(CMAKE_CXX_FLAGS "${OHOS_CXX_COMPILER_FLAGS} ${CMAKE_CXX_FLAGS} -D__MUSL__ -D__OHOS__")/' $toolchain_file
+
+          echo "---"
+
+          cat $toolchain_file
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sherpa-onnx-ohos-toolchain-file-${{ matrix.arch }}
+          path: command-line-tools/sdk/default/openharmony/native/build/cmake/ohos.toolchain.cmake
+
       - name: Install tree
         shell: bash
         run: |
@@ -113,8 +160,20 @@ jobs:
 
           export OHOS_SDK_NATIVE_DIR="$GITHUB_WORKSPACE/command-line-tools/sdk/default/openharmony/native"
 
+          ./build-ohos-armeabi-v7a.sh
           ./build-ohos-arm64-v8a.sh
           ./build-ohos-x86-64.sh
+
+      - name: Patch build-profile for OpenHarmony ARM32 Test
+        run: |
+          sed -i 's/"x86_64"/"x86_64",/g' harmony-os/SherpaOnnxHar/entry/build-profile.json5
+
+          sed -i '/"x86_64",/a \        "armeabi-v7a"' harmony-os/SherpaOnnxHar/entry/build-profile.json5
+
+          echo "=== Modified build-profile.json5 ==="
+          cat harmony-os/SherpaOnnxHar/entry/build-profile.json5
+
+          git diff .
 
       - name: Build Har
         shell: bash
@@ -152,6 +211,9 @@ jobs:
           echo "---libs/arm64-v8a---"
           ls -lh libs/arm64-v8a
 
+          echo "---libs/armeabi-v7a---"
+          ls -lh libs/armeabi-v7a
+
           echo "---src/main/ets/components---"
           ls -lh src/main/ets/components/
 
@@ -174,18 +236,18 @@ jobs:
           path: ./sherpa_onnx*.har
 
       - name: Release har
-        if: (github.repository_owner == 'csukuangfj' || github.repository_owner == 'k2-fsa') && github.event_name == 'push' && contains(github.ref, 'refs/tags/')
+        # if: (github.repository_owner == 'csukuangfj' || github.repository_owner == 'k2-fsa') && github.event_name == 'push' && contains(github.ref, 'refs/tags/')
         uses: svenstaro/upload-release-action@v2
         with:
           file_glob: true
           overwrite: true
           file: ./*.har
-          # repo_name: k2-fsa/sherpa-onnx
-          # repo_token: ${{ secrets.UPLOAD_GH_SHERPA_ONNX_TOKEN }}
-          # tag: v1.12.30
+          repo_name: k2-fsa/sherpa-onnx
+          repo_token: ${{ secrets.UPLOAD_GH_SHERPA_ONNX_TOKEN }}
+          tag: v1.13.3
 
       - name: Publish to huggingface
-        if: (github.repository_owner == 'csukuangfj' || github.repository_owner == 'k2-fsa') && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        # if: (github.repository_owner == 'csukuangfj' || github.repository_owner == 'k2-fsa') && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         uses: nick-fields/retry@v3

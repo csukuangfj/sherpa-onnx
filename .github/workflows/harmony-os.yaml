@@ -41,6 +41,7 @@ jobs:
           key: ohos-${{ matrix.arch }}
 
       - name: cache-toolchain
+        if: false
         id: cache-toolchain-ohos
         uses: actions/cache@v4
         with:
@@ -48,12 +49,55 @@ jobs:
           key: commandline-tools-linux-x64-5.0.5.200.zip
 
       - name: Download toolchain
-        if: steps.cache-toolchain-ohos.outputs.cache-hit != 'true'
+        if: false
+        # if: steps.cache-toolchain-ohos.outputs.cache-hit != 'true'
         shell: bash
         run: |
           curl -SL -O https://huggingface.co/csukuangfj/harmonyos-commandline-tools/resolve/main/commandline-tools-linux-x64-5.0.5.200.zip
           unzip commandline-tools-linux-x64-5.0.5.200.zip
           rm commandline-tools-linux-x64-5.0.5.200.zip
+
+      - name: cache-toolchain (CPU)
+        id: cache-toolchain-2
+        uses: actions/cache@v4
+        with:
+          path: command-line-tools
+          key: ohos-sdk-windows_linux-public-5.0.0
+
+      - name: Download toolchain
+        if: steps.cache-toolchain-2.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          curl -L -O https://github.com/openharmony-rs/ohos-sdk/releases/download/v5.0.0/ohos-sdk-windows_linux-public.tar.gz.aa
+          curl -L -O https://github.com/openharmony-rs/ohos-sdk/releases/download/v5.0.0/ohos-sdk-windows_linux-public.tar.gz.ab
+
+          cat ohos-sdk-windows_linux-public.tar.gz.aa ohos-sdk-windows_linux-public.tar.gz.ab > ohos-sdk-windows_linux-public.tar.gz
+          tar -xzf ohos-sdk-windows_linux-public.tar.gz
+          rm ohos-sdk-windows_linux-public.tar.gz*
+
+          echo "---linux---"
+          ls -lh linux
+
+          echo "---windows---"
+          ls -lh windows
+
+          pushd linux/
+          unzip native-linux-x64-5.0.0.71-Release.zip
+          ls -lh native
+          popd
+
+          dst=command-line-tools/sdk/default/openharmony
+          mkdir -p $dst
+
+          mv linux/native $dst
+
+          rm -rf linux windows
+
+          ls
+
+          echo "---"
+
+          ls -lh $dst/
 
       - name: Set environment variable
         shell: bash
@@ -98,6 +142,26 @@ jobs:
 
           x86_64-unknown-linux-ohos-clang++ --version
           x86_64-unknown-linux-ohos-clang --version
+
+      - name: Patch toolchain file
+        shell: bash
+        run: |
+          toolchain_file=$GITHUB_WORKSPACE/command-line-tools/sdk/default/openharmony/native/build/cmake/ohos.toolchain.cmake
+          sed -i.bak 's/set(UNIX TRUE CACHE BOOL FROCE)/set(UNIX TRUE CACHE BOOL "Force UNIX" FORCE)/g' $toolchain_file
+
+          sed -i.bak s/CMAKE_SYSTEM_NAME\ OHOS/CMAKE_SYSTEM_NAME\ Linux/g $toolchain_file
+          # Add __OHOS__ define to the toolchain so all source files see it
+          sed -i.bak 's/set(CMAKE_C_FLAGS "${OHOS_C_COMPILER_FLAGS} ${CMAKE_C_FLAGS} -D__MUSL__")/set(CMAKE_C_FLAGS "${OHOS_C_COMPILER_FLAGS} ${CMAKE_C_FLAGS} -D__MUSL__ -D__OHOS__")/' $toolchain_file
+          sed -i.bak 's/set(CMAKE_CXX_FLAGS "${OHOS_CXX_COMPILER_FLAGS} ${CMAKE_CXX_FLAGS} -D__MUSL__")/set(CMAKE_CXX_FLAGS "${OHOS_CXX_COMPILER_FLAGS} ${CMAKE_CXX_FLAGS} -D__MUSL__ -D__OHOS__")/' $toolchain_file
+
+          echo "---"
+
+          cat $toolchain_file
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sherpa-onnx-ohos-toolchain-file-${{ matrix.arch }}
+          path: command-line-tools/sdk/default/openharmony/native/build/cmake/ohos.toolchain.cmake
 
       - name: Build ${{ matrix.arch }}
         shell: bash
@@ -153,7 +217,7 @@ jobs:
           name: sherpa-onnx-ohos-${{ matrix.arch }}
           path: ./*.tar.bz2
 
-      - name: Release jar
+      - name: Release har
         if: (github.repository_owner == 'csukuangfj' || github.repository_owner == 'k2-fsa') && github.event_name == 'push' && contains(github.ref, 'refs/tags/')
         uses: svenstaro/upload-release-action@v2
         with:
@@ -162,4 +226,4 @@ jobs:
           file: ./*.tar.bz2
           # repo_name: k2-fsa/sherpa-onnx
           # repo_token: ${{ secrets.UPLOAD_GH_SHERPA_ONNX_TOKEN }}
-          # tag: v1.10.23
+          # tag: v1.13.3

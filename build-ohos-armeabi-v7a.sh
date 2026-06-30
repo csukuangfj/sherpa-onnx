@@ -64,12 +64,11 @@ if [ ! -f $OHOS_TOOLCHAIN_FILE ]; then
 fi
 
 sleep 1
-onnxruntime_version=1.16.3
+onnxruntime_version=1.27.0
 onnxruntime_dir=onnxruntime-ohos-armeabi-v7a-$onnxruntime_version
 
 if [ ! -f $onnxruntime_dir/lib/libonnxruntime.so ]; then
-  # wget -c https://github.com/csukuangfj/onnxruntime-libs/releases/download/v${onnxruntime_version}/$onnxruntime_dir.zip
-  wget -c https://hf-mirror.com/csukuangfj/onnxruntime-libs/resolve/main/$onnxruntime_dir.zip
+  wget -c https://github.com/csukuangfj/onnxruntime-libs/releases/download/v${onnxruntime_version}/$onnxruntime_dir.zip
   unzip $onnxruntime_dir.zip
   rm $onnxruntime_dir.zip
 fi
@@ -96,8 +95,8 @@ fi
 # we need to use -mfloat-abi=hard
 cmake \
     -DOHOS_ARCH=armeabi-v7a \
-    -DCMAKE_CXX_FLAGS="-mfloat-abi=hard" \
-    -DCMAKE_C_FLAGS="-mfloat-abi=hard" \
+    -DCMAKE_CXX_FLAGS="-O3 -mfloat-abi=softfp -mfpu=neon -w" \
+    -DCMAKE_C_FLAGS="-O3 -mfloat-abi=softfp -mfpu=neon -w" \
     -DCMAKE_TOOLCHAIN_FILE=$OHOS_TOOLCHAIN_FILE \
     -DSHERPA_ONNX_ENABLE_TTS=$SHERPA_ONNX_ENABLE_TTS \
     -DSHERPA_ONNX_ENABLE_SPEAKER_DIARIZATION=$SHERPA_ONNX_ENABLE_SPEAKER_DIARIZATION \
@@ -124,3 +123,9 @@ cp -fv $onnxruntime_dir/lib/libonnxruntime.so install/lib
 
 rm -rf install/share
 rm -rf install/lib/pkgconfig
+
+d=../harmony-os/SherpaOnnxHar/sherpa_onnx/src/main/cpp/libs/armeabi-v7a
+if [ -d $d ]; then
+  cp -v install/lib/libsherpa-onnx-c-api.so $d/
+  cp -v install/lib/libonnxruntime.so $d/
+fi
