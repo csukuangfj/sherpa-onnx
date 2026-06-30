@@ -166,12 +166,12 @@ jobs:
 
       - name: Patch build-profile for OpenHarmony ARM32 Test
         run: |
-          sed -i 's/"x86_64"/"x86_64",/g' harmony-os/SherpaOnnxHar/entry/build-profile.json5
+          sed -i 's/"x86_64"/"x86_64",/g' harmony-os/SherpaOnnxHar/sherpa_onnx/build-profile.json5
 
-          sed -i '/"x86_64",/a \        "armeabi-v7a"' harmony-os/SherpaOnnxHar/entry/build-profile.json5
+          sed -i '/"x86_64",/a \        "armeabi-v7a"' harmony-os/SherpaOnnxHar/sherpa_onnx/build-profile.json5
 
           echo "=== Modified build-profile.json5 ==="
-          cat harmony-os/SherpaOnnxHar/entry/build-profile.json5
+          cat harmony-os/SherpaOnnxHar/sherpa_onnx/build-profile.json5
 
           git diff .
 
@@ -194,6 +194,11 @@ jobs:
           popd
 
           ls -lh *.har
+
+      - name: Setup tmate session
+        # if: true
+        if: failure()
+        uses: mxschmitt/action-tmate@v3
 
       - name: View Har
         shell: bash
