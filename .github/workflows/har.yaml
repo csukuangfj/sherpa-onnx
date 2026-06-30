@@ -19,6 +19,7 @@ concurrency:
 
 jobs:
   har:
+    if: false
     name: Har
     runs-on: ${{ matrix.os }}
     strategy:
@@ -319,7 +320,7 @@ jobs:
             git push https://csukuangfj2:$HF_TOKEN@huggingface.co/csukuangfj2/sherpa-onnx-harmony-os main
 
 
-  docker:
+  docker-1:
     if: false
     # see https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/get-code/gettools-acquire.md
     name: docker
@@ -345,3 +346,35 @@ jobs:
         # if: true
         # if: failure()
         uses: mxschmitt/action-tmate@v3
+
+  docker-2:
+    name: docker-2
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Update version
+        shell: bash
+        run: |
+          ./new-release.sh
+          git diff .
+
+      - name: Run docker
+        uses: addnab/docker-run-action@v3
+        with:
+            image: swr.cn-south-1.myhuaweicloud.com/openharmony-docker/openharmony-docker:1.0.0
+            options: |
+              --volume ${{ github.workspace }}/:/sherpa-onnx
+            shell: bash
+            run: |
+              ls
+              cd /
+              find / -name "hvigorw" 2>/dev/null
+
