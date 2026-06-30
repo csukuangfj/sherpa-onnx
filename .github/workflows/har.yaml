@@ -10,16 +10,15 @@ on:
 
   workflow_dispatch:
 
-env:
-  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
+# env:
+#   ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
 
-# concurrency:
-#   group: har-${{ github.ref }}
-#   cancel-in-progress: true
+concurrency:
+  group: har-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   har:
-    if: false
     name: Har
     runs-on: ${{ matrix.os }}
     strategy:
@@ -38,20 +37,37 @@ jobs:
           ./new-release.sh
           git diff .
 
+      - name: cache-toolchain
+        id: cache-toolchain-ohos
+        uses: actions/cache@v4
+        with:
+          path: command-line-tools-2
+          key: commandline-tools-linux-x64-5.0.5.200.zip
+
+      - name: Download toolchain
+        if: steps.cache-toolchain-ohos.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          curl -SL -O https://huggingface.co/csukuangfj/harmonyos-commandline-tools/resolve/main/commandline-tools-linux-x64-5.0.5.200.zip
+          unzip commandline-tools-linux-x64-5.0.5.200.zip
+          rm commandline-tools-linux-x64-5.0.5.200.zip
+
+          mv command-line-tools command-line-tools-2
+
       - name: ccache
         uses: hendrikmuhs/ccache-action@v1.2
         with:
           key: har-linux
 
       - name: cache-toolchain (CPU)
-        id: cache-toolchain-2
+        id: cache-toolchain
         uses: actions/cache@v4
         with:
           path: command-line-tools
           key: ohos-sdk-windows_linux-public-5.0.0
 
       - name: Download toolchain
-        if: steps.cache-toolchain-2.outputs.cache-hit != 'true'
+        if: steps.cache-toolchain.outputs.cache-hit != 'true'
         shell: bash
         run: |
           curl -L -O https://github.com/openharmony-rs/ohos-sdk/releases/download/v5.0.0/ohos-sdk-windows_linux-public.tar.gz.aa
@@ -169,6 +185,7 @@ jobs:
           ./build-ohos-x86-64.sh
 
       - name: Patch build-profile for OpenHarmony ARM32 Test
+        if: false
         run: |
           sed -i 's/"x86_64"/"x86_64",/g' harmony-os/SherpaOnnxHar/sherpa_onnx/build-profile.json5
 
@@ -182,7 +199,7 @@ jobs:
       - name: Build Har
         shell: bash
         run: |
-          export PATH="$GITHUB_WORKSPACE/command-line-tools/bin:$PATH"
+          export PATH="$GITHUB_WORKSPACE/command-line-tools-2/bin:$PATH"
 
           which hvigorw
 
@@ -192,7 +209,21 @@ jobs:
           cp -fv ../../CHANGELOG.md ./sherpa_onnx
 
           hvigorw --mode module -p product=default -p module=sherpa_onnx@default assembleHar --analyze=normal --parallel --incremental --no-daemon
+
           ls -lh ./sherpa_onnx/build/default/outputs/default/sherpa_onnx.har
+
+          mkdir -p har-patch/libs/armeabi-v7a
+
+          cp -v ./sherpa_onnx/src/main/cpp/libs/armeabi-v7a/*.so har-patch/libs/armeabi-v7a/
+
+          export OHOS_SDK_NATIVE_DIR="$GITHUB_WORKSPACE/command-line-tools/sdk/default/openharmony/native"
+
+          cp -v $OHOS_SDK_NATIVE_DIR/llvm/lib/armv7-unknown-linux-ohos/libc++_shared.so har-patch/libs/armeabi-v7a/
+
+          cd har-patch
+          zip -ur ../sherpa_onnx/build/default/outputs/default/sherpa_onnx.har libs/
+          cd ..
+
           cp -v ./sherpa_onnx/build/default/outputs/default/sherpa_onnx.har ../../
 
           popd
@@ -292,6 +323,7 @@ jobs:
 
 
   docker:
+    if: false
     # see https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/get-code/gettools-acquire.md
     name: docker
     runs-on: ${{ matrix.os }}
