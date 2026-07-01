@@ -61,7 +61,20 @@ add_library(sherpa_onnx SHARED
   resampler.cc
 )
 
-target_compile_definitions(sherpa_onnx PRIVATE NAPI_VERSION=8)
+include(CheckCSourceCompiles)
+set(CMAKE_REQUIRED_LIBRARIES ace_napi.z)
+check_c_source_compiles("
+#include <napi/native_api.h>
+int main() { napi_add_finalizer(0,0,0,0,0,0); return 0; }
+" HAS_NAPI_ADD_FINALIZER)
+unset(CMAKE_REQUIRED_LIBRARIES)
+
+if(NOT HAS_NAPI_ADD_FINALIZER)
+  message(STATUS "napi_add_finalizer not linkable, using NAPI_VERSION=8 (API < 11)")
+  target_compile_definitions(sherpa_onnx PRIVATE NAPI_VERSION=8)
+else()
+  message(STATUS "napi_add_finalizer is available, using default NAPI version (API >= 11)")
+endif()
 
 if(${OHOS_ARCH} STREQUAL "armeabi-v7a")
   target_compile_options(sherpa_onnx PRIVATE
