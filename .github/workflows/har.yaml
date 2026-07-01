@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - master
-      - ohos-arm32
+      - ohos-arm32-2
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+*'
 

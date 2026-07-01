@@ -19,19 +19,19 @@ static std::vector<std::string> GetFilenames(NativeResourceManager *mgr,
   ans.reserve(count);
   for (int32_t i = 0; i < count; ++i) {
     std::string filename = OH_ResourceManager_GetRawFileName(raw_dir.get(), i);
-    bool is_dir = OH_ResourceManager_IsRawDir(
-        mgr, d.empty() ? filename.c_str() : (d + "/" + filename).c_str());
+    std::string path = d.empty() ? filename : d + "/" + filename;
+    RawDir *sub = OH_ResourceManager_OpenRawDir(mgr, path.c_str());
+    bool is_dir = sub && OH_ResourceManager_GetRawFileCount(sub) > 0;
+    if (sub) {
+      OH_ResourceManager_CloseRawDir(sub);
+    }
     if (is_dir) {
-      auto files = GetFilenames(mgr, d.empty() ? filename : d + "/" + filename);
+      auto files = GetFilenames(mgr, path);
       for (auto &f : files) {
         ans.push_back(std::move(f));
       }
     } else {
-      if (d.empty()) {
-        ans.push_back(std::move(filename));
-      } else {
-        ans.push_back(d + "/" + filename);
-      }
+      ans.push_back(std::move(path));
     }
   }
 
