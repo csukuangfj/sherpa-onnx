@@ -389,7 +389,7 @@ target_link_libraries(sherpa-onnx-core
   kaldi-decoder-core
   ssentencepiece_core
 )
-if(DEFINED OHOS AND x${OHOS} STREQUAL xOHOS)
+if(DEFINED OHOS_ARCH)
   target_link_libraries(sherpa-onnx-core
     hilog_ndk.z
     rawfile.z
