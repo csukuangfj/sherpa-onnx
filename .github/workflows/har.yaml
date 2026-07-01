@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - master
-      - ohos-arm32-2
+      - ohos-arm32
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+*'
 
@@ -54,23 +54,29 @@ jobs:
           path: command-line-tools
           key: ohos-sdk-windows_linux-public-4.0.0
 
-      - name: Download toolchain
-        if: steps.cache-build-result.outputs.cache-hit != 'true' && steps.cache-toolchain.outputs.cache-hit != 'true'
+      - name: Download toolchain 4.0.0
+        if: true
+        # if: steps.cache-toolchain-2.outputs.cache-hit != 'true'
         shell: bash
         run: |
+          # https://laval.csdn.net/67d247833b685529b70a2a54.html
           # https://github.com/openharmony-rs/ohos-sdk/releases
-
-          curl -L -O https://github.com/openharmony-rs/ohos-sdk/releases/download/v4.1/ohos-sdk-windows_linux-public.tar.gz.aa
-          curl -L -O https://github.com/openharmony-rs/ohos-sdk/releases/download/v4.1/ohos-sdk-windows_linux-public.tar.gz.ab
-
-          cat ohos-sdk-windows_linux-public.tar.gz.aa ohos-sdk-windows_linux-public.tar.gz.ab > ohos-sdk-windows_linux-public.tar.gz
+          #
+          curl -SL -O https://github.com/openharmony-rs/ohos-sdk/releases/download/v4.0/ohos-sdk-windows_linux-public.tar.gz
           tar -xzf ohos-sdk-windows_linux-public.tar.gz
           rm ohos-sdk-windows_linux-public.tar.gz*
 
           cd ohos-sdk
 
+          echo "---linux---"
+          ls -lh linux
+
+          echo "---windows---"
+          ls -lh windows
+
           pushd linux/
-          unzip native-linux-x64-4.1.7.5-Release.zip
+          unzip native-linux-x64-4.0.10.13-Release.zip
+          ls -lh native
           popd
 
           cd ..
@@ -83,7 +89,9 @@ jobs:
           rm -rf ohos-sdk
 
           ls
+
           echo "---"
+
           ls -lh $dst/
 
       - name: Set environment variable
@@ -222,49 +230,6 @@ jobs:
           echo "---x86_64---"
           ls -lh ./harmony-os/SherpaOnnxHar/sherpa_onnx/src/main/cpp/libs/x86_64/
 
-      - name: Modify Build Profiles for OpenHarmony & Arm32
-        shell: bash
-        run: |
-          python3 -c '
-          import json
-          import re
-
-          def json5_to_json(text):
-              # 移除单行和多行注释，处理末尾逗号
-              text = re.sub(re.compile(r"//.*?\n" ), "", text)
-              text = re.sub(re.compile(r"/\*.*?\*/", re.DOTALL), "", text)
-              text = re.sub(r",(\s*[}\]])", r"\1", text)
-              return text
-
-          # 1. 修改根目录的 build-profile.json5，解锁 OpenHarmony 环境
-          root_path = "harmony-os/SherpaOnnxHar/build-profile.json5"
-          with open(root_path, "r", encoding="utf-8") as f:
-              content = f.read()
-
-          # 动态替换关键字段
-          content = content.replace("\"compatibleSdkVersion\": \"4.0.0(10)\"", "\"compileSdkVersion\": 11, \"compatibleSdkVersion\": 11")
-          content = content.replace("\"runtimeOS\": \"HarmonyOS\"", "\"runtimeOS\": \"OpenHarmony\"")
-
-          with open(root_path, "w", encoding="utf-8") as f:
-              f.write(content)
-          print("Successfully patched root build-profile.json5")
-
-          # 2. 修改模块内部的 build-profile.json5，加回 armeabi-v7a 过滤
-          module_path = "harmony-os/SherpaOnnxHar/sherpa_onnx/build-profile.json5"
-          with open(module_path, "r", encoding="utf-8") as f:
-              m_content = f.read()
-
-          # 在 abiFilters 中强行塞入 "armeabi-v7a"
-          if "armeabi-v7a" not in m_content:
-              m_content = m_content.replace("\"arm64-v8a\",", "\"arm64-v8a\",\n        \"armeabi-v7a\",")
-
-          with open(module_path, "w", encoding="utf-8") as f:
-              f.write(m_content)
-          print("Successfully patched module build-profile.json5")
-          '
-
-          git diff .
-
       - name: Build Har
         shell: bash
         run: |
@@ -274,35 +239,16 @@ jobs:
 
           pushd harmony-os/SherpaOnnxHar
 
-          # 1. 修正 SDK 根目录：指向包含 openharmony/ 的上一级 default 目录
-          export OHOS_SDK_ROOT=$GITHUB_WORKSPACE/command-line-tools/sdk/default
-
-          # 2. 写入 local.properties，并强行开启传统/解耦兼容模式
-          echo "sdk.dir=$OHOS_SDK_ROOT" > local.properties
-          echo "sdk.legacy_mode=true" >> local.properties
-
-          # 双保险：同时导出系统所需的旧版和新版环境变量
-          export OHOS_BASE_SDK_HOME=$OHOS_SDK_ROOT/openharmony
-          export HOS_SDK_HOME=$OHOS_SDK_ROOT
-
-          echo "=== Local Properties Snap ==="
-          cat local.properties
-          echo "============================"
-
           cp -fv ../../LICENSE ./sherpa_onnx
           cp -fv ../../CHANGELOG.md ./sherpa_onnx
 
-          # 执行自动化构建
           hvigorw --mode module -p product=default -p module=sherpa_onnx@default assembleHar --analyze=normal --parallel --incremental --no-daemon
-
           ls -lh ./sherpa_onnx/build/default/outputs/default/sherpa_onnx.har
+          cp -v ./sherpa_onnx/build/default/outputs/default/sherpa_onnx.har ../../
 
-          cp -v ./sherpa_onnx/build/default/outputs/default/sherpa_onnx.har $GITHUB_WORKSPACE
+          popd
 
-      - name: Setup tmate session
-        # if: true
-        if: failure()
-        uses: mxschmitt/action-tmate@v3
+          ls -lh *.har
 
       - name: View Har
         shell: bash
@@ -366,7 +312,7 @@ jobs:
           file: ./*.har
 
       - name: Publish to huggingface
-        if: (github.repository_owner == 'csukuangfj' || github.repository_owner == 'k2-fsa') && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        # if: (github.repository_owner == 'csukuangfj' || github.repository_owner == 'k2-fsa') && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         uses: nick-fields/retry@v3
