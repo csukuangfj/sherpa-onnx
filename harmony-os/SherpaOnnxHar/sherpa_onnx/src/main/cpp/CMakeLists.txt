@@ -61,6 +61,14 @@ add_library(sherpa_onnx SHARED
   resampler.cc
 )
 
+if(${OHOS_ARCH} STREQUAL "armeabi-v7a")
+  target_compile_options(sherpa_onnx PRIVATE
+    -march=armv7a
+    -mfloat-abi=softfp
+    -mfpu=neon
+  )
+endif()
+
 add_library(sherpa_onnx_c_api SHARED IMPORTED)
 set_target_properties(sherpa_onnx_c_api
     PROPERTIES
