@@ -43,7 +43,7 @@ if [ ! -d $OHOS_SDK_NATIVE_DIR ]; then
   exit 1
 fi
 
-if [ ! -f $OHOS_SDK_NATIVE_DIR/llvm/bin/armv7-unknown-linux-ohos-clang ]; then
+if [ ! -f $OHOS_SDK_NATIVE_DIR/llvm/bin/armv7-unknown-linux-ohos-clang && ! -f $OHOS_SDK_NATIVE_DIR/llvm/bin/clang ]; then
   echo "$OHOS_SDK_NATIVE_DIR/llvm/bin/armv7-unknown-linux-ohos-clang does not exist"
   echo "Please first download Command Line Tools for HarmonyOS"
   echo "See https://developer.huawei.com/consumer/cn/download/"
