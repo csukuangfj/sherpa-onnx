@@ -177,7 +177,7 @@ jobs:
         shell: bash
         run: |
           # curl -SL -O https://huggingface.co/csukuangfj/harmonyos-commandline-tools/resolve/main/commandline-tools-linux-x64-5.0.3.906.zip
-          wget https://hf-mirror.com/csukuangfj/harmonyos-commandline-tools/resolve/main/commandline-tools-linux-x64-5.0.3.906.zip
+          curl -SL -O https://hf-mirror.com/csukuangfj/harmonyos-commandline-tools/resolve/main/commandline-tools-linux-x64-5.0.3.906.zip
           unzip commandline-tools-linux-x64-5.0.3.906.zip > /dev/null
           rm commandline-tools-linux-x64-5.0.3.906.zip
 
