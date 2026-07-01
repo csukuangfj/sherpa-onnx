@@ -262,7 +262,15 @@ jobs:
 
           pushd harmony-os/SherpaOnnxHar
 
-          # 打印修改后的配置快照，便于在 CI 日志中 Review 确认
+          # 1. 显式定义 OpenHarmony SDK 的原生路径
+          export OHOS_SDK_NATIVE_DIR=$GITHUB_WORKSPACE/command-line-tools/sdk/default/openharmony
+
+          # 2. 注入到 local.properties，同时导出系统环境变量，双保险让 hvigor 认账
+          echo "sdk.dir=$OHOS_SDK_NATIVE_DIR" > local.properties
+          export OHOS_BASE_SDK_HOME=$OHOS_SDK_NATIVE_DIR
+
+          echo "=== Local Properties Snap ==="
+          cat local.properties
           echo "=== Root Build Profile ==="
           cat build-profile.json5
           echo "=== Module Build Profile ==="
@@ -278,7 +286,6 @@ jobs:
           ls -lh ./sherpa_onnx/build/default/outputs/default/sherpa_onnx.har
 
           cp -v ./sherpa_onnx/build/default/outputs/default/sherpa_onnx.har $GITHUB_WORKSPACE
-
 
       - name: View Har
         shell: bash
