@@ -210,6 +210,49 @@ jobs:
           echo "---x86_64---"
           ls -lh ./harmony-os/SherpaOnnxHar/sherpa_onnx/src/main/cpp/libs/x86_64/
 
+      - name: Modify Build Profiles for OpenHarmony & Arm32
+        shell: bash
+        run: |
+          python3 -c '
+          import json
+          import re
+
+          def json5_to_json(text):
+              # 移除单行和多行注释，处理末尾逗号
+              text = re.sub(re.compile(r"//.*?\n" ), "", text)
+              text = re.sub(re.compile(r"/\*.*?\*/", re.DOTALL), "", text)
+              text = re.sub(r",(\s*[}\]])", r"\1", text)
+              return text
+
+          # 1. 修改根目录的 build-profile.json5，解锁 OpenHarmony 环境
+          root_path = "harmony-os/SherpaOnnxHar/build-profile.json5"
+          with open(root_path, "r", encoding="utf-8") as f:
+              content = f.read()
+
+          # 动态替换关键字段
+          content = content.replace("\"compatibleSdkVersion\": \"4.0.0(10)\"", "\"compileSdkVersion\": 11, \"compatibleSdkVersion\": 11")
+          content = content.replace("\"runtimeOS\": \"HarmonyOS\"", "\"runtimeOS\": \"OpenHarmony\"")
+
+          with open(root_path, "w", encoding="utf-8") as f:
+              f.write(content)
+          print("Successfully patched root build-profile.json5")
+
+          # 2. 修改模块内部的 build-profile.json5，加回 armeabi-v7a 过滤
+          module_path = "harmony-os/SherpaOnnxHar/sherpa_onnx/build-profile.json5"
+          with open(module_path, "r", encoding="utf-8") as f:
+              m_content = f.read()
+
+          # 在 abiFilters 中强行塞入 "armeabi-v7a"
+          if "armeabi-v7a" not in m_content:
+              m_content = m_content.replace("\"arm64-v8a\",", "\"arm64-v8a\",\n        \"armeabi-v7a\",")
+
+          with open(module_path, "w", encoding="utf-8") as f:
+              f.write(m_content)
+          print("Successfully patched module build-profile.json5")
+          '
+
+          git diff .
+
       - name: Build Har
         shell: bash
         run: |
@@ -219,27 +262,23 @@ jobs:
 
           pushd harmony-os/SherpaOnnxHar
 
+          # 打印修改后的配置快照，便于在 CI 日志中 Review 确认
+          echo "=== Root Build Profile ==="
+          cat build-profile.json5
+          echo "=== Module Build Profile ==="
+          cat sherpa_onnx/build-profile.json5
+          echo "============================"
+
           cp -fv ../../LICENSE ./sherpa_onnx
           cp -fv ../../CHANGELOG.md ./sherpa_onnx
 
+          # 执行自动化构建
           hvigorw --mode module -p product=default -p module=sherpa_onnx@default assembleHar --analyze=normal --parallel --incremental --no-daemon
-
-          export HAR_PATH="$GITHUB_WORKSPACE/harmony-os/SherpaOnnxHar/sherpa_onnx/build/default/outputs/default/sherpa_onnx.har"
 
           ls -lh ./sherpa_onnx/build/default/outputs/default/sherpa_onnx.har
 
-          mkdir -p $GITHUB_WORKSPACE/patch-workdir/libs/armeabi-v7a
+          cp -v ./sherpa_onnx/build/default/outputs/default/sherpa_onnx.har $GITHUB_WORKSPACE
 
-          cp -v $GITHUB_WORKSPACE/harmony-os/SherpaOnnxHar/sherpa_onnx/src/main/cpp/libs/armeabi-v7a/libonnxruntime.so $GITHUB_WORKSPACE/patch-workdir/libs/armeabi-v7a/
-          cp -v $GITHUB_WORKSPACE/harmony-os/SherpaOnnxHar/sherpa_onnx/src/main/cpp/libs/armeabi-v7a/libsherpa-onnx-c-api.so $GITHUB_WORKSPACE/patch-workdir/libs/armeabi-v7a/
-          cp -v $GITHUB_WORKSPACE/command-line-tools/sdk/default/openharmony/native/llvm/lib/arm-linux-ohos/c++/a7_softfp_neon-vfpv4/libc++_shared.so $GITHUB_WORKSPACE/patch-workdir/libs/armeabi-v7a/
-
-          cd $GITHUB_WORKSPACE/patch-workdir
-          zip -ur "$HAR_PATH" libs/
-
-          unzip -l "$HAR_PATH" | grep "libs/"
-
-          cp -v "$HAR_PATH" $GITHUB_WORKSPACE/
 
       - name: View Har
         shell: bash
@@ -283,8 +322,8 @@ jobs:
           path: ./sherpa_onnx*.har
 
       - name: Release har
-        if: false
-        # if: (github.repository_owner == 'csukuangfj' || github.repository_owner == 'k2-fsa') && github.event_name == 'push' && contains(github.ref, 'refs/tags/')
+        # if: false
+        # if: github.repository_owner == 'csukuangfj' && github.event_name == 'push' && contains(github.ref, 'refs/tags/')
         uses: svenstaro/upload-release-action@v2
         with:
           file_glob: true
@@ -292,10 +331,18 @@ jobs:
           file: ./*.har
           repo_name: k2-fsa/sherpa-onnx
           repo_token: ${{ secrets.UPLOAD_GH_SHERPA_ONNX_TOKEN }}
+          tag: v1.13.3
+
+      - name: Release har
+        if: github.repository_owner == 'k2-fsa' && github.event_name == 'push' && contains(github.ref, 'refs/tags/')
+        uses: svenstaro/upload-release-action@v2
+        with:
+          file_glob: true
+          overwrite: true
+          file: ./*.har
 
       - name: Publish to huggingface
-        if: false
-        # if: (github.repository_owner == 'csukuangfj' || github.repository_owner == 'k2-fsa') && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        if: (github.repository_owner == 'csukuangfj' || github.repository_owner == 'k2-fsa') && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         uses: nick-fields/retry@v3
