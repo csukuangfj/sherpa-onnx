@@ -177,7 +177,7 @@ jobs:
         shell: bash
         run: |
           curl -SL -O https://huggingface.co/csukuangfj/harmonyos-commandline-tools/resolve/main/commandline-tools-linux-x64-5.0.3.906.zip
-          unzip commandline-tools-linux-x64-5.0.3.906.zip
+          unzip commandline-tools-linux-x64-5.0.3.906.zip > /dev/null
           rm commandline-tools-linux-x64-5.0.3.906.zip
 
       - name: Retrieve artifact (arm64-v8a)
@@ -262,19 +262,19 @@ jobs:
 
           pushd harmony-os/SherpaOnnxHar
 
-          # 1. 显式定义 OpenHarmony SDK 的原生路径
-          export OHOS_SDK_NATIVE_DIR=$GITHUB_WORKSPACE/command-line-tools/sdk/default/openharmony
+          # 1. 修正 SDK 根目录：指向包含 openharmony/ 的上一级 default 目录
+          export OHOS_SDK_ROOT=$GITHUB_WORKSPACE/command-line-tools/sdk/default
 
-          # 2. 注入到 local.properties，同时导出系统环境变量，双保险让 hvigor 认账
-          echo "sdk.dir=$OHOS_SDK_NATIVE_DIR" > local.properties
-          export OHOS_BASE_SDK_HOME=$OHOS_SDK_NATIVE_DIR
+          # 2. 写入 local.properties，并强行开启传统/解耦兼容模式
+          echo "sdk.dir=$OHOS_SDK_ROOT" > local.properties
+          echo "sdk.legacy_mode=true" >> local.properties
+
+          # 双保险：同时导出系统所需的旧版和新版环境变量
+          export OHOS_BASE_SDK_HOME=$OHOS_SDK_ROOT/openharmony
+          export HOS_SDK_HOME=$OHOS_SDK_ROOT
 
           echo "=== Local Properties Snap ==="
           cat local.properties
-          echo "=== Root Build Profile ==="
-          cat build-profile.json5
-          echo "=== Module Build Profile ==="
-          cat sherpa_onnx/build-profile.json5
           echo "============================"
 
           cp -fv ../../LICENSE ./sherpa_onnx
