@@ -91,8 +91,7 @@ if [ -z $SHERPA_ONNX_ENABLE_BINARY ]; then
   SHERPA_ONNX_ENABLE_BINARY=OFF
 fi
 
-# See https://github.com/llvm/llvm-project/issues/57732
-# we need to use -mfloat-abi=hard
+# we need to use -mfloat-abi=softfp
 cmake \
     -DOHOS_ARCH=armeabi-v7a \
     -DCMAKE_CXX_FLAGS="-O3 -mfloat-abi=softfp -mfpu=neon -w" \
