@@ -61,6 +61,8 @@ add_library(sherpa_onnx SHARED
   resampler.cc
 )
 
+target_compile_definitions(sherpa_onnx PRIVATE NAPI_VERSION=8)
+
 if(${OHOS_ARCH} STREQUAL "armeabi-v7a")
   target_compile_options(sherpa_onnx PRIVATE
     -march=armv7a
