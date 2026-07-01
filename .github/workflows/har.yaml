@@ -177,9 +177,20 @@ jobs:
         shell: bash
         run: |
           # curl -SL -O https://huggingface.co/csukuangfj/harmonyos-commandline-tools/resolve/main/commandline-tools-linux-x64-5.0.3.906.zip
-          curl -SL -O https://hf-mirror.com/csukuangfj/harmonyos-commandline-tools/resolve/main/commandline-tools-linux-x64-5.0.3.906.zip
+          #
+          BASE_URL="https://github.com/csukuangfj/test-github-actions/releases/download/ohos-tools"
+          for i in 00 01 02; do
+            echo "正在下载 commandline-tools-part${i}..."
+            curl -L -O "${BASE_URL}/commandline-tools-part${i}"
+          done
+
+          cat commandline-tools-part00 commandline-tools-part01 commandline-tools-part02 > commandline-tools-linux-x64-5.0.3.906.zip
+
+          ls -lh *.zip
+
           unzip commandline-tools-linux-x64-5.0.3.906.zip > /dev/null
           rm commandline-tools-linux-x64-5.0.3.906.zip
+          rm -v commandline*part*
 
       - name: Retrieve artifact (arm64-v8a)
         uses: actions/download-artifact@v4
@@ -287,6 +298,11 @@ jobs:
           ls -lh ./sherpa_onnx/build/default/outputs/default/sherpa_onnx.har
 
           cp -v ./sherpa_onnx/build/default/outputs/default/sherpa_onnx.har $GITHUB_WORKSPACE
+
+      - name: Setup tmate session
+        # if: true
+        if: failure()
+        uses: mxschmitt/action-tmate@v3
 
       - name: View Har
         shell: bash
