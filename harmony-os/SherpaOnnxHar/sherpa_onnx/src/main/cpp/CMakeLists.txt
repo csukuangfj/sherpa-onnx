@@ -61,7 +61,7 @@ add_library(sherpa_onnx SHARED
   resampler.cc
 )
 
-target_compile_definitions(sherpa_onnx PRIVATE NAPI_VERSION=1)
+target_sources(sherpa_onnx PRIVATE napi-stubs.c)
 
 if(${OHOS_ARCH} STREQUAL "armeabi-v7a")
   target_compile_options(sherpa_onnx PRIVATE
