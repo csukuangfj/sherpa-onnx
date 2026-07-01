@@ -250,14 +250,14 @@ jobs:
           export HAR_PATH="$GITHUB_WORKSPACE/harmony-os/SherpaOnnxHar/sherpa_onnx/build/default/outputs/default/sherpa_onnx.har"
 
           # Patch armeabi-v7a libs into the HAR (hvigorw doesn't support armeabi-v7a directly)
-          # HAR is a tar.gz file
+          # HAR is a tar.gz file with contents under package/
           mkdir -p $GITHUB_WORKSPACE/patch-workdir
           cd $GITHUB_WORKSPACE/patch-workdir
           tar xzf "$HAR_PATH"
 
-          mkdir -p libs/armeabi-v7a
-          cp -v $GITHUB_WORKSPACE/harmony-os/SherpaOnnxHar/sherpa_onnx/src/main/cpp/libs/armeabi-v7a/libsherpa-onnx-c-api.so libs/armeabi-v7a/
-          cp -v $GITHUB_WORKSPACE/harmony-os/SherpaOnnxHar/sherpa_onnx/src/main/cpp/libs/armeabi-v7a/libonnxruntime.so libs/armeabi-v7a/
+          mkdir -p package/libs/armeabi-v7a
+          cp -v $GITHUB_WORKSPACE/harmony-os/SherpaOnnxHar/sherpa_onnx/src/main/cpp/libs/armeabi-v7a/libsherpa-onnx-c-api.so package/libs/armeabi-v7a/
+          cp -v $GITHUB_WORKSPACE/harmony-os/SherpaOnnxHar/sherpa_onnx/src/main/cpp/libs/armeabi-v7a/libonnxruntime.so package/libs/armeabi-v7a/
 
           tar czf "$HAR_PATH" *
 
