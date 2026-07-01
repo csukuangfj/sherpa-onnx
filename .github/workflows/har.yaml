@@ -259,6 +259,9 @@ jobs:
           cp -v $GITHUB_WORKSPACE/harmony-os/SherpaOnnxHar/sherpa_onnx/src/main/cpp/libs/armeabi-v7a/libsherpa-onnx-c-api.so package/libs/armeabi-v7a/
           cp -v $GITHUB_WORKSPACE/harmony-os/SherpaOnnxHar/sherpa_onnx/src/main/cpp/libs/armeabi-v7a/libonnxruntime.so package/libs/armeabi-v7a/
 
+          # Patch build-profile.json5 to include armeabi-v7a in abiFilters
+          sed -i 's/"x86_64"/"armeabi-v7a",\n        "x86_64"/' package/build-profile.json5
+
           tar czf "$HAR_PATH" *
 
           cp -v "$HAR_PATH" $GITHUB_WORKSPACE/
