@@ -44,7 +44,7 @@ function initVad(context: Context): Vad {
   );
 
   const bufferSizeInSeconds = 60;
-  return new Vad(config, bufferSizeInSeconds, mgr);
+  return new Vad(config, bufferSizeInSeconds);
 }
 
 function initNonStreamingAsr(context: Context): OfflineRecognizer {
@@ -73,7 +73,7 @@ function initNonStreamingAsr(context: Context): OfflineRecognizer {
   config.modelConfig = getOfflineModelConfig(type);
   config.modelConfig.debug = true;
   config.ruleFsts = '';
-  return new OfflineRecognizer(config, mgr);
+  return new OfflineRecognizer(config);
 }
 
 interface Wave {
