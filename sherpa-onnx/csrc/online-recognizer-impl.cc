@@ -16,10 +16,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "fst/extensions/far/far.h"
 #include "kaldifst/csrc/kaldi-fst-io.h"
 #include "sherpa-onnx/csrc/fst-utils.h"
@@ -349,14 +345,6 @@ template OnlineRecognizerImpl::OnlineRecognizerImpl(
 
 template std::unique_ptr<OnlineRecognizerImpl> OnlineRecognizerImpl::Create(
     AAssetManager *mgr, const OnlineRecognizerConfig &config);
-#endif
-
-#if __OHOS__
-template OnlineRecognizerImpl::OnlineRecognizerImpl(
-    NativeResourceManager *mgr, const OnlineRecognizerConfig &config);
-
-template std::unique_ptr<OnlineRecognizerImpl> OnlineRecognizerImpl::Create(
-    NativeResourceManager *mgr, const OnlineRecognizerConfig &config);
 #endif
 
 }  // namespace sherpa_onnx

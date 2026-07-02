@@ -10,10 +10,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "sherpa-onnx/csrc/macros.h"
 #include "sherpa-onnx/csrc/offline-speech-denoiser-dpdfnet-impl.h"
 #include "sherpa-onnx/csrc/offline-speech-denoiser-gtcrn-impl.h"
@@ -54,12 +50,6 @@ std::unique_ptr<OfflineSpeechDenoiserImpl> OfflineSpeechDenoiserImpl::Create(
 #if __ANDROID_API__ >= 9
 template std::unique_ptr<OfflineSpeechDenoiserImpl>
 OfflineSpeechDenoiserImpl::Create(AAssetManager *mgr,
-                                  const OfflineSpeechDenoiserConfig &config);
-#endif
-
-#if __OHOS__
-template std::unique_ptr<OfflineSpeechDenoiserImpl>
-OfflineSpeechDenoiserImpl::Create(NativeResourceManager *mgr,
                                   const OfflineSpeechDenoiserConfig &config);
 #endif
 

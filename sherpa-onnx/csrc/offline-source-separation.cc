@@ -14,10 +14,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 namespace sherpa_onnx {
 
 void OfflineSourceSeparationConfig::Register(ParseOptions *po) {
@@ -65,11 +61,6 @@ int32_t OfflineSourceSeparation::GetNumberOfStems() const {
 #if __ANDROID_API__ >= 9
 template OfflineSourceSeparation::OfflineSourceSeparation(
     AAssetManager *mgr, const OfflineSourceSeparationConfig &config);
-#endif
-
-#if __OHOS__
-template OfflineSourceSeparation::OfflineSourceSeparation(
-    NativeResourceManager *mgr, const OfflineSourceSeparationConfig &config);
 #endif
 
 }  // namespace sherpa_onnx

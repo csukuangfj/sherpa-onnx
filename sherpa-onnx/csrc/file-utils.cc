@@ -115,38 +115,6 @@ std::vector<char> ReadFile(AAssetManager *mgr, const std::string &filename) {
 }
 #endif
 
-#if __OHOS__
-std::vector<char> ReadFile(NativeResourceManager *mgr,
-                           const std::string &filename) {
-  std::unique_ptr<RawFile, decltype(&OH_ResourceManager_CloseRawFile)> fp(
-      OH_ResourceManager_OpenRawFile(mgr, filename.c_str()),
-      OH_ResourceManager_CloseRawFile);
-
-  if (!fp) {
-    std::ostringstream os;
-    os << "Read file '" << filename << "' failed.";
-    SHERPA_ONNX_LOGE("%s", os.str().c_str());
-    return {};
-  }
-
-  auto len = static_cast<int32_t>(OH_ResourceManager_GetRawFileSize(fp.get()));
-
-  std::vector<char> buffer(len);
-
-  int32_t n = OH_ResourceManager_ReadRawFile(fp.get(), buffer.data(), len);
-
-  if (n != len) {
-    std::ostringstream os;
-    os << "Read file '" << filename << "' failed. Number of bytes read: " << n
-       << ". Expected bytes to read: " << len;
-    SHERPA_ONNX_LOGE("%s", os.str().c_str());
-    return {};
-  }
-
-  return buffer;
-}
-#endif
-
 std::string ResolveAbsolutePath(const std::string &path) {
   if (path.empty()) {
     return path;

@@ -2,7 +2,6 @@
 //
 // Copyright (c)  2024  Xiaomi Corporation
 #include <algorithm>
-#include <memory>
 #include <sstream>
 #include <string>
 
@@ -14,16 +13,6 @@ static Napi::External<SherpaOnnxSpeakerEmbeddingExtractor>
 CreateSpeakerEmbeddingExtractorWrapper(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
 
-#if __OHOS__
-  if (info.Length() != 1 && info.Length() != 2) {
-    std::ostringstream os;
-    os << "Expect 1 or 2 arguments. Given: " << info.Length();
-
-    Napi::TypeError::New(env, os.str()).ThrowAsJavaScriptException();
-
-    return {};
-  }
-#else
   if (info.Length() != 1) {
     std::ostringstream os;
     os << "Expect only 1 argument. Given: " << info.Length();
@@ -32,7 +21,6 @@ CreateSpeakerEmbeddingExtractorWrapper(const Napi::CallbackInfo &info) {
 
     return {};
   }
-#endif
 
   if (!info[0].IsObject()) {
     Napi::TypeError::New(env, "You should pass an object as the first argument.")
@@ -40,18 +28,6 @@ CreateSpeakerEmbeddingExtractorWrapper(const Napi::CallbackInfo &info) {
 
     return {};
   }
-
-#if __OHOS__
-  bool use_resource_manager =
-      info.Length() == 2 && !info[1].IsUndefined() && !info[1].IsNull();
-  if (use_resource_manager && !info[1].IsObject()) {
-    Napi::TypeError::New(
-        env, "You should pass a resource manager as the second argument.")
-        .ThrowAsJavaScriptException();
-
-    return {};
-  }
-#endif
 
   Napi::Object o = info[0].As<Napi::Object>();
 
@@ -72,23 +48,8 @@ CreateSpeakerEmbeddingExtractorWrapper(const Napi::CallbackInfo &info) {
 
   SHERPA_ONNX_ASSIGN_ATTR_STR(provider, provider);
 
-#if __OHOS__
-  const SherpaOnnxSpeakerEmbeddingExtractor *extractor = nullptr;
-
-  if (use_resource_manager) {
-    std::unique_ptr<NativeResourceManager,
-                    decltype(&OH_ResourceManager_ReleaseNativeResourceManager)>
-        mgr(OH_ResourceManager_InitNativeResourceManager(env, info[1]),
-            &OH_ResourceManager_ReleaseNativeResourceManager);
-
-    extractor = SherpaOnnxCreateSpeakerEmbeddingExtractorOHOS(&c, mgr.get());
-  } else {
-    extractor = SherpaOnnxCreateSpeakerEmbeddingExtractor(&c);
-  }
-#else
   const SherpaOnnxSpeakerEmbeddingExtractor *extractor =
       SherpaOnnxCreateSpeakerEmbeddingExtractor(&c);
-#endif
   SHERPA_ONNX_DELETE_C_STR(c.model);
   SHERPA_ONNX_DELETE_C_STR(c.provider);
 

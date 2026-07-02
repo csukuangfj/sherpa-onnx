@@ -12,10 +12,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "sherpa-onnx/csrc/offline-tts-kitten-impl.h"
 #include "sherpa-onnx/csrc/offline-tts-kokoro-impl.h"
 #include "sherpa-onnx/csrc/offline-tts-matcha-impl.h"
@@ -89,11 +85,6 @@ std::unique_ptr<OfflineTtsImpl> OfflineTtsImpl::Create(
 #if __ANDROID_API__ >= 9
 template std::unique_ptr<OfflineTtsImpl> OfflineTtsImpl::Create(
     AAssetManager *mgr, const OfflineTtsConfig &config);
-#endif
-
-#if __OHOS__
-template std::unique_ptr<OfflineTtsImpl> OfflineTtsImpl::Create(
-    NativeResourceManager *mgr, const OfflineTtsConfig &config);
 #endif
 
 }  // namespace sherpa_onnx

@@ -16,10 +16,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "sherpa-onnx/csrc/file-utils.h"
 #include "sherpa-onnx/csrc/rknn/context-blocking-queue-rknn.h"
 #include "sherpa-onnx/csrc/rknn/macros.h"
@@ -352,24 +348,15 @@ class OnlineZipformerTransducerModelRknn::Impl {
         for (auto i : v) {
           os << i << " ";
         }
-#if __OHOS__
-        SHERPA_ONNX_LOGE("%{public}s\n", os.str().c_str());
-#else
         SHERPA_ONNX_LOGE("%s\n", os.str().c_str());
-#endif
       };
       print(encoder_dims_, "encoder_dims");
       print(attention_dims_, "attention_dims");
       print(num_encoder_layers_, "num_encoder_layers");
       print(cnn_module_kernels_, "cnn_module_kernels");
       print(left_context_len_, "left_context_len");
-#if __OHOS__
-      SHERPA_ONNX_LOGE("T: %{public}d", T_);
-      SHERPA_ONNX_LOGE("decode_chunk_len_: %{public}d", decode_chunk_len_);
-#else
       SHERPA_ONNX_LOGE("T: %d", T_);
       SHERPA_ONNX_LOGE("decode_chunk_len_: %d", decode_chunk_len_);
-#endif
     }
   }
 
@@ -502,11 +489,6 @@ rknn_tensor_attr OnlineZipformerTransducerModelRknn::GetEncoderOutAttr() const {
 #if __ANDROID_API__ >= 9
 template OnlineZipformerTransducerModelRknn::OnlineZipformerTransducerModelRknn(
     AAssetManager *mgr, const OnlineModelConfig &config);
-#endif
-
-#if __OHOS__
-template OnlineZipformerTransducerModelRknn::OnlineZipformerTransducerModelRknn(
-    NativeResourceManager *mgr, const OnlineModelConfig &config);
 #endif
 
 }  // namespace sherpa_onnx

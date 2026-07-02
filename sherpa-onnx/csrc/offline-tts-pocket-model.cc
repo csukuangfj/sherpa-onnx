@@ -16,10 +16,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "sherpa-onnx/csrc/macros.h"
 #include "sherpa-onnx/csrc/onnx-utils.h"
 #include "sherpa-onnx/csrc/session.h"
@@ -443,11 +439,6 @@ OrtAllocator *OfflineTtsPocketModel::Allocator() const {
 #if __ANDROID_API__ >= 9
 template OfflineTtsPocketModel::OfflineTtsPocketModel(
     AAssetManager *mgr, const OfflineTtsModelConfig &config);
-#endif
-
-#if __OHOS__
-template OfflineTtsPocketModel::OfflineTtsPocketModel(
-    NativeResourceManager *mgr, const OfflineTtsModelConfig &config);
 #endif
 
 }  // namespace sherpa_onnx

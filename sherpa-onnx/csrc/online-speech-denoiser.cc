@@ -13,10 +13,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "sherpa-onnx/csrc/online-speech-denoiser-impl.h"
 
 namespace sherpa_onnx {
@@ -65,11 +61,6 @@ int32_t OnlineSpeechDenoiser::GetFrameShiftInSamples() const {
 #if __ANDROID_API__ >= 9
 template OnlineSpeechDenoiser::OnlineSpeechDenoiser(
     AAssetManager *mgr, const OnlineSpeechDenoiserConfig &config);
-#endif
-
-#if __OHOS__
-template OnlineSpeechDenoiser::OnlineSpeechDenoiser(
-    NativeResourceManager *mgr, const OnlineSpeechDenoiserConfig &config);
 #endif
 
 }  // namespace sherpa_onnx

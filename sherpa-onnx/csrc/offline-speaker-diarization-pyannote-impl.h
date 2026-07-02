@@ -222,13 +222,8 @@ class OfflineSpeakerDiarizationPyannoteImpl
           }
         }
       } else {
-#if __OHOS__
-        SHERPA_ONNX_LOGE(
-            "powerset_max_classes = %{public}d is currently not supported!", i);
-#else
         SHERPA_ONNX_LOGE(
             "powerset_max_classes = %d is currently not supported!", i);
-#endif
         SHERPA_ONNX_EXIT(-1);
       }
     }
@@ -243,17 +238,10 @@ class OfflineSpeakerDiarizationPyannoteImpl
     int32_t window_shift = meta_data.window_shift;
 
     if (n <= 0) {
-#if __OHOS__
-      SHERPA_ONNX_LOGE(
-          "number of audio samples is %{public}d (<= 0). Please provide a "
-          "positive number",
-          n);
-#else
       SHERPA_ONNX_LOGE(
           "number of audio samples is %d (<= 0). Please provide a positive "
           "number",
           n);
-#endif
       return {};
     }
 

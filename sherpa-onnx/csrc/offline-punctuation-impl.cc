@@ -11,10 +11,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "sherpa-onnx/csrc/macros.h"
 #include "sherpa-onnx/csrc/offline-punctuation-ct-transformer-impl.h"
 
@@ -44,11 +40,6 @@ std::unique_ptr<OfflinePunctuationImpl> OfflinePunctuationImpl::Create(
 #if __ANDROID_API__ >= 9
 template std::unique_ptr<OfflinePunctuationImpl> OfflinePunctuationImpl::Create(
     AAssetManager *mgr, const OfflinePunctuationConfig &config);
-#endif
-
-#if __OHOS__
-template std::unique_ptr<OfflinePunctuationImpl> OfflinePunctuationImpl::Create(
-    NativeResourceManager *mgr, const OfflinePunctuationConfig &config);
 #endif
 
 }  // namespace sherpa_onnx

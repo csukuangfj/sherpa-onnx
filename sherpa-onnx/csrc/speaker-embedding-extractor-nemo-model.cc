@@ -15,10 +15,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "sherpa-onnx/csrc/file-utils.h"
 #include "sherpa-onnx/csrc/macros.h"
 #include "sherpa-onnx/csrc/onnx-utils.h"
@@ -91,11 +87,7 @@ class SpeakerEmbeddingExtractorNeMoModel::Impl {
     if (config_.debug) {
       std::ostringstream os;
       PrintModelMetadata(os, meta_data);
-#if __OHOS__
-      SHERPA_ONNX_LOGE("%{public}s", os.str().c_str());
-#else
       SHERPA_ONNX_LOGE("%s", os.str().c_str());
-#endif
     }
 
     Ort::AllocatorWithDefaultOptions allocator;  // used in the macro below
@@ -115,12 +107,7 @@ class SpeakerEmbeddingExtractorNeMoModel::Impl {
     std::string framework;
     SHERPA_ONNX_READ_META_DATA_STR(framework, "framework");
     if (framework != "nemo") {
-#if __OHOS__
-      SHERPA_ONNX_LOGE("Expect a NeMo model, given: %{public}s",
-                       framework.c_str());
-#else
       SHERPA_ONNX_LOGE("Expect a NeMo model, given: %s", framework.c_str());
-#endif
       SHERPA_ONNX_EXIT(-1);
     }
   }
@@ -171,11 +158,6 @@ OrtAllocator *SpeakerEmbeddingExtractorNeMoModel::Allocator() const {
 #if __ANDROID_API__ >= 9
 template SpeakerEmbeddingExtractorNeMoModel::SpeakerEmbeddingExtractorNeMoModel(
     AAssetManager *mgr, const SpeakerEmbeddingExtractorConfig &config);
-#endif
-
-#if __OHOS__
-template SpeakerEmbeddingExtractorNeMoModel::SpeakerEmbeddingExtractorNeMoModel(
-    NativeResourceManager *mgr, const SpeakerEmbeddingExtractorConfig &config);
 #endif
 
 }  // namespace sherpa_onnx

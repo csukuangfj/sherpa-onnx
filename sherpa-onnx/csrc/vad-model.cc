@@ -11,10 +11,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #if SHERPA_ONNX_ENABLE_RKNN
 #include "sherpa-onnx/csrc/rknn/silero-vad-model-rknn.h"
 #endif
@@ -91,8 +87,4 @@ template std::unique_ptr<VadModel> VadModel::Create(
     AAssetManager *mgr, const VadModelConfig &config);
 #endif
 
-#if __OHOS__
-template std::unique_ptr<VadModel> VadModel::Create(
-    NativeResourceManager *mgr, const VadModelConfig &config);
-#endif
 }  // namespace sherpa_onnx

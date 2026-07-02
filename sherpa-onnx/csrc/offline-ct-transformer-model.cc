@@ -16,10 +16,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "sherpa-onnx/csrc/file-utils.h"
 #include "sherpa-onnx/csrc/onnx-utils.h"
 #include "sherpa-onnx/csrc/session.h"
@@ -168,11 +164,6 @@ OfflineCtTransformerModel::OfflineCtTransformerModel(
 #if __ANDROID_API__ >= 9
 template OfflineCtTransformerModel::OfflineCtTransformerModel(
     AAssetManager *mgr, const OfflinePunctuationModelConfig &config);
-#endif
-
-#if __OHOS__
-template OfflineCtTransformerModel::OfflineCtTransformerModel(
-    NativeResourceManager *mgr, const OfflinePunctuationModelConfig &config);
 #endif
 
 OfflineCtTransformerModel::~OfflineCtTransformerModel() = default;

@@ -17,10 +17,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "fst/extensions/far/far.h"
 #include "kaldifst/csrc/kaldi-fst-io.h"
 #include "onnxruntime_cxx_api.h"  // NOLINT
@@ -931,13 +927,6 @@ template OfflineRecognizerImpl::OfflineRecognizerImpl(
 
 template std::unique_ptr<OfflineRecognizerImpl> OfflineRecognizerImpl::Create(
     AAssetManager *mgr, const OfflineRecognizerConfig &config);
-#endif
-
-#if __OHOS__
-template OfflineRecognizerImpl::OfflineRecognizerImpl(
-    NativeResourceManager *mgr, const OfflineRecognizerConfig &config);
-template std::unique_ptr<OfflineRecognizerImpl> OfflineRecognizerImpl::Create(
-    NativeResourceManager *mgr, const OfflineRecognizerConfig &config);
 #endif
 
 }  // namespace sherpa_onnx

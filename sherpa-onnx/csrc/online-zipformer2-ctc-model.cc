@@ -19,10 +19,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "sherpa-onnx/csrc/cat.h"
 #include "sherpa-onnx/csrc/file-utils.h"
 #include "sherpa-onnx/csrc/macros.h"
@@ -271,11 +267,7 @@ class OnlineZipformer2CtcModel::Impl {
       std::ostringstream os;
       os << "---zipformer2_ctc---\n";
       PrintModelMetadata(os, meta_data);
-#if __OHOS__
-      SHERPA_ONNX_LOGE("%{public}s", os.str().c_str());
-#else
       SHERPA_ONNX_LOGE("%s", os.str().c_str());
-#endif
     }
 
     Ort::AllocatorWithDefaultOptions allocator;  // used in the macro below
@@ -494,11 +486,6 @@ std::vector<std::vector<Ort::Value>> OnlineZipformer2CtcModel::UnStackStates(
 #if __ANDROID_API__ >= 9
 template OnlineZipformer2CtcModel::OnlineZipformer2CtcModel(
     AAssetManager *mgr, const OnlineModelConfig &config);
-#endif
-
-#if __OHOS__
-template OnlineZipformer2CtcModel::OnlineZipformer2CtcModel(
-    NativeResourceManager *mgr, const OnlineModelConfig &config);
 #endif
 
 }  // namespace sherpa_onnx

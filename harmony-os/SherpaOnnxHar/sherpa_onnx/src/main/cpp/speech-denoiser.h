@@ -85,11 +85,7 @@ static inline bool GetEnableExternalBuffer(Napi::Object obj) {
 }
 
 static inline int32_t GetFloat32ArrayElementLength(Napi::Float32Array samples) {
-#if __OHOS__
   return samples.ElementLength() / sizeof(float);
-#else
-  return samples.ElementLength();
-#endif
 }
 
 static inline Napi::Object CreateDenoisedAudioObject(

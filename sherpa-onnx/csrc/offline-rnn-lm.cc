@@ -15,10 +15,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "onnxruntime_cxx_api.h"  // NOLINT
 #include "sherpa-onnx/csrc/file-utils.h"
 #include "sherpa-onnx/csrc/macros.h"
@@ -107,11 +103,6 @@ Ort::Value OfflineRnnLM::Rescore(Ort::Value x, Ort::Value x_lens) {
 
 #if __ANDROID_API__ >= 9
 template OfflineRnnLM::OfflineRnnLM(AAssetManager *mgr,
-                                    const OfflineLMConfig &config);
-#endif
-
-#if __OHOS__
-template OfflineRnnLM::OfflineRnnLM(NativeResourceManager *mgr,
                                     const OfflineLMConfig &config);
 #endif
 

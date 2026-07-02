@@ -20,10 +20,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "nlohmann/json.hpp"
 #include "sherpa-onnx/csrc/file-utils.h"
 #include "sherpa-onnx/csrc/macros.h"
@@ -127,11 +123,7 @@ class OfflineTtsSupertonicModel::Impl {
     os << "\nOutput names: ";
     for (const auto &n : output_names) os << n << " ";
     os << "\n";
-#if __OHOS__
-    SHERPA_ONNX_LOGE("%{public}s\n", os.str().c_str());
-#else
     SHERPA_ONNX_LOGE("%s\n", os.str().c_str());
-#endif
   }
 
   void PrintDebugInfo(const std::string &tts_config_path) const {
@@ -145,11 +137,7 @@ class OfflineTtsSupertonicModel::Impl {
     os << "base_chunk_size: " << cfg_.ae.base_chunk_size << "\n";
     os << "chunk_compress_factor: " << cfg_.ttl.chunk_compress_factor << "\n";
     os << "latent_dim: " << cfg_.ttl.latent_dim << "\n";
-#if __OHOS__
-    SHERPA_ONNX_LOGE("%{public}s\n", os.str().c_str());
-#else
     SHERPA_ONNX_LOGE("%s\n", os.str().c_str());
-#endif
   }
 
   void PrintModelInfos() const {
@@ -445,11 +433,6 @@ OfflineTtsSupertonicModel::~OfflineTtsSupertonicModel() = default;
 #if __ANDROID_API__ >= 9
 template OfflineTtsSupertonicModel::OfflineTtsSupertonicModel(
     AAssetManager *mgr, const OfflineTtsModelConfig &config);
-#endif
-
-#if __OHOS__
-template OfflineTtsSupertonicModel::OfflineTtsSupertonicModel(
-    NativeResourceManager *mgr, const OfflineTtsModelConfig &config);
 #endif
 
 }  // namespace sherpa_onnx

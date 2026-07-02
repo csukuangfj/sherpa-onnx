@@ -11,10 +11,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "sherpa-onnx/csrc/offline-speech-denoiser-impl.h"
 
 namespace sherpa_onnx {
@@ -56,11 +52,6 @@ int32_t OfflineSpeechDenoiser::GetSampleRate() const {
 #if __ANDROID_API__ >= 9
 template OfflineSpeechDenoiser::OfflineSpeechDenoiser(
     AAssetManager *mgr, const OfflineSpeechDenoiserConfig &config);
-#endif
-
-#if __OHOS__
-template OfflineSpeechDenoiser::OfflineSpeechDenoiser(
-    NativeResourceManager *mgr, const OfflineSpeechDenoiserConfig &config);
 #endif
 
 }  // namespace sherpa_onnx

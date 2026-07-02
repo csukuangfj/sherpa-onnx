@@ -15,10 +15,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "sherpa-onnx/csrc/file-utils.h"
 #include "sherpa-onnx/csrc/macros.h"
 #include "sherpa-onnx/csrc/onnx-utils.h"
@@ -85,11 +81,7 @@ class OfflineZipformerCtcModel::Impl {
     if (config_.debug) {
       std::ostringstream os;
       PrintModelMetadata(os, meta_data);
-#if __OHOS__
-      SHERPA_ONNX_LOGE("%{public}s\n", os.str().c_str());
-#else
       SHERPA_ONNX_LOGE("%s\n", os.str().c_str());
-#endif
     }
 
     // get vocab size from the output[0].shape, which is (N, T, vocab_size)
@@ -145,11 +137,6 @@ int32_t OfflineZipformerCtcModel::SubsamplingFactor() const {
 #if __ANDROID_API__ >= 9
 template OfflineZipformerCtcModel::OfflineZipformerCtcModel(
     AAssetManager *mgr, const OfflineModelConfig &config);
-#endif
-
-#if __OHOS__
-template OfflineZipformerCtcModel::OfflineZipformerCtcModel(
-    NativeResourceManager *mgr, const OfflineModelConfig &config);
 #endif
 
 }  // namespace sherpa_onnx

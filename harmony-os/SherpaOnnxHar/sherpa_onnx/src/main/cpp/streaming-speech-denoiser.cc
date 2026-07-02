@@ -1,7 +1,6 @@
 // scripts/node-addon-api/src/streaming-speech-denoiser.cc
 //
 // Copyright (c)  2026  Xiaomi Corporation
-#include <memory>
 #include <sstream>
 
 #include "napi.h"  // NOLINT
@@ -11,15 +10,6 @@
 static Napi::External<SherpaOnnxOnlineSpeechDenoiser>
 CreateOnlineSpeechDenoiserWrapper(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
-#if __OHOS__
-  if (info.Length() != 2) {
-    std::ostringstream os;
-    os << "Expect only 2 arguments. Given: " << info.Length();
-
-    Napi::TypeError::New(env, os.str()).ThrowAsJavaScriptException();
-    return {};
-  }
-#else
   if (info.Length() != 1) {
     std::ostringstream os;
     os << "Expect only 1 argument. Given: " << info.Length();
@@ -27,7 +17,6 @@ CreateOnlineSpeechDenoiserWrapper(const Napi::CallbackInfo &info) {
     Napi::TypeError::New(env, os.str()).ThrowAsJavaScriptException();
     return {};
   }
-#endif
 
   if (!info[0].IsObject()) {
     Napi::TypeError::New(env, "Expect an object as the argument")
@@ -39,18 +28,8 @@ CreateOnlineSpeechDenoiserWrapper(const Napi::CallbackInfo &info) {
   memset(&c, 0, sizeof(c));
   c.model = GetSpeechDenoiserModelConfig(info[0].As<Napi::Object>());
 
-#if __OHOS__
-  std::unique_ptr<NativeResourceManager,
-                  decltype(&OH_ResourceManager_ReleaseNativeResourceManager)>
-      mgr(OH_ResourceManager_InitNativeResourceManager(env, info[1]),
-          &OH_ResourceManager_ReleaseNativeResourceManager);
-
-  const SherpaOnnxOnlineSpeechDenoiser *sd =
-      SherpaOnnxCreateOnlineSpeechDenoiserOHOS(&c, mgr.get());
-#else
   const SherpaOnnxOnlineSpeechDenoiser *sd =
       SherpaOnnxCreateOnlineSpeechDenoiser(&c);
-#endif
 
   DeleteSpeechDenoiserModelConfig(c.model);
 

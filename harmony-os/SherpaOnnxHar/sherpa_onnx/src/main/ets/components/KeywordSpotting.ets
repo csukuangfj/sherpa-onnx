@@ -37,8 +37,8 @@ export class KeywordSpotter {
   public handle: object;
   public config: KeywordSpotterConfig;
 
-  constructor(config: KeywordSpotterConfig, mgr?: object) {
-    this.handle = createKeywordSpotter(config, mgr);
+  constructor(config: KeywordSpotterConfig) {
+    this.handle = createKeywordSpotter(config);
     this.config = config
   }
 

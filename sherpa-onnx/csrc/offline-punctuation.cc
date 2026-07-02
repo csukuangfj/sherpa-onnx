@@ -11,10 +11,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "sherpa-onnx/csrc/macros.h"
 #include "sherpa-onnx/csrc/offline-punctuation-impl.h"
 
@@ -52,11 +48,6 @@ OfflinePunctuation::OfflinePunctuation(Manager *mgr,
 #if __ANDROID_API__ >= 9
 template OfflinePunctuation::OfflinePunctuation(
     AAssetManager *mgr, const OfflinePunctuationConfig &config);
-#endif
-
-#if __OHOS__
-template OfflinePunctuation::OfflinePunctuation(
-    NativeResourceManager *mgr, const OfflinePunctuationConfig &config);
 #endif
 
 OfflinePunctuation::~OfflinePunctuation() = default;

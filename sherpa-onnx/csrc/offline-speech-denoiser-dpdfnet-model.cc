@@ -18,10 +18,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "sherpa-onnx/csrc/file-utils.h"
 #include "sherpa-onnx/csrc/macros.h"
 #include "sherpa-onnx/csrc/onnx-utils.h"
@@ -314,11 +310,7 @@ class OfflineSpeechDenoiserDpdfNetModel::Impl {
       os << "\ncenter: " << static_cast<int32_t>(meta_.center);
       os << "\n";
 
-#if __OHOS__
-      SHERPA_ONNX_LOGE("%{public}s\n", os.str().c_str());
-#else
       SHERPA_ONNX_LOGE("%s\n", os.str().c_str());
-#endif
     }
   }
 
@@ -368,11 +360,6 @@ OfflineSpeechDenoiserDpdfNetModel::GetMetaData() const {
 #if __ANDROID_API__ >= 9
 template OfflineSpeechDenoiserDpdfNetModel::OfflineSpeechDenoiserDpdfNetModel(
     AAssetManager *mgr, const OfflineSpeechDenoiserModelConfig &config);
-#endif
-
-#if __OHOS__
-template OfflineSpeechDenoiserDpdfNetModel::OfflineSpeechDenoiserDpdfNetModel(
-    NativeResourceManager *mgr, const OfflineSpeechDenoiserModelConfig &config);
 #endif
 
 }  // namespace sherpa_onnx

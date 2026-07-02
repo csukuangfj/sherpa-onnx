@@ -17,10 +17,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "sherpa-onnx/csrc/file-utils.h"
 #include "sherpa-onnx/csrc/macros.h"
 #include "sherpa-onnx/csrc/onnx-utils.h"
@@ -157,11 +153,7 @@ class OfflineTtsKittenModel::Impl {
         ++i;
       }
 
-#if __OHOS__
-      SHERPA_ONNX_LOGE("%{public}s\n", os.str().c_str());
-#else
       SHERPA_ONNX_LOGE("%s\n", os.str().c_str());
-#endif
     }
 
     Ort::AllocatorWithDefaultOptions allocator;  // used in the macro below
@@ -202,11 +194,7 @@ class OfflineTtsKittenModel::Impl {
       }
       os << "\n";
 
-#if __OHOS__
-      SHERPA_ONNX_LOGE("%{public}s\n", os.str().c_str());
-#else
       SHERPA_ONNX_LOGE("%s\n", os.str().c_str());
-#endif
     }
 
     SHERPA_ONNX_READ_META_DATA_VEC(style_dim_, "style_dim");
@@ -242,18 +230,10 @@ class OfflineTtsKittenModel::Impl {
         style_dim_[0] * style_dim_[1] * meta_data_.num_speakers;
 
     if (actual_num_floats != expected_num_floats) {
-#if __OHOS__
-      SHERPA_ONNX_LOGE(
-          "Corrupted --kitten-voices '%{public}s'. Expected #floats: "
-          "%{public}d, actual: %{public}d",
-          config_.kitten.voices.c_str(), expected_num_floats,
-          actual_num_floats);
-#else
       SHERPA_ONNX_LOGE(
           "Corrupted --kitten-voices '%s'. Expected #floats: %d, actual: %d",
           config_.kitten.voices.c_str(), expected_num_floats,
           actual_num_floats);
-#endif
 
       SHERPA_ONNX_EXIT(-1);
     }
@@ -336,11 +316,6 @@ Ort::Value OfflineTtsKittenModel::Run(Ort::Value x, int64_t sid /*= 0*/,
 #if __ANDROID_API__ >= 9
 template OfflineTtsKittenModel::OfflineTtsKittenModel(
     AAssetManager *mgr, const OfflineTtsModelConfig &config);
-#endif
-
-#if __OHOS__
-template OfflineTtsKittenModel::OfflineTtsKittenModel(
-    NativeResourceManager *mgr, const OfflineTtsModelConfig &config);
 #endif
 
 }  // namespace sherpa_onnx

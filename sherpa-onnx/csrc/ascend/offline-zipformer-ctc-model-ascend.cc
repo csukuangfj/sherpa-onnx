@@ -19,10 +19,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "sherpa-onnx/csrc/ascend/macros.h"
 #include "sherpa-onnx/csrc/ascend/utils.h"
 #include "sherpa-onnx/csrc/file-utils.h"
@@ -209,11 +205,6 @@ int32_t OfflineZipformerCtcModelAscend::SubsamplingFactor() const {
 #if __ANDROID_API__ >= 9
 template OfflineZipformerCtcModelAscend::OfflineZipformerCtcModelAscend(
     AAssetManager *mgr, const OfflineModelConfig &config);
-#endif
-
-#if __OHOS__
-template OfflineZipformerCtcModelAscend::OfflineZipformerCtcModelAscend(
-    NativeResourceManager *mgr, const OfflineModelConfig &config);
 #endif
 
 }  // namespace sherpa_onnx

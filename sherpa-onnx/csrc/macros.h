@@ -11,17 +11,6 @@
 #if SHERPA_ONNX_ENABLE_WASM
 #include <emscripten.h>
 #endif
-#if __OHOS__
-#include "hilog/log.h"
-
-#undef LOG_DOMAIN
-#undef LOG_TAG
-
-// https://gitee.com/openharmony/docs/blob/145a084f0b742e4325915e32f8184817927d1251/en/contribute/OpenHarmony-Log-guide.md#hilog-api-usage-specifications
-#define LOG_DOMAIN 0x6666
-#define LOG_TAG "sherpa_onnx"
-#endif
-
 #if __ANDROID_API__ >= 8
 #include "android/log.h"
 #define SHERPA_ONNX_LOGE(...)                                                  \
@@ -34,8 +23,6 @@
                         __func__, static_cast<int32_t>(__LINE__));             \
     __android_log_print(ANDROID_LOG_WARN, "sherpa-onnx", ##__VA_ARGS__);       \
   } while (0)
-#elif defined(__OHOS__)
-#define SHERPA_ONNX_LOGE(...) OH_LOG_INFO(LOG_APP, ##__VA_ARGS__)
 #elif SHERPA_ONNX_ENABLE_WASM
 #define SHERPA_ONNX_LOGE(...)                                          \
   do {                                                                 \

@@ -19,10 +19,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "sherpa-onnx/csrc/file-utils.h"
 #include "sherpa-onnx/csrc/macros.h"
 #include "sherpa-onnx/csrc/math.h"
@@ -179,11 +175,7 @@ class OfflineCohereTranscribeModel::Impl {
       std::ostringstream os;
       os << "---encoder---\n";
       PrintModelMetadata(os, meta_data);
-#if __OHOS__
-      SHERPA_ONNX_LOGE("%{public}s\n", os.str().c_str());
-#else
       SHERPA_ONNX_LOGE("%s\n", os.str().c_str());
-#endif
     }
 
     Ort::AllocatorWithDefaultOptions allocator;  // used in the macro below
@@ -376,11 +368,6 @@ int32_t OfflineCohereTranscribeModel::GetMaxSeqLen() const {
 #if __ANDROID_API__ >= 9
 template OfflineCohereTranscribeModel::OfflineCohereTranscribeModel(
     AAssetManager *mgr, const OfflineModelConfig &config);
-#endif
-
-#if __OHOS__
-template OfflineCohereTranscribeModel::OfflineCohereTranscribeModel(
-    NativeResourceManager *mgr, const OfflineModelConfig &config);
 #endif
 
 }  // namespace sherpa_onnx

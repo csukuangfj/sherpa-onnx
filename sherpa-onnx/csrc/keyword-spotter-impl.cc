@@ -11,10 +11,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "sherpa-onnx/csrc/keyword-spotter-transducer-impl.h"
 #include "sherpa-onnx/csrc/macros.h"
 
@@ -76,11 +72,6 @@ std::unique_ptr<KeywordSpotterImpl> KeywordSpotterImpl::Create(
 #if __ANDROID_API__ >= 9
 template std::unique_ptr<KeywordSpotterImpl> KeywordSpotterImpl::Create(
     AAssetManager *mgr, const KeywordSpotterConfig &config);
-#endif
-
-#if __OHOS__
-template std::unique_ptr<KeywordSpotterImpl> KeywordSpotterImpl::Create(
-    NativeResourceManager *mgr, const KeywordSpotterConfig &config);
 #endif
 
 }  // namespace sherpa_onnx

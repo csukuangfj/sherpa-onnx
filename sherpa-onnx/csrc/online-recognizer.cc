@@ -19,10 +19,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "sherpa-onnx/csrc/file-utils.h"
 #include "sherpa-onnx/csrc/online-recognizer-impl.h"
 #include "sherpa-onnx/csrc/text-utils.h"
@@ -266,11 +262,6 @@ void OnlineRecognizer::Reset(OnlineStream *s) const { impl_->Reset(s); }
 #if __ANDROID_API__ >= 9
 template OnlineRecognizer::OnlineRecognizer(
     AAssetManager *mgr, const OnlineRecognizerConfig &config);
-#endif
-
-#if __OHOS__
-template OnlineRecognizer::OnlineRecognizer(
-    NativeResourceManager *mgr, const OnlineRecognizerConfig &config);
 #endif
 
 }  // namespace sherpa_onnx

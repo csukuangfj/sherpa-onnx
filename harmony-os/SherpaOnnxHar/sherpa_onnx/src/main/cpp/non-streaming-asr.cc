@@ -1,7 +1,6 @@
 // scripts/node-addon-api/src/non-streaming-asr.cc
 //
 // Copyright (c)  2024  Xiaomi Corporation
-#include <memory>
 #include <sstream>
 
 #include "macros.h"  // NOLINT
@@ -514,17 +513,6 @@ static void FreeConfig(const SherpaOnnxOfflineRecognizerConfig &c) {
 static Napi::External<SherpaOnnxOfflineRecognizer>
 CreateOfflineRecognizerWrapper(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
-#if __OHOS__
-  // the last argument is the NativeResourceManager
-  if (info.Length() != 1 && info.Length() != 2) {
-    std::ostringstream os;
-    os << "Expect 1 or 2 arguments. Given: " << info.Length();
-
-    Napi::TypeError::New(env, os.str()).ThrowAsJavaScriptException();
-
-    return {};
-  }
-#else
   if (info.Length() != 1) {
     std::ostringstream os;
     os << "Expect only 1 argument. Given: " << info.Length();
@@ -533,7 +521,6 @@ CreateOfflineRecognizerWrapper(const Napi::CallbackInfo &info) {
 
     return {};
   }
-#endif
 
   if (!info[0].IsObject()) {
     Napi::TypeError::New(env, "Expect an object as the argument")
@@ -542,39 +529,12 @@ CreateOfflineRecognizerWrapper(const Napi::CallbackInfo &info) {
     return {};
   }
 
-#if __OHOS__
-  bool use_resource_manager =
-      info.Length() == 2 && !info[1].IsUndefined() && !info[1].IsNull();
-  if (use_resource_manager && !info[1].IsObject()) {
-    Napi::TypeError::New(
-        env, "You should pass a resource manager as the second argument.")
-        .ThrowAsJavaScriptException();
-
-    return {};
-  }
-#endif
-
   Napi::Object o = info[0].As<Napi::Object>();
 
   SherpaOnnxOfflineRecognizerConfig c = ParseConfig(o);
 
-#if __OHOS__
-  const SherpaOnnxOfflineRecognizer *recognizer = nullptr;
-
-  if (use_resource_manager) {
-    std::unique_ptr<NativeResourceManager,
-                    decltype(&OH_ResourceManager_ReleaseNativeResourceManager)>
-        mgr(OH_ResourceManager_InitNativeResourceManager(env, info[1]),
-            &OH_ResourceManager_ReleaseNativeResourceManager);
-
-    recognizer = SherpaOnnxCreateOfflineRecognizerOHOS(&c, mgr.get());
-  } else {
-    recognizer = SherpaOnnxCreateOfflineRecognizer(&c);
-  }
-#else
   const SherpaOnnxOfflineRecognizer *recognizer =
       SherpaOnnxCreateOfflineRecognizer(&c);
-#endif
 
   FreeConfig(c);
 

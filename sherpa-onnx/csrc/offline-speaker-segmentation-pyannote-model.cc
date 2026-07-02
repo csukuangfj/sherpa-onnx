@@ -16,10 +16,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "sherpa-onnx/csrc/file-utils.h"
 #include "sherpa-onnx/csrc/onnx-utils.h"
 #include "sherpa-onnx/csrc/session.h"
@@ -82,11 +78,7 @@ class OfflineSpeakerSegmentationPyannoteModel::Impl {
     if (config_.debug) {
       std::ostringstream os;
       PrintModelMetadata(os, meta_data);
-#if __OHOS__
-      SHERPA_ONNX_LOGE("%{public}s\n", os.str().c_str());
-#else
       SHERPA_ONNX_LOGE("%s\n", os.str().c_str());
-#endif
     }
 
     Ort::AllocatorWithDefaultOptions allocator;  // used in the macro below
@@ -151,13 +143,6 @@ Ort::Value OfflineSpeakerSegmentationPyannoteModel::Forward(
 template OfflineSpeakerSegmentationPyannoteModel::
     OfflineSpeakerSegmentationPyannoteModel(  // NOLINT
         AAssetManager *mgr,
-        const OfflineSpeakerSegmentationModelConfig &config);
-#endif
-
-#if __OHOS__
-template OfflineSpeakerSegmentationPyannoteModel::
-    OfflineSpeakerSegmentationPyannoteModel(  // NOLINT
-        NativeResourceManager *mgr,
         const OfflineSpeakerSegmentationModelConfig &config);
 #endif
 

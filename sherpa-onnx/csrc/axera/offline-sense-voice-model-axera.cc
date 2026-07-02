@@ -16,10 +16,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "ax_engine_api.h"  // NOLINT
 #include "ax_sys_api.h"     // NOLINT
 #include "sherpa-onnx/csrc/axera/ax-engine-guard.h"
@@ -202,11 +198,6 @@ OfflineSenseVoiceModelAxera::GetModelMetadata() const {
 #if __ANDROID_API__ >= 9
 template OfflineSenseVoiceModelAxera::OfflineSenseVoiceModelAxera(
     AAssetManager *mgr, const OfflineModelConfig &config);
-#endif
-
-#if __OHOS__
-template OfflineSenseVoiceModelAxera::OfflineSenseVoiceModelAxera(
-    NativeResourceManager *mgr, const OfflineModelConfig &config);
 #endif
 
 }  // namespace sherpa_onnx

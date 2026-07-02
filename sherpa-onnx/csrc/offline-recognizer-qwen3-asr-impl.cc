@@ -22,10 +22,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "onnxruntime_cxx_api.h"
 #include "sherpa-onnx/csrc/macros.h"
 #include "sherpa-onnx/csrc/math.h"
@@ -1113,11 +1109,6 @@ void OfflineRecognizerQwen3ASRImpl::Decode(OfflineStream *stream) const {
 #if __ANDROID_API__ >= 9
 template OfflineRecognizerQwen3ASRImpl::OfflineRecognizerQwen3ASRImpl(
     AAssetManager *mgr, const OfflineRecognizerConfig &config);
-#endif
-
-#if __OHOS__
-template OfflineRecognizerQwen3ASRImpl::OfflineRecognizerQwen3ASRImpl(
-    NativeResourceManager *mgr, const OfflineRecognizerConfig &config);
 #endif
 
 }  // namespace sherpa_onnx

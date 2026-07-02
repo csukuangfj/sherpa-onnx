@@ -19,10 +19,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "kaldifst/csrc/text-normalizer.h"
 #include "sherpa-onnx/csrc/file-utils.h"
 #include "sherpa-onnx/csrc/macros.h"
@@ -141,11 +137,7 @@ class HomophoneReplacer::Impl {
     std::vector<std::string> words = SplitUtf8(text);
 
     if (config_.debug) {
-#if __OHOS__
-      SHERPA_ONNX_LOGE("Input text: '%{public}s'", text.c_str());
-#else
       SHERPA_ONNX_LOGE("Input text: '%s'", text.c_str());
-#endif
       std::ostringstream os;
       os << "After splitting into UTF8: ";
       std::string sep;
@@ -154,11 +146,7 @@ class HomophoneReplacer::Impl {
         sep = "_";
       }
 
-#if __OHOS__
-      SHERPA_ONNX_LOGE("%{public}s", os.str().c_str());
-#else
       SHERPA_ONNX_LOGE("%s", os.str().c_str());
-#endif
     }
 
     // convert words to pronunciations
@@ -311,11 +299,6 @@ std::string HomophoneReplacer::Apply(const std::string &text) const {
 #if __ANDROID_API__ >= 9
 template HomophoneReplacer::HomophoneReplacer(
     AAssetManager *mgr, const HomophoneReplacerConfig &config);
-#endif
-
-#if __OHOS__
-template HomophoneReplacer::HomophoneReplacer(
-    NativeResourceManager *mgr, const HomophoneReplacerConfig &config);
 #endif
 
 }  // namespace sherpa_onnx

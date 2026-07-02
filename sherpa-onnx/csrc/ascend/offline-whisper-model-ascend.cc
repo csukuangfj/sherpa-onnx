@@ -16,10 +16,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "sherpa-onnx/csrc/ascend/macros.h"
 #include "sherpa-onnx/csrc/ascend/utils.h"
 #include "sherpa-onnx/csrc/file-utils.h"
@@ -688,11 +684,6 @@ int32_t OfflineWhisperModelAscend::FeatureDim() const {
 #if __ANDROID_API__ >= 9
 template OfflineWhisperModelAscend::OfflineWhisperModelAscend(
     AAssetManager *mgr, const OfflineModelConfig &config);
-#endif
-
-#if __OHOS__
-template OfflineWhisperModelAscend::OfflineWhisperModelAscend(
-    NativeResourceManager *mgr, const OfflineModelConfig &config);
 #endif
 
 }  // namespace sherpa_onnx

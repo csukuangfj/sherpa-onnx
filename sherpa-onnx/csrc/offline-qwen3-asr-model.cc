@@ -20,10 +20,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "onnxruntime_cxx_api.h"
 #include "sherpa-onnx/csrc/file-utils.h"
 #include "sherpa-onnx/csrc/macros.h"
@@ -849,11 +845,6 @@ OrtAllocator *OfflineQwen3ASRModel::Allocator() const {
 #if __ANDROID_API__ >= 9
 template OfflineQwen3ASRModel::OfflineQwen3ASRModel(
     AAssetManager *mgr, const OfflineModelConfig &config);
-#endif
-
-#if __OHOS__
-template OfflineQwen3ASRModel::OfflineQwen3ASRModel(
-    NativeResourceManager *mgr, const OfflineModelConfig &config);
 #endif
 
 }  // namespace sherpa_onnx

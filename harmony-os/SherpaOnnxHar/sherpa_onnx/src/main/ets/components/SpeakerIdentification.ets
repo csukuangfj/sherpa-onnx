@@ -28,8 +28,8 @@ export class SpeakerEmbeddingExtractor {
   public dim: number;
   private handle: object;
 
-  constructor(config: SpeakerEmbeddingExtractorConfig, mgr?: object) {
-    this.handle = createSpeakerEmbeddingExtractor(config, mgr);
+  constructor(config: SpeakerEmbeddingExtractorConfig) {
+    this.handle = createSpeakerEmbeddingExtractor(config);
     this.config = config;
     this.dim = speakerEmbeddingExtractorDim(this.handle);
   }

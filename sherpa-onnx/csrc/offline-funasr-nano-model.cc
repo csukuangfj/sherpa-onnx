@@ -20,10 +20,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "onnxruntime_cxx_api.h"  // NOLINT
 #include "sherpa-onnx/csrc/file-utils.h"
 #include "sherpa-onnx/csrc/macros.h"
@@ -372,11 +368,7 @@ class OfflineFunASRNanoModel::Impl {
     if (config_.debug) {
       std::ostringstream os;
       PrintModelMetadata(os, meta_data);
-#if __OHOS__
-      SHERPA_ONNX_LOGE("%{public}s\n", os.str().c_str());
-#else
       SHERPA_ONNX_LOGE("%s\n", os.str().c_str());
-#endif
     }
     Ort::AllocatorWithDefaultOptions allocator;  // used in the macro below
     SHERPA_ONNX_READ_META_DATA(lfr_window_size_, "lfr_window_size");
@@ -399,11 +391,7 @@ class OfflineFunASRNanoModel::Impl {
     if (config_.debug) {
       std::ostringstream os;
       PrintModelMetadata(os, meta_data);
-#if __OHOS__
-      SHERPA_ONNX_LOGE("LLM model metadata:\n%{public}s\n", os.str().c_str());
-#else
       SHERPA_ONNX_LOGE("LLM model metadata:\n%s\n", os.str().c_str());
-#endif
     }
 
     Ort::AllocatorWithDefaultOptions allocator;
@@ -592,11 +580,7 @@ class OfflineFunASRNanoModel::Impl {
     if (config_.debug) {
       std::ostringstream os;
       PrintModelMetadata(os, meta_data);
-#if __OHOS__
-      SHERPA_ONNX_LOGE("%{public}s\n", os.str().c_str());
-#else
       SHERPA_ONNX_LOGE("%s\n", os.str().c_str());
-#endif
     }
     Ort::AllocatorWithDefaultOptions allocator;  // used in the macro below
     if (hidden_size_ == 0) {
@@ -1091,11 +1075,7 @@ class OfflineFunASRNanoModel::Impl {
     if (config_.debug) {
       std::ostringstream os;
       PrintModelMetadata(os, meta_data);
-#if __OHOS__
-      SHERPA_ONNX_LOGE("%{public}s\n", os.str().c_str());
-#else
       SHERPA_ONNX_LOGE("%s\n", os.str().c_str());
-#endif
     }
     Ort::AllocatorWithDefaultOptions allocator;  // used in the macro below
     SHERPA_ONNX_READ_META_DATA(lfr_window_size_, "lfr_window_size");
@@ -1145,11 +1125,7 @@ class OfflineFunASRNanoModel::Impl {
     if (config_.debug) {
       std::ostringstream os;
       PrintModelMetadata(os, meta_data);
-#if __OHOS__
-      SHERPA_ONNX_LOGE("%{public}s\n", os.str().c_str());
-#else
       SHERPA_ONNX_LOGE("%s\n", os.str().c_str());
-#endif
     }
     Ort::AllocatorWithDefaultOptions allocator;  // used in the macro below
     if (hidden_size_ == 0) {
@@ -1289,11 +1265,6 @@ bool OfflineFunASRNanoModel::HasEmbeddingModel() const {
 #if __ANDROID_API__ >= 9
 template OfflineFunASRNanoModel::OfflineFunASRNanoModel(
     AAssetManager *mgr, const OfflineModelConfig &config);
-#endif
-
-#if __OHOS__
-template OfflineFunASRNanoModel::OfflineFunASRNanoModel(
-    NativeResourceManager *mgr, const OfflineModelConfig &config);
 #endif
 
 }  // namespace sherpa_onnx

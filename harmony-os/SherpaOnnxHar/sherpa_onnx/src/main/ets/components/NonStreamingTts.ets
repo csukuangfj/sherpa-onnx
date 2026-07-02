@@ -146,8 +146,8 @@ export class OfflineTts {
   public sampleRate: number;
   private handle: object;
 
-  constructor(config: OfflineTtsConfig, mgr?: object) {
-    this.handle = createOfflineTts(config, mgr);
+  constructor(config: OfflineTtsConfig) {
+    this.handle = createOfflineTts(config);
     this.config = config;
 
     this.numSpeakers = getOfflineTtsNumSpeakers(this.handle);

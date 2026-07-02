@@ -19,10 +19,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "espeak-ng/speak_lib.h"
 #include "phoneme_ids.hpp"  // NOLINT
 #include "phonemize.hpp"    // NOLINT
@@ -199,11 +195,7 @@ class KokoroMultiLangLexicon::Impl {
         os << id2token_.at(i) << " ";
       }
       os << "\n";
-#if __OHOS__
-      SHERPA_ONNX_LOGE("%{public}s", os.str().c_str());
-#else
       SHERPA_ONNX_LOGE("%s", os.str().c_str());
-#endif
     }
 
     return ans;
@@ -221,12 +213,7 @@ class KokoroMultiLangLexicon::Impl {
         sep = "_";
       }
 
-#if __OHOS__
-      SHERPA_ONNX_LOGE("after splitting into UTF8:\n%{public}s",
-                       os.str().c_str());
-#else
       SHERPA_ONNX_LOGE("after splitting into UTF8:\n%s", os.str().c_str());
-#endif
     }
 
     std::vector<std::vector<int32_t>> ans;
@@ -240,11 +227,7 @@ class KokoroMultiLangLexicon::Impl {
     for (const std::string &w : matcher) {
       auto ids = ConvertWordToIds(w);
       if (ids.empty()) {
-#if __OHOS__
-        SHERPA_ONNX_LOGE("Ignore OOV '%{public}s'", w.c_str());
-#else
         SHERPA_ONNX_LOGE("Ignore OOV '%s'", w.c_str());
-#endif
         continue;
       }
 
@@ -581,13 +564,6 @@ template KokoroMultiLangLexicon::KokoroMultiLangLexicon(
     AAssetManager *mgr, const std::string &tokens, const std::string &lexicon,
     const std::string &data_dir, const OfflineTtsKokoroModelMetaData &meta_data,
     bool debug);
-#endif
-
-#if __OHOS__
-template KokoroMultiLangLexicon::KokoroMultiLangLexicon(
-    NativeResourceManager *mgr, const std::string &tokens,
-    const std::string &lexicon, const std::string &data_dir,
-    const OfflineTtsKokoroModelMetaData &meta_data, bool debug);
 #endif
 
 }  // namespace sherpa_onnx

@@ -16,10 +16,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "Eigen/Dense"
 #include "sherpa-onnx/csrc/file-utils.h"
 #include "sherpa-onnx/csrc/macros.h"
@@ -107,11 +103,7 @@ class OfflineFireRedAsrCtcModel::Impl {
     if (config_.debug) {
       std::ostringstream os;
       PrintModelMetadata(os, meta_data);
-#if __OHOS__
-      SHERPA_ONNX_LOGE("%{public}s\n", os.str().c_str());
-#else
       SHERPA_ONNX_LOGE("%s\n", os.str().c_str());
-#endif
     }
 
     Ort::AllocatorWithDefaultOptions allocator;  // used in the macro below
@@ -132,13 +124,8 @@ class OfflineFireRedAsrCtcModel::Impl {
     vocab_size_ = shape.back();
 
     if (config_.debug) {
-#if __OHOS__
-      SHERPA_ONNX_LOGE("subsampling_factor: %{public}d", subsampling_factor_);
-      SHERPA_ONNX_LOGE("vocab_size: %{public}d", vocab_size_);
-#else
       SHERPA_ONNX_LOGE("subsampling_factor: %d", subsampling_factor_);
       SHERPA_ONNX_LOGE("vocab_size: %d", vocab_size_);
-#endif
     }
 
     SHERPA_ONNX_READ_META_DATA_VEC_FLOAT(mean_, "cmvn_mean");
@@ -209,11 +196,6 @@ void OfflineFireRedAsrCtcModel::NormalizeFeatures(float *features,
 #if __ANDROID_API__ >= 9
 template OfflineFireRedAsrCtcModel::OfflineFireRedAsrCtcModel(
     AAssetManager *mgr, const OfflineModelConfig &config);
-#endif
-
-#if __OHOS__
-template OfflineFireRedAsrCtcModel::OfflineFireRedAsrCtcModel(
-    NativeResourceManager *mgr, const OfflineModelConfig &config);
 #endif
 
 }  // namespace sherpa_onnx

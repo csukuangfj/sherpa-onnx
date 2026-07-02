@@ -14,10 +14,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "sherpa-onnx/csrc/file-utils.h"
 #include "sherpa-onnx/csrc/macros.h"
 #include "sherpa-onnx/csrc/rknn/macros.h"
@@ -401,11 +397,6 @@ float SileroVadModelRknn::Compute(const float *samples, int32_t n) {
 
 #if __ANDROID_API__ >= 9
 template SileroVadModelRknn::SileroVadModelRknn(AAssetManager *mgr,
-                                                const VadModelConfig &config);
-#endif
-
-#if __OHOS__
-template SileroVadModelRknn::SileroVadModelRknn(NativeResourceManager *mgr,
                                                 const VadModelConfig &config);
 #endif
 

@@ -19,10 +19,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "sherpa-onnx/csrc/file-utils.h"
 #include "sherpa-onnx/csrc/macros.h"
 #include "sherpa-onnx/csrc/normal-data-generator.h"
@@ -201,11 +197,7 @@ class OfflineTtsZipvoiceModel::Impl {
         ++i;
       }
 
-#if __OHOS__
-      SHERPA_ONNX_LOGE("%{public}s\n", os.str().c_str());
-#else
       SHERPA_ONNX_LOGE("%s\n", os.str().c_str());
-#endif
     }
   }
 
@@ -259,11 +251,7 @@ class OfflineTtsZipvoiceModel::Impl {
         ++i;
       }
 
-#if __OHOS__
-      SHERPA_ONNX_LOGE("%{public}s\n", os.str().c_str());
-#else
       SHERPA_ONNX_LOGE("%s\n", os.str().c_str());
-#endif
     }
   }
 
@@ -391,11 +379,6 @@ Ort::Value OfflineTtsZipvoiceModel::Run(Ort::Value tokens,
 #if __ANDROID_API__ >= 9
 template OfflineTtsZipvoiceModel::OfflineTtsZipvoiceModel(
     AAssetManager *mgr, const OfflineTtsModelConfig &config);
-#endif
-
-#if __OHOS__
-template OfflineTtsZipvoiceModel::OfflineTtsZipvoiceModel(
-    NativeResourceManager *mgr, const OfflineTtsModelConfig &config);
 #endif
 
 }  // namespace sherpa_onnx

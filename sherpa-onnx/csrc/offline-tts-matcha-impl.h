@@ -63,11 +63,7 @@ class OfflineTtsMatchaImpl : public OfflineTtsImpl {
       tn_list_.reserve(files.size());
       for (const auto &f : files) {
         if (config.model.debug) {
-#if __OHOS__
-          SHERPA_ONNX_LOGE("rule fst: %{public}s", f.c_str());
-#else
           SHERPA_ONNX_LOGE("rule fst: %s", f.c_str());
-#endif
         }
         tn_list_.push_back(std::make_unique<kaldifst::TextNormalizer>(f));
       }
@@ -84,11 +80,7 @@ class OfflineTtsMatchaImpl : public OfflineTtsImpl {
 
       for (const auto &f : files) {
         if (config.model.debug) {
-#if __OHOS__
-          SHERPA_ONNX_LOGE("rule far: %{public}s", f.c_str());
-#else
           SHERPA_ONNX_LOGE("rule far: %s", f.c_str());
-#endif
         }
         std::unique_ptr<fst::FarReader<fst::StdArc>> reader(
             fst::FarReader<fst::StdArc>::Open(f));
@@ -145,11 +137,7 @@ class OfflineTtsMatchaImpl : public OfflineTtsImpl {
       tn_list_.reserve(files.size());
       for (const auto &f : files) {
         if (config.model.debug) {
-#if __OHOS__
-          SHERPA_ONNX_LOGE("rule fst: %{public}s", f.c_str());
-#else
           SHERPA_ONNX_LOGE("rule fst: %s", f.c_str());
-#endif
         }
         auto buf = ReadFile(mgr, f);
         std::istringstream is(std::string(buf.data(), buf.size()));
@@ -164,11 +152,7 @@ class OfflineTtsMatchaImpl : public OfflineTtsImpl {
 
       for (const auto &f : files) {
         if (config.model.debug) {
-#if __OHOS__
-          SHERPA_ONNX_LOGE("rule far: %{public}s", f.c_str());
-#else
           SHERPA_ONNX_LOGE("rule far: %s", f.c_str());
-#endif
         }
 
         auto buf = ReadFile(mgr, f);
@@ -228,52 +212,30 @@ class OfflineTtsMatchaImpl : public OfflineTtsImpl {
     int32_t num_speakers = meta_data.num_speakers;
 
     if (num_speakers == 0 && sid != 0) {
-#if __OHOS__
-      SHERPA_ONNX_LOGE(
-          "This is a single-speaker model and supports only sid 0. Given sid: "
-          "%{public}d. sid is ignored",
-          static_cast<int32_t>(sid));
-#else
       SHERPA_ONNX_LOGE(
           "This is a single-speaker model and supports only sid 0. Given sid: "
           "%d. sid is ignored",
           static_cast<int32_t>(sid));
-#endif
     }
 
     if (num_speakers != 0 && (sid >= num_speakers || sid < 0)) {
-#if __OHOS__
-      SHERPA_ONNX_LOGE(
-          "This model contains only %{public}d speakers. sid should be in the "
-          "range [%{public}d, %{public}d]. Given: %{public}d. Use sid=0",
-          num_speakers, 0, num_speakers - 1, static_cast<int32_t>(sid));
-#else
       SHERPA_ONNX_LOGE(
           "This model contains only %d speakers. sid should be in the range "
           "[%d, %d]. Given: %d. Use sid=0",
           num_speakers, 0, num_speakers - 1, static_cast<int32_t>(sid));
-#endif
       sid = 0;
     }
 
     std::string text = _text;
     if (config_.model.debug) {
-#if __OHOS__
-      SHERPA_ONNX_LOGE("Raw text: %{public}s", text.c_str());
-#else
       SHERPA_ONNX_LOGE("Raw text: %s", text.c_str());
-#endif
     }
 
     if (!tn_list_.empty()) {
       for (const auto &tn : tn_list_) {
         text = tn->Normalize(text);
         if (config_.model.debug) {
-#if __OHOS__
-          SHERPA_ONNX_LOGE("After normalizing: %{public}s", text.c_str());
-#else
           SHERPA_ONNX_LOGE("After normalizing: %s", text.c_str());
-#endif
         }
       }
     }
@@ -283,12 +245,7 @@ class OfflineTtsMatchaImpl : public OfflineTtsImpl {
 
     if (token_ids.empty() ||
         (token_ids.size() == 1 && token_ids[0].tokens.empty())) {
-#if __OHOS__
-      SHERPA_ONNX_LOGE("Failed to convert '%{public}s' to token IDs",
-                       text.c_str());
-#else
       SHERPA_ONNX_LOGE("Failed to convert '%s' to token IDs", text.c_str());
-#endif
       return {};
     }
 
@@ -325,17 +282,10 @@ class OfflineTtsMatchaImpl : public OfflineTtsImpl {
     int32_t num_batches = x_size / batch_size;
 
     if (config_.model.debug) {
-#if __OHOS__
-      SHERPA_ONNX_LOGE(
-          "Text is too long. Split it into %{public}d batches. batch size: "
-          "%{public}d. Number of sentences: %{public}d",
-          num_batches, batch_size, x_size);
-#else
       SHERPA_ONNX_LOGE(
           "Text is too long. Split it into %d batches. batch size: %d. Number "
           "of sentences: %d",
           num_batches, batch_size, x_size);
-#endif
     }
 
     GeneratedAudio ans;

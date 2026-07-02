@@ -136,14 +136,8 @@ class OfflineTtsZipvoiceImpl : public OfflineTtsImpl {
         frontend_->ConvertTextToTokenIds(config.reference_text);
     if (prompt_token_ids.empty() ||
         (prompt_token_ids.size() == 1 && prompt_token_ids[0].tokens.empty())) {
-#if __OHOS__
-      SHERPA_ONNX_LOGE(
-          "Failed to convert prompt text '%{public}s' to token IDs",
-          config.reference_text.c_str());
-#else
       SHERPA_ONNX_LOGE("Failed to convert prompt text '%s' to token IDs",
                        config.reference_text.c_str());
-#endif
       return {};
     }
 
@@ -203,13 +197,8 @@ class OfflineTtsZipvoiceImpl : public OfflineTtsImpl {
 
     for (int32_t i = 0; i < total; ++i) {
       if (config_.model.debug) {
-#if __OHOS__
-        SHERPA_ONNX_LOGE("Processing %{public}d/%{public}d: %{public}s", i + 1,
-                         total, sentences[i].c_str());
-#else
         SHERPA_ONNX_LOGE("Processing %d/%d: %s", i + 1, total,
                          sentences[i].c_str());
-#endif
       }
 
       GeneratedAudio cur = GenerateChunk(
@@ -372,12 +361,7 @@ class OfflineTtsZipvoiceImpl : public OfflineTtsImpl {
 
     if (text_token_ids.empty() ||
         (text_token_ids.size() == 1 && text_token_ids[0].tokens.empty())) {
-#if __OHOS__
-      SHERPA_ONNX_LOGE("Failed to convert '%{public}s' to token IDs",
-                       text.c_str());
-#else
       SHERPA_ONNX_LOGE("Failed to convert '%s' to token IDs", text.c_str());
-#endif
       return {};
     }
 

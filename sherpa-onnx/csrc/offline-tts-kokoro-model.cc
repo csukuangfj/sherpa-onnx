@@ -16,10 +16,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "sherpa-onnx/csrc/file-utils.h"
 #include "sherpa-onnx/csrc/macros.h"
 #include "sherpa-onnx/csrc/onnx-utils.h"
@@ -139,11 +135,7 @@ class OfflineTtsKokoroModel::Impl {
         ++i;
       }
 
-#if __OHOS__
-      SHERPA_ONNX_LOGE("%{public}s\n", os.str().c_str());
-#else
       SHERPA_ONNX_LOGE("%s\n", os.str().c_str());
-#endif
     }
 
     Ort::AllocatorWithDefaultOptions allocator;  // used in the macro below
@@ -164,11 +156,7 @@ class OfflineTtsKokoroModel::Impl {
       }
       os << "\n";
 
-#if __OHOS__
-      SHERPA_ONNX_LOGE("%{public}s\n", os.str().c_str());
-#else
       SHERPA_ONNX_LOGE("%s\n", os.str().c_str());
-#endif
     }
 
     SHERPA_ONNX_READ_META_DATA_VEC(style_dim_, "style_dim");
@@ -188,18 +176,10 @@ class OfflineTtsKokoroModel::Impl {
         style_dim_[0] * style_dim_[2] * meta_data_.num_speakers;
 
     if (actual_num_floats != expected_num_floats) {
-#if __OHOS__
-      SHERPA_ONNX_LOGE(
-          "Corrupted --kokoro-voices '%{public}s'. Expected #floats: "
-          "%{public}d, actual: %{public}d",
-          config_.kokoro.voices.c_str(), expected_num_floats,
-          actual_num_floats);
-#else
       SHERPA_ONNX_LOGE(
           "Corrupted --kokoro-voices '%s'. Expected #floats: %d, actual: %d",
           config_.kokoro.voices.c_str(), expected_num_floats,
           actual_num_floats);
-#endif
 
       SHERPA_ONNX_EXIT(-1);
     }
@@ -256,11 +236,6 @@ Ort::Value OfflineTtsKokoroModel::Run(Ort::Value x, int64_t sid /*= 0*/,
 #if __ANDROID_API__ >= 9
 template OfflineTtsKokoroModel::OfflineTtsKokoroModel(
     AAssetManager *mgr, const OfflineTtsModelConfig &config);
-#endif
-
-#if __OHOS__
-template OfflineTtsKokoroModel::OfflineTtsKokoroModel(
-    NativeResourceManager *mgr, const OfflineTtsModelConfig &config);
 #endif
 
 }  // namespace sherpa_onnx

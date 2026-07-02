@@ -19,10 +19,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "sherpa-onnx/csrc/base64-decode.h"
 #include "sherpa-onnx/csrc/bbpe.h"
 #include "sherpa-onnx/csrc/file-utils.h"
@@ -274,11 +270,6 @@ std::string SymbolTable::DecodeByteBpe(const std::string &text) const {
 
 #if __ANDROID_API__ >= 9
 template SymbolTable::SymbolTable(AAssetManager *mgr,
-                                  const std::string &filename);
-#endif
-
-#if __OHOS__
-template SymbolTable::SymbolTable(NativeResourceManager *mgr,
                                   const std::string &filename);
 #endif
 

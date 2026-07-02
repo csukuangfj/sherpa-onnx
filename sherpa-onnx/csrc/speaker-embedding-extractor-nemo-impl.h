@@ -54,15 +54,9 @@ class SpeakerEmbeddingExtractorNeMoImpl : public SpeakerEmbeddingExtractorImpl {
   std::vector<float> Compute(OnlineStream *s) const override {
     int32_t num_frames = s->NumFramesReady() - s->GetNumProcessedFrames();
     if (num_frames <= 0) {
-#if __OHOS__
-      SHERPA_ONNX_LOGE(
-          "Please make sure IsReady(s) returns true. num_frames: %{public}d",
-          num_frames);
-#else
       SHERPA_ONNX_LOGE(
           "Please make sure IsReady(s) returns true. num_frames: %d",
           num_frames);
-#endif
       return {};
     }
 
@@ -78,14 +72,9 @@ class SpeakerEmbeddingExtractorNeMoImpl : public SpeakerEmbeddingExtractorImpl {
       if (meta_data.feature_normalize_type == "per_feature") {
         NormalizePerFeature(features.data(), num_frames, feat_dim);
       } else {
-#if __OHOS__
-        SHERPA_ONNX_LOGE("Unsupported feature_normalize_type: %{public}s",
-                         meta_data.feature_normalize_type.c_str());
-#else
 
         SHERPA_ONNX_LOGE("Unsupported feature_normalize_type: %s",
                          meta_data.feature_normalize_type.c_str());
-#endif
         SHERPA_ONNX_EXIT(-1);
       }
     }

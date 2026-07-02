@@ -14,10 +14,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 namespace sherpa_onnx {
 
 /** Check whether a given path is a file or not
@@ -37,11 +33,6 @@ std::vector<char> ReadFile(const std::string &filename);
 
 #if __ANDROID_API__ >= 9
 std::vector<char> ReadFile(AAssetManager *mgr, const std::string &filename);
-#endif
-
-#if __OHOS__
-std::vector<char> ReadFile(NativeResourceManager *mgr,
-                           const std::string &filename);
 #endif
 
 std::string ResolveAbsolutePath(const std::string &path);

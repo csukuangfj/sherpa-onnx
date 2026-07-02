@@ -39,16 +39,6 @@ static SherpaOnnxOfflinePunctuationModelConfig GetOfflinePunctuationModelConfig(
 static Napi::External<SherpaOnnxOfflinePunctuation>
 CreateOfflinePunctuationWrapper(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
-#if __OHOS__
-  if (info.Length() != 1 && info.Length() != 2) {
-    std::ostringstream os;
-    os << "Expect 1 or 2 arguments. Given: " << info.Length();
-
-    Napi::TypeError::New(env, os.str()).ThrowAsJavaScriptException();
-
-    return {};
-  }
-#else
   if (info.Length() != 1) {
     std::ostringstream os;
     os << "Expect only 1 argument. Given: " << info.Length();
@@ -57,7 +47,6 @@ CreateOfflinePunctuationWrapper(const Napi::CallbackInfo &info) {
 
     return {};
   }
-#endif
 
   if (!info[0].IsObject()) {
     Napi::TypeError::New(env, "You should pass an object as the first argument.")
@@ -72,33 +61,8 @@ CreateOfflinePunctuationWrapper(const Napi::CallbackInfo &info) {
   memset(&c, 0, sizeof(c));
   c.model = GetOfflinePunctuationModelConfig(o);
 
-#if __OHOS__
-  const SherpaOnnxOfflinePunctuation *punct = nullptr;
-
-  if (info.Length() == 1 || info[1].IsUndefined() || info[1].IsNull()) {
-    punct = SherpaOnnxCreateOfflinePunctuation(&c);
-  } else {
-    if (!info[1].IsObject()) {
-      Napi::TypeError::New(
-          env, "You should pass a resource manager as the second argument.")
-          .ThrowAsJavaScriptException();
-
-      SHERPA_ONNX_DELETE_C_STR(c.model.ct_transformer);
-      SHERPA_ONNX_DELETE_C_STR(c.model.provider);
-      return {};
-    }
-
-    std::unique_ptr<NativeResourceManager,
-                    decltype(&OH_ResourceManager_ReleaseNativeResourceManager)>
-        mgr(OH_ResourceManager_InitNativeResourceManager(env, info[1]),
-            &OH_ResourceManager_ReleaseNativeResourceManager);
-
-    punct = SherpaOnnxCreateOfflinePunctuationOHOS(&c, mgr.get());
-  }
-#else
   const SherpaOnnxOfflinePunctuation *punct =
       SherpaOnnxCreateOfflinePunctuation(&c);
-#endif
 
   SHERPA_ONNX_DELETE_C_STR(c.model.ct_transformer);
   SHERPA_ONNX_DELETE_C_STR(c.model.provider);

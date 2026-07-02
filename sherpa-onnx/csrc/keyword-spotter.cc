@@ -19,10 +19,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "sherpa-onnx/csrc/file-utils.h"
 #include "sherpa-onnx/csrc/keyword-spotter-impl.h"
 
@@ -178,11 +174,6 @@ KeywordResult KeywordSpotter::GetResult(OnlineStream *s) const {
 
 #if __ANDROID_API__ >= 9
 template KeywordSpotter::KeywordSpotter(AAssetManager *mgr,
-                                        const KeywordSpotterConfig &config);
-#endif
-
-#if __OHOS__
-template KeywordSpotter::KeywordSpotter(NativeResourceManager *mgr,
                                         const KeywordSpotterConfig &config);
 #endif
 

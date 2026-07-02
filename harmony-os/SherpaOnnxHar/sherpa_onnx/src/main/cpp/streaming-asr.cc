@@ -1,7 +1,6 @@
 // scripts/node-addon-api/src/streaming-asr.cc
 //
 // Copyright (c)  2024  Xiaomi Corporation
-#include <memory>
 #include <sstream>
 #include <string>
 
@@ -200,16 +199,6 @@ SherpaOnnxHomophoneReplacerConfig GetHomophoneReplacerConfig(Napi::Object obj) {
 static Napi::External<SherpaOnnxOnlineRecognizer> CreateOnlineRecognizerWrapper(
     const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
-#if __OHOS__
-  if (info.Length() != 1 && info.Length() != 2) {
-    std::ostringstream os;
-    os << "Expect 1 or 2 arguments. Given: " << info.Length();
-
-    Napi::TypeError::New(env, os.str()).ThrowAsJavaScriptException();
-
-    return {};
-  }
-#else
   if (info.Length() != 1) {
     std::ostringstream os;
     os << "Expect only 1 argument. Given: " << info.Length();
@@ -218,7 +207,6 @@ static Napi::External<SherpaOnnxOnlineRecognizer> CreateOnlineRecognizerWrapper(
 
     return {};
   }
-#endif
 
   if (!info[0].IsObject()) {
     Napi::TypeError::New(env, "Expect an object as the argument")
@@ -226,18 +214,6 @@ static Napi::External<SherpaOnnxOnlineRecognizer> CreateOnlineRecognizerWrapper(
 
     return {};
   }
-
-#if __OHOS__
-  bool use_resource_manager =
-      info.Length() == 2 && !info[1].IsUndefined() && !info[1].IsNull();
-  if (use_resource_manager && !info[1].IsObject()) {
-    Napi::TypeError::New(
-        env, "You should pass a resource manager as the second argument.")
-        .ThrowAsJavaScriptException();
-
-    return {};
-  }
-#endif
 
   Napi::Object o = info[0].As<Napi::Object>();
   SherpaOnnxOnlineRecognizerConfig c;
@@ -276,23 +252,8 @@ static Napi::External<SherpaOnnxOnlineRecognizer> CreateOnlineRecognizerWrapper(
 
   c.ctc_fst_decoder_config = GetCtcFstDecoderConfig(o);
 
-#if __OHOS__
-  const SherpaOnnxOnlineRecognizer *recognizer = nullptr;
-
-  if (use_resource_manager) {
-    std::unique_ptr<NativeResourceManager,
-                    decltype(&OH_ResourceManager_ReleaseNativeResourceManager)>
-        mgr(OH_ResourceManager_InitNativeResourceManager(env, info[1]),
-            &OH_ResourceManager_ReleaseNativeResourceManager);
-
-    recognizer = SherpaOnnxCreateOnlineRecognizerOHOS(&c, mgr.get());
-  } else {
-    recognizer = SherpaOnnxCreateOnlineRecognizer(&c);
-  }
-#else
   const SherpaOnnxOnlineRecognizer *recognizer =
       SherpaOnnxCreateOnlineRecognizer(&c);
-#endif
   SHERPA_ONNX_DELETE_C_STR(c.model_config.transducer.encoder);
   SHERPA_ONNX_DELETE_C_STR(c.model_config.transducer.decoder);
   SHERPA_ONNX_DELETE_C_STR(c.model_config.transducer.joiner);

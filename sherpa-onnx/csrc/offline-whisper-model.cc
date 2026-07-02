@@ -19,10 +19,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "sherpa-onnx/csrc/file-utils.h"
 #include "sherpa-onnx/csrc/macros.h"
 #include "sherpa-onnx/csrc/math.h"
@@ -345,11 +341,7 @@ class OfflineWhisperModel::Impl {
       std::ostringstream os;
       os << "---encoder---\n";
       PrintModelMetadata(os, meta_data);
-#if __OHOS__
-      SHERPA_ONNX_LOGE("%{public}s\n", os.str().c_str());
-#else
       SHERPA_ONNX_LOGE("%s\n", os.str().c_str());
-#endif
     }
 
     Ort::AllocatorWithDefaultOptions allocator;  // used in the macro below
@@ -615,15 +607,6 @@ template OfflineWhisperModel::OfflineWhisperModel(
 
 template OfflineWhisperModel::OfflineWhisperModel(
     AAssetManager *mgr, const SpokenLanguageIdentificationConfig &config);
-#endif
-
-#if __OHOS__
-template OfflineWhisperModel::OfflineWhisperModel(
-    NativeResourceManager *mgr, const OfflineModelConfig &config);
-
-template OfflineWhisperModel::OfflineWhisperModel(
-    NativeResourceManager *mgr,
-    const SpokenLanguageIdentificationConfig &config);
 #endif
 
 }  // namespace sherpa_onnx

@@ -16,10 +16,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "sherpa-onnx/csrc/file-utils.h"
 #include "sherpa-onnx/csrc/onnx-utils.h"
 #include "sherpa-onnx/csrc/session.h"
@@ -158,11 +154,6 @@ const OnlineCNNBiLSTMModelMetaData &OnlineCNNBiLSTMModel::GetModelMetadata()
 #if __ANDROID_API__ >= 9
 template OnlineCNNBiLSTMModel::OnlineCNNBiLSTMModel(
     AAssetManager *mgr, const OnlinePunctuationModelConfig &config);
-#endif
-
-#if __OHOS__
-template OnlineCNNBiLSTMModel::OnlineCNNBiLSTMModel(
-    NativeResourceManager *mgr, const OnlinePunctuationModelConfig &config);
 #endif
 
 }  // namespace sherpa_onnx

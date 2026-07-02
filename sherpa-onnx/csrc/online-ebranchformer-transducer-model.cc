@@ -21,10 +21,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "onnxruntime_cxx_api.h"  // NOLINT
 #include "sherpa-onnx/csrc/cat.h"
 #include "sherpa-onnx/csrc/file-utils.h"
@@ -107,11 +103,7 @@ void OnlineEbranchformerTransducerModel::InitEncoder(void *model_data,
     std::ostringstream os;
     os << "---encoder---\n";
     PrintModelMetadata(os, meta_data);
-#if __OHOS__
-    SHERPA_ONNX_LOGE("%{public}s", os.str().c_str());
-#else
     SHERPA_ONNX_LOGE("%s", os.str().c_str());
-#endif
   }
 
   Ort::AllocatorWithDefaultOptions allocator;  // used in the macro below
@@ -129,19 +121,6 @@ void OnlineEbranchformerTransducerModel::InitEncoder(void *model_data,
   SHERPA_ONNX_READ_META_DATA(head_dim_, "head_dim");
 
   if (config_.debug) {
-#if __OHOS__
-    SHERPA_ONNX_LOGE("T: %{public}d", T_);
-    SHERPA_ONNX_LOGE("decode_chunk_len_: %{public}d", decode_chunk_len_);
-
-    SHERPA_ONNX_LOGE("num_hidden_layers_: %{public}d", num_hidden_layers_);
-    SHERPA_ONNX_LOGE("hidden_size_: %{public}d", hidden_size_);
-    SHERPA_ONNX_LOGE("intermediate_size_: %{public}d", intermediate_size_);
-    SHERPA_ONNX_LOGE("csgu_kernel_size_: %{public}d", csgu_kernel_size_);
-    SHERPA_ONNX_LOGE("merge_conv_kernel_: %{public}d", merge_conv_kernel_);
-    SHERPA_ONNX_LOGE("left_context_len_: %{public}d", left_context_len_);
-    SHERPA_ONNX_LOGE("num_heads_: %{public}d", num_heads_);
-    SHERPA_ONNX_LOGE("head_dim_: %{public}d", head_dim_);
-#else
     SHERPA_ONNX_LOGE("T: %d", T_);
     SHERPA_ONNX_LOGE("decode_chunk_len_: %d", decode_chunk_len_);
 
@@ -153,7 +132,6 @@ void OnlineEbranchformerTransducerModel::InitEncoder(void *model_data,
     SHERPA_ONNX_LOGE("left_context_len_: %d", left_context_len_);
     SHERPA_ONNX_LOGE("num_heads_: %d", num_heads_);
     SHERPA_ONNX_LOGE("head_dim_: %d", head_dim_);
-#endif
   }
 }
 
@@ -434,11 +412,6 @@ Ort::Value OnlineEbranchformerTransducerModel::RunJoiner(
 #if __ANDROID_API__ >= 9
 template OnlineEbranchformerTransducerModel::OnlineEbranchformerTransducerModel(
     AAssetManager *mgr, const OnlineModelConfig &config);
-#endif
-
-#if __OHOS__
-template OnlineEbranchformerTransducerModel::OnlineEbranchformerTransducerModel(
-    NativeResourceManager *mgr, const OnlineModelConfig &config);
 #endif
 
 }  // namespace sherpa_onnx

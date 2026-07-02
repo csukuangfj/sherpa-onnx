@@ -10,10 +10,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include <algorithm>
 #include <memory>
 #include <sstream>
@@ -55,16 +51,11 @@ static ModelType GetModelType(const std::string &model_path, bool debug) {
   auto sess = std::make_unique<Ort::Session>(
       env, SHERPA_ONNX_TO_ORT_PATH(model_path), sess_opts);
 
-
   Ort::ModelMetadata meta_data = sess->GetModelMetadata();
   if (debug) {
     std::ostringstream os;
     PrintModelMetadata(os, meta_data);
-#if __OHOS__
-    SHERPA_ONNX_LOGE("%{public}s", os.str().c_str());
-#else
     SHERPA_ONNX_LOGE("%s", os.str().c_str());
-#endif
   }
 
   Ort::AllocatorWithDefaultOptions allocator;
@@ -108,11 +99,7 @@ static ModelType GetModelType(char *model_data, size_t model_data_length,
   if (debug) {
     std::ostringstream os;
     PrintModelMetadata(os, meta_data);
-#if __OHOS__
-    SHERPA_ONNX_LOGE("%{public}s", os.str().c_str());
-#else
     SHERPA_ONNX_LOGE("%s", os.str().c_str());
-#endif
   }
 
   Ort::AllocatorWithDefaultOptions allocator;
@@ -270,11 +257,6 @@ std::unique_ptr<OnlineTransducerModel> OnlineTransducerModel::Create(
 #if __ANDROID_API__ >= 9
 template std::unique_ptr<OnlineTransducerModel> OnlineTransducerModel::Create(
     AAssetManager *mgr, const OnlineModelConfig &config);
-#endif
-
-#if __OHOS__
-template std::unique_ptr<OnlineTransducerModel> OnlineTransducerModel::Create(
-    NativeResourceManager *mgr, const OnlineModelConfig &config);
 #endif
 
 }  // namespace sherpa_onnx

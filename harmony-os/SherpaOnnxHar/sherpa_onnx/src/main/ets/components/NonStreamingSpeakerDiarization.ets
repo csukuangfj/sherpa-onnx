@@ -46,8 +46,8 @@ export class OfflineSpeakerDiarization {
   public sampleRate: number;
   private handle: object;
 
-  constructor(config: OfflineSpeakerDiarizationConfig, mgr?: object) {
-    this.handle = createOfflineSpeakerDiarization(config, mgr);
+  constructor(config: OfflineSpeakerDiarizationConfig) {
+    this.handle = createOfflineSpeakerDiarization(config);
     this.config = config;
 
     this.sampleRate = getOfflineSpeakerDiarizationSampleRate(this.handle);

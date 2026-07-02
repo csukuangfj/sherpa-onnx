@@ -17,10 +17,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "sherpa-onnx/csrc/file-utils.h"
 #include "sherpa-onnx/csrc/macros.h"
 #include "sherpa-onnx/csrc/onnx-utils.h"
@@ -188,11 +184,7 @@ class OnlineTransducerNeMoParakeetUnifiedModel::Impl {
       std::ostringstream os;
       os << "---nemo parakeet unified encoder---\n";
       PrintModelMetadata(os, meta_data);
-#if __OHOS__
-      SHERPA_ONNX_LOGE("%{public}s\n", os.str().c_str());
-#else
       SHERPA_ONNX_LOGE("%s\n", os.str().c_str());
-#endif
     }
 
     Ort::AllocatorWithDefaultOptions allocator;  // used in the macro below
@@ -450,12 +442,6 @@ OnlineTransducerNeMoParakeetUnifiedModel::FeatureNormalizationMethod() const {
 #if __ANDROID_API__ >= 9
 template OnlineTransducerNeMoParakeetUnifiedModel::
     OnlineTransducerNeMoParakeetUnifiedModel(AAssetManager *mgr,
-                                             const OnlineModelConfig &config);
-#endif
-
-#if __OHOS__
-template OnlineTransducerNeMoParakeetUnifiedModel::
-    OnlineTransducerNeMoParakeetUnifiedModel(NativeResourceManager *mgr,
                                              const OnlineModelConfig &config);
 #endif
 

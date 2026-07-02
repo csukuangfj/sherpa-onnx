@@ -14,10 +14,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "sherpa-onnx/csrc/file-utils.h"
 #include "sherpa-onnx/csrc/macros.h"
 #include "sherpa-onnx/csrc/onnx-utils.h"
@@ -143,11 +139,6 @@ OfflineCATTModel::OfflineCATTModel(
 #if __ANDROID_API__ >= 9
 template OfflineCATTModel::OfflineCATTModel(
     AAssetManager *mgr, const OfflineDiacritizationModelConfig &config);
-#endif
-
-#if __OHOS__
-template OfflineCATTModel::OfflineCATTModel(
-    NativeResourceManager *mgr, const OfflineDiacritizationModelConfig &config);
 #endif
 
 OfflineCATTModel::~OfflineCATTModel() = default;

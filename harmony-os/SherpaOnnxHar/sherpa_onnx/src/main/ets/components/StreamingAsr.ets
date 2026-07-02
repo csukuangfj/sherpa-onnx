@@ -115,8 +115,8 @@ export class OnlineRecognizer {
   public handle: object;
   public config: OnlineRecognizerConfig
 
-  constructor(config: OnlineRecognizerConfig, mgr?: object) {
-    this.handle = createOnlineRecognizer(config, mgr);
+  constructor(config: OnlineRecognizerConfig) {
+    this.handle = createOnlineRecognizer(config);
     this.config = config
   }
 

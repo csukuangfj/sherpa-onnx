@@ -18,10 +18,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "sherpa-onnx/csrc/file-utils.h"
 #include "sherpa-onnx/csrc/macros.h"
 #include "sherpa-onnx/csrc/offline-tts-character-frontend.h"
@@ -195,13 +191,6 @@ std::vector<TokenIDs> OfflineTtsCharacterFrontend::ConvertTextToTokenIds(
 #if __ANDROID_API__ >= 9
 template OfflineTtsCharacterFrontend::OfflineTtsCharacterFrontend(
     AAssetManager *mgr, const std::string &tokens,
-    const OfflineTtsVitsModelMetaData &meta_data);
-
-#endif
-
-#if __OHOS__
-template OfflineTtsCharacterFrontend::OfflineTtsCharacterFrontend(
-    NativeResourceManager *mgr, const std::string &tokens,
     const OfflineTtsVitsModelMetaData &meta_data);
 
 #endif

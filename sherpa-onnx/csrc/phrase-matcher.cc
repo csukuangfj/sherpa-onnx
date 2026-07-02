@@ -24,11 +24,7 @@ class PhraseMatcher::Impl {
       max_search_len_ = 1;
     }
     if (debug_) {
-#if __OHOS__
-      SHERPA_ONNX_LOGE("max_search_len %{public}d", max_search_len_);
-#else
       SHERPA_ONNX_LOGE("max_search_len %d", max_search_len_);
-#endif
     }
 
     Build(words);
@@ -42,11 +38,7 @@ class PhraseMatcher::Impl {
         sep = "_";
       }
 
-#if __OHOS__
-      SHERPA_ONNX_LOGE("%{public}s", os.str().c_str());
-#else
       SHERPA_ONNX_LOGE("%s", os.str().c_str());
-#endif
     }
   }
 
@@ -73,23 +65,13 @@ class PhraseMatcher::Impl {
           }
 
           if (debug_) {
-#if __OHOS__
-            SHERPA_ONNX_LOGE("%{public}d-%{public}d: %{public}s", start, end,
-                             this_word.c_str());
-#else
             SHERPA_ONNX_LOGE("%d-%d: %s", start, end, this_word.c_str());
-#endif
           }
           if (lexicon_->count(this_word)) {
             i = end + 1;
             w = std::move(this_word);
             if (debug_) {
-#if __OHOS__
-              SHERPA_ONNX_LOGE("matched %{public}d-%{public}d: %{public}s",
-                               start, end, w.c_str());
-#else
               SHERPA_ONNX_LOGE("matched %d-%d: %s", start, end, w.c_str());
-#endif
             }
             break;
           }
@@ -102,12 +84,7 @@ class PhraseMatcher::Impl {
         w = words[i];
 
         if (debug_) {
-#if __OHOS__
-          SHERPA_ONNX_LOGE("single word %{public}d-%{public}d: %{public}s", i,
-                           i, w.c_str());
-#else
           SHERPA_ONNX_LOGE("single word %d-%d: %s", i, i, w.c_str());
-#endif
         }
 
         i += 1;

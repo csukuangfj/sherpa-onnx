@@ -7,17 +7,6 @@
 #include <algorithm>
 #include <string>
 
-#if __OHOS__
-#include "hilog/log.h"
-#include "rawfile/raw_file_manager.h"
-
-#undef LOG_DOMAIN
-#undef LOG_TAG
-
-// https://gitee.com/openharmony/docs/blob/145a084f0b742e4325915e32f8184817927d1251/en/contribute/OpenHarmony-Log-guide.md#hilog-api-usage-specifications
-#define LOG_DOMAIN 0x6666
-#define LOG_TAG "sherpa_onnx"
-#endif
 
 #define SHERPA_ONNX_ASSIGN_ATTR_STR(c_name, js_name)                       \
   do {                                                                     \

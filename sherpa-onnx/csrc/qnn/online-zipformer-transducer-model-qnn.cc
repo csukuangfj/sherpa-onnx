@@ -17,10 +17,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "sherpa-onnx/csrc/file-utils.h"
 #include "sherpa-onnx/csrc/math.h"
 #include "sherpa-onnx/csrc/macros.h"
@@ -599,12 +595,6 @@ int32_t OnlineZipformerTransducerModelQnn::EncoderDim() const {
 #if __ANDROID_API__ >= 9
 template OnlineZipformerTransducerModelQnn::OnlineZipformerTransducerModelQnn(
     AAssetManager *mgr, const OnlineModelConfig &config, int32_t feature_dim);
-#endif
-
-#if __OHOS__
-template OnlineZipformerTransducerModelQnn::OnlineZipformerTransducerModelQnn(
-    NativeResourceManager *mgr, const OnlineModelConfig &config,
-    int32_t feature_dim);
 #endif
 
 }  // namespace sherpa_onnx

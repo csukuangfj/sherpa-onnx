@@ -9,10 +9,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include <algorithm>
 #include <cctype>
 #include <cstdint>
@@ -58,15 +54,6 @@ static std::string LoadBytesFromFile(const std::string &path) {
 
 #if __ANDROID_API__ >= 9
 static std::string LoadBytesFromFile(AAssetManager *mgr,
-                                     const std::string &path) {
-  std::vector<char> data = ReadFile(mgr, path);
-  if (data.empty()) return "";
-  return std::string(data.data(), data.size());
-}
-#endif
-
-#if __OHOS__
-static std::string LoadBytesFromFile(NativeResourceManager *mgr,
                                      const std::string &path) {
   std::vector<char> data = ReadFile(mgr, path);
   if (data.empty()) return "";
@@ -1525,11 +1512,6 @@ std::string FunASRNanoTokenizer::Decode(const std::vector<int64_t> &token_ids) {
 #if __ANDROID_API__ >= 9
 template FunASRNanoTokenizer::FunASRNanoTokenizer(
     AAssetManager *mgr, const std::string &tokenizer_dir);
-#endif
-
-#if __OHOS__
-template FunASRNanoTokenizer::FunASRNanoTokenizer(
-    NativeResourceManager *mgr, const std::string &tokenizer_dir);
 #endif
 
 }  // namespace sherpa_onnx

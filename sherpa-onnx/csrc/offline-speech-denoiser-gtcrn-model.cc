@@ -16,10 +16,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "sherpa-onnx/csrc/file-utils.h"
 #include "sherpa-onnx/csrc/onnx-utils.h"
 #include "sherpa-onnx/csrc/session.h"
@@ -137,11 +133,7 @@ class OfflineSpeechDenoiserGtcrnModel::Impl {
         ++i;
       }
 
-#if __OHOS__
-      SHERPA_ONNX_LOGE("%{public}s\n", os.str().c_str());
-#else
       SHERPA_ONNX_LOGE("%s\n", os.str().c_str());
-#endif
     }
 
     Ort::AllocatorWithDefaultOptions allocator;  // used in the macro below
@@ -213,11 +205,6 @@ OfflineSpeechDenoiserGtcrnModel::GetMetaData() const {
 #if __ANDROID_API__ >= 9
 template OfflineSpeechDenoiserGtcrnModel::OfflineSpeechDenoiserGtcrnModel(
     AAssetManager *mgr, const OfflineSpeechDenoiserModelConfig &config);
-#endif
-
-#if __OHOS__
-template OfflineSpeechDenoiserGtcrnModel::OfflineSpeechDenoiserGtcrnModel(
-    NativeResourceManager *mgr, const OfflineSpeechDenoiserModelConfig &config);
 #endif
 
 }  // namespace sherpa_onnx

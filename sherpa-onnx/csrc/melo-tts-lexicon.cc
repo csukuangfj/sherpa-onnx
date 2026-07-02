@@ -17,9 +17,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
 #include "sherpa-onnx/csrc/file-utils.h"
 #include "sherpa-onnx/csrc/macros.h"
 #include "sherpa-onnx/csrc/onnx-utils.h"
@@ -83,13 +80,8 @@ class MeloTtsLexicon::Impl {
     std::vector<std::string> words = SplitUtf8(text);
 
     if (debug_) {
-#if __OHOS__
-      SHERPA_ONNX_LOGE("input text:\n%{public}s", text.c_str());
-      SHERPA_ONNX_LOGE("after replacing punctuations:\n%{public}s", s.c_str());
-#else
       SHERPA_ONNX_LOGE("input text:\n%s", text.c_str());
       SHERPA_ONNX_LOGE("after replacing punctuations:\n%s", s.c_str());
-#endif
 
       std::ostringstream os;
       std::string sep = "";
@@ -98,12 +90,7 @@ class MeloTtsLexicon::Impl {
         sep = "_";
       }
 
-#if __OHOS__
-      SHERPA_ONNX_LOGE("after splitting into UTF8:\n%{public}s",
-                       os.str().c_str());
-#else
       SHERPA_ONNX_LOGE("after splitting into UTF8:\n%s", os.str().c_str());
-#endif
     }
 
     std::vector<TokenIDs> ans;
@@ -114,11 +101,7 @@ class MeloTtsLexicon::Impl {
     for (const std::string &w : matcher) {
       auto ids = ConvertWordToIds(w);
       if (ids.tokens.empty()) {
-#if __OHOS__
-        SHERPA_ONNX_LOGE("Ignore OOV '%{public}s'", w.c_str());
-#else
         SHERPA_ONNX_LOGE("Ignore OOV '%s'", w.c_str());
-#endif
         continue;
       }
 
@@ -133,11 +116,7 @@ class MeloTtsLexicon::Impl {
           os << i << " ";
         }
         os << "\n";
-#if __OHOS__
-        SHERPA_ONNX_LOGE("%{public}s", os.str().c_str());
-#else
         SHERPA_ONNX_LOGE("%s", os.str().c_str());
-#endif
       }
 
       this_sentence.tokens.insert(this_sentence.tokens.end(),
@@ -349,13 +328,6 @@ std::vector<TokenIDs> MeloTtsLexicon::ConvertTextToTokenIds(
 template MeloTtsLexicon::MeloTtsLexicon(
     AAssetManager *mgr, const std::string &lexicon, const std::string &tokens,
     const OfflineTtsVitsModelMetaData &meta_data, bool debug);
-#endif
-
-#if __OHOS__
-template MeloTtsLexicon::MeloTtsLexicon(
-    NativeResourceManager *mgr, const std::string &lexicon,
-    const std::string &tokens, const OfflineTtsVitsModelMetaData &meta_data,
-    bool debug);
 #endif
 
 }  // namespace sherpa_onnx

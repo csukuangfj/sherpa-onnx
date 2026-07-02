@@ -216,8 +216,8 @@ export class OfflineRecognizer {
   public handle: object;
   public config: OfflineRecognizerConfig;
 
-  constructor(config: OfflineRecognizerConfig, mgr?: object) {
-    this.handle = createOfflineRecognizer(config, mgr);
+  constructor(config: OfflineRecognizerConfig) {
+    this.handle = createOfflineRecognizer(config);
     this.config = config
   }
 

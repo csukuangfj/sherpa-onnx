@@ -54,11 +54,7 @@ class OfflineTtsPocketImpl : public OfflineTtsImpl {
       tn_list_.reserve(files.size());
       for (const auto &f : files) {
         if (config.model.debug) {
-#if __OHOS__
-          SHERPA_ONNX_LOGE("rule fst: %{public}s", f.c_str());
-#else
           SHERPA_ONNX_LOGE("rule fst: %s", f.c_str());
-#endif
         }
         tn_list_.push_back(std::make_unique<kaldifst::TextNormalizer>(f));
       }
@@ -75,11 +71,7 @@ class OfflineTtsPocketImpl : public OfflineTtsImpl {
 
       for (const auto &f : files) {
         if (config.model.debug) {
-#if __OHOS__
-          SHERPA_ONNX_LOGE("rule far: %{public}s", f.c_str());
-#else
           SHERPA_ONNX_LOGE("rule far: %s", f.c_str());
-#endif
         }
         std::unique_ptr<fst::FarReader<fst::StdArc>> reader(
             fst::FarReader<fst::StdArc>::Open(f));
@@ -111,11 +103,7 @@ class OfflineTtsPocketImpl : public OfflineTtsImpl {
       tn_list_.reserve(files.size());
       for (const auto &f : files) {
         if (config.model.debug) {
-#if __OHOS__
-          SHERPA_ONNX_LOGE("rule fst: %{public}s", f.c_str());
-#else
           SHERPA_ONNX_LOGE("rule fst: %s", f.c_str());
-#endif
         }
         auto buf = ReadFile(mgr, f);
         std::istringstream is(std::string(buf.data(), buf.size()));
@@ -130,11 +118,7 @@ class OfflineTtsPocketImpl : public OfflineTtsImpl {
 
       for (const auto &f : files) {
         if (config.model.debug) {
-#if __OHOS__
-          SHERPA_ONNX_LOGE("rule far: %{public}s", f.c_str());
-#else
           SHERPA_ONNX_LOGE("rule far: %s", f.c_str());
-#endif
         }
 
         auto buf = ReadFile(mgr, f);
@@ -174,11 +158,7 @@ class OfflineTtsPocketImpl : public OfflineTtsImpl {
 
     std::string text = _text;
     if (config_.model.debug) {
-#if __OHOS__
-      SHERPA_ONNX_LOGE("Raw text: %{public}s", text.c_str());
-#else
       SHERPA_ONNX_LOGE("Raw text: %s", text.c_str());
-#endif
       std::ostringstream os;
       os << "In bytes (hex):\n";
       const auto p = reinterpret_cast<const uint8_t *>(text.c_str());
@@ -188,22 +168,14 @@ class OfflineTtsPocketImpl : public OfflineTtsImpl {
       }
       os << "\n";
 
-#if __OHOS__
-      SHERPA_ONNX_LOGE("%{public}s", os.str().c_str());
-#else
       SHERPA_ONNX_LOGE("%s", os.str().c_str());
-#endif
     }
 
     if (!tn_list_.empty()) {
       for (const auto &tn : tn_list_) {
         text = tn->Normalize(text);
         if (config_.model.debug) {
-#if __OHOS__
-          SHERPA_ONNX_LOGE("After normalizing: %{public}s", text.c_str());
-#else
           SHERPA_ONNX_LOGE("After normalizing: %s", text.c_str());
-#endif
         }
       }
     }
@@ -244,13 +216,8 @@ class OfflineTtsPocketImpl : public OfflineTtsImpl {
 
     for (int32_t i = 0; i < total && should_continue; ++i) {
       if (config_.model.debug) {
-#if __OHOS__
-        SHERPA_ONNX_LOGE("Processing %{public}d/%{public}d: %{public}s", i + 1,
-                         total, sentences[i].c_str());
-#else
         SHERPA_ONNX_LOGE("Processing %d/%d: %s", i + 1, total,
                          sentences[i].c_str());
-#endif
       }
       GeneratedAudioCallback wrapped_cb = nullptr;
 

@@ -22,10 +22,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "espeak-ng/speak_lib.h"
 #include "phoneme_ids.hpp"  // NOLINT
 #include "phonemize.hpp"    // NOLINT
@@ -192,14 +188,8 @@ class MatchaTtsLexicon::Impl {
     std::vector<std::string> words = SplitUtf8(text);
 
     if (debug_) {
-#if __OHOS__
-      SHERPA_ONNX_LOGE("input text:\n%{public}s", _text.c_str());
-      SHERPA_ONNX_LOGE("after replacing punctuations:\n%{public}s",
-                       text.c_str());
-#else
       SHERPA_ONNX_LOGE("input text:\n%s", _text.c_str());
       SHERPA_ONNX_LOGE("after replacing punctuations:\n%s", text.c_str());
-#endif
 
       std::ostringstream os;
       std::string sep = "";
@@ -208,12 +198,7 @@ class MatchaTtsLexicon::Impl {
         sep = "_";
       }
 
-#if __OHOS__
-      SHERPA_ONNX_LOGE("after splitting into UTF8:\n%{public}s",
-                       os.str().c_str());
-#else
       SHERPA_ONNX_LOGE("after splitting into UTF8:\n%s", os.str().c_str());
-#endif
     }
 
     // remove spaces after punctuations
@@ -248,13 +233,8 @@ class MatchaTtsLexicon::Impl {
         sep = "_";
       }
 
-#if __OHOS__
-      SHERPA_ONNX_LOGE("after removing spaces after punctuations:\n%{public}s",
-                       os.str().c_str());
-#else
       SHERPA_ONNX_LOGE("after removing spaces after punctuations:\n%s",
                        os.str().c_str());
-#endif
     }
 
     std::vector<TokenIDs> ans;
@@ -270,11 +250,7 @@ class MatchaTtsLexicon::Impl {
       ids = ConvertWordToIds(w);
 
       if (ids.empty()) {
-#if __OHOS__
-        SHERPA_ONNX_LOGE("Ignore OOV '%{public}s'", w.c_str());
-#else
         SHERPA_ONNX_LOGE("Ignore OOV '%s'", w.c_str());
-#endif
 
         last_word = w;
         continue;
@@ -357,11 +333,7 @@ class MatchaTtsLexicon::Impl {
       for (auto i : ans) {
         os << "'" << id2token_.at(i) << "'(" << i << ")" << ",";
       }
-#if __OHOS__
-      SHERPA_ONNX_LOGE("%{public}s", os.str().c_str());
-#else
       SHERPA_ONNX_LOGE("%s", os.str().c_str());
-#endif
     }
 
     return ans;
@@ -409,15 +381,8 @@ class MatchaTtsLexicon::Impl {
       ToLowerCase(&word);
 
       if (word2ids_.count(word)) {
-#if __OHOS__
-        SHERPA_ONNX_LOGE(
-            "Duplicated word: %{public}s at line %{public}d:%{public}s. Ignore "
-            "it.",
-            word.c_str(), line_num, line.c_str());
-#else
         SHERPA_ONNX_LOGE("Duplicated word: %s at line %d:%s. Ignore it.",
                          word.c_str(), line_num, line.c_str());
-#endif
         continue;
       }
 
@@ -428,11 +393,7 @@ class MatchaTtsLexicon::Impl {
       std::vector<int32_t> ids = ConvertTokensToIds(token2id_, token_list);
       if (ids.empty()) {
         if (debug_) {
-#if __OHOS__
-          SHERPA_ONNX_LOGE("Empty token ids for '%{public}s'", line.c_str());
-#else
           SHERPA_ONNX_LOGE("Empty token ids for '%s'", line.c_str());
-#endif
         }
         continue;
       }
@@ -483,14 +444,6 @@ std::vector<TokenIDs> MatchaTtsLexicon::ConvertTextToTokenIds(
 
 #if __ANDROID_API__ >= 9
 template MatchaTtsLexicon::MatchaTtsLexicon(AAssetManager *mgr,
-                                            const std::string &lexicon,
-                                            const std::string &tokens,
-                                            const std::string &data_dir,
-                                            bool debug, bool skip_replacement);
-#endif
-
-#if __OHOS__
-template MatchaTtsLexicon::MatchaTtsLexicon(NativeResourceManager *mgr,
                                             const std::string &lexicon,
                                             const std::string &tokens,
                                             const std::string &data_dir,

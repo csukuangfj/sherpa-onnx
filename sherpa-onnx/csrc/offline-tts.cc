@@ -15,10 +15,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "sherpa-onnx/csrc/file-utils.h"
 #include "sherpa-onnx/csrc/macros.h"
 #include "sherpa-onnx/csrc/offline-tts-impl.h"
@@ -334,11 +330,6 @@ int32_t OfflineTts::NumSpeakers() const { return impl_->NumSpeakers(); }
 
 #if __ANDROID_API__ >= 9
 template OfflineTts::OfflineTts(AAssetManager *mgr,
-                                const OfflineTtsConfig &config);
-#endif
-
-#if __OHOS__
-template OfflineTts::OfflineTts(NativeResourceManager *mgr,
                                 const OfflineTtsConfig &config);
 #endif
 

@@ -18,10 +18,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "Eigen/Dense"
 #include "kaldi-native-fbank/csrc/mel-computations.h"
 #include "kaldi-native-fbank/csrc/rfft.h"
@@ -271,11 +267,7 @@ class TenVadModel::Impl {
       std::ostringstream os;
       os << "---ten-vad---\n";
       PrintModelMetadata(os, meta_data);
-#if __OHOS__
-      SHERPA_ONNX_LOGE("%{public}s\n", os.str().c_str());
-#else
       SHERPA_ONNX_LOGE("%s\n", os.str().c_str());
-#endif
     }
     Ort::AllocatorWithDefaultOptions allocator;  // used in the macro below
 
@@ -491,11 +483,6 @@ float TenVadModel::Compute(const float *samples, int32_t n) {
 
 #if __ANDROID_API__ >= 9
 template TenVadModel::TenVadModel(AAssetManager *mgr,
-                                  const VadModelConfig &config);
-#endif
-
-#if __OHOS__
-template TenVadModel::TenVadModel(NativeResourceManager *mgr,
                                   const VadModelConfig &config);
 #endif
 

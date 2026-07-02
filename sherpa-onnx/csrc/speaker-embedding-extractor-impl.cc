@@ -11,10 +11,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "sherpa-onnx/csrc/file-utils.h"
 #include "sherpa-onnx/csrc/macros.h"
 #include "sherpa-onnx/csrc/onnx-utils.h"
@@ -45,16 +41,11 @@ static ModelType GetModelType(const std::string &model_path, bool debug) {
   auto sess = std::make_unique<Ort::Session>(
       env, SHERPA_ONNX_TO_ORT_PATH(model_path), sess_opts);
 
-
   Ort::ModelMetadata meta_data = sess->GetModelMetadata();
   if (debug) {
     std::ostringstream os;
     PrintModelMetadata(os, meta_data);
-#if __OHOS__
-    SHERPA_ONNX_LOGE("%{public}s", os.str().c_str());
-#else
     SHERPA_ONNX_LOGE("%s", os.str().c_str());
-#endif
   }
 
   Ort::AllocatorWithDefaultOptions allocator;
@@ -78,11 +69,7 @@ static ModelType GetModelType(const std::string &model_path, bool debug) {
   } else if (model_type == "nemo") {
     return ModelType::kNeMo;
   } else {
-#if __OHOS__
-    SHERPA_ONNX_LOGE("Unsupported model_type: %{public}s", model_type.c_str());
-#else
     SHERPA_ONNX_LOGE("Unsupported model_type: %s", model_type.c_str());
-#endif
     return ModelType::kUnknown;
   }
 }
@@ -101,11 +88,7 @@ static ModelType GetModelType(char *model_data, size_t model_data_length,
   if (debug) {
     std::ostringstream os;
     PrintModelMetadata(os, meta_data);
-#if __OHOS__
-    SHERPA_ONNX_LOGE("%{public}s", os.str().c_str());
-#else
     SHERPA_ONNX_LOGE("%s", os.str().c_str());
-#endif
   }
 
   Ort::AllocatorWithDefaultOptions allocator;
@@ -129,11 +112,7 @@ static ModelType GetModelType(char *model_data, size_t model_data_length,
   } else if (model_type == "nemo") {
     return ModelType::kNeMo;
   } else {
-#if __OHOS__
-    SHERPA_ONNX_LOGE("Unsupported model_type: %{public}s", model_type.c_str());
-#else
     SHERPA_ONNX_LOGE("Unsupported model_type: %s", model_type.c_str());
-#endif
     return ModelType::kUnknown;
   }
 }
@@ -197,12 +176,6 @@ SpeakerEmbeddingExtractorImpl::Create(
 template std::unique_ptr<SpeakerEmbeddingExtractorImpl>
 SpeakerEmbeddingExtractorImpl::Create(
     AAssetManager *mgr, const SpeakerEmbeddingExtractorConfig &config);
-#endif
-
-#if __OHOS__
-template std::unique_ptr<SpeakerEmbeddingExtractorImpl>
-SpeakerEmbeddingExtractorImpl::Create(
-    NativeResourceManager *mgr, const SpeakerEmbeddingExtractorConfig &config);
 #endif
 
 }  // namespace sherpa_onnx

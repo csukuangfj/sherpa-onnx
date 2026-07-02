@@ -19,10 +19,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "espeak-ng/speak_lib.h"
 #include "phoneme_ids.hpp"  // NOLINT
 #include "phonemize.hpp"    // NOLINT
@@ -344,7 +340,7 @@ static std::vector<int64_t> CoquiPhonemesToIds(
 void InitEspeak(const std::string &data_dir) {
   static std::once_flag init_flag;
   std::call_once(init_flag, [data_dir]() {
-#if __ANDROID_API__ >= 9 || defined(__OHOS__)
+#if __ANDROID_API__ >= 9
     if (data_dir[0] != '/') {
       SHERPA_ONNX_LOGE(
           "You need to follow our examples to copy the espeak-ng-data "
@@ -643,28 +639,6 @@ template PiperPhonemizeLexicon::PiperPhonemizeLexicon(
 
 template PiperPhonemizeLexicon::PiperPhonemizeLexicon(
     AAssetManager *mgr, const std::string &tokens, const std::string &data_dir,
-    const OfflineTtsKittenModelMetaData &kokoro_meta_data);
-#endif
-
-#if __OHOS__
-template PiperPhonemizeLexicon::PiperPhonemizeLexicon(
-    NativeResourceManager *mgr, const std::string &tokens,
-    const std::string &data_dir,
-    const OfflineTtsVitsModelMetaData &vits_meta_data);
-
-template PiperPhonemizeLexicon::PiperPhonemizeLexicon(
-    NativeResourceManager *mgr, const std::string &tokens,
-    const std::string &data_dir,
-    const OfflineTtsMatchaModelMetaData &matcha_meta_data);
-
-template PiperPhonemizeLexicon::PiperPhonemizeLexicon(
-    NativeResourceManager *mgr, const std::string &tokens,
-    const std::string &data_dir,
-    const OfflineTtsKokoroModelMetaData &kokoro_meta_data);
-
-template PiperPhonemizeLexicon::PiperPhonemizeLexicon(
-    NativeResourceManager *mgr, const std::string &tokens,
-    const std::string &data_dir,
     const OfflineTtsKittenModelMetaData &kokoro_meta_data);
 #endif
 

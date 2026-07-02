@@ -3,7 +3,6 @@
 // Copyright (c)  2024  Xiaomi Corporation
 
 #include <algorithm>
-#include <memory>
 #include <sstream>
 
 #include "macros.h"  // NOLINT
@@ -317,26 +316,14 @@ static SherpaOnnxTenVadModelConfig GetTenVadConfig(const Napi::Object &obj) {
 static Napi::External<SherpaOnnxVoiceActivityDetector>
 CreateVoiceActivityDetectorWrapper(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
-#if __OHOS__
-  // the last argument is a NativeResourceManager
-  if (info.Length() != 1 && info.Length() != 2 && info.Length() != 3) {
+  if (info.Length() != 1 && info.Length() != 2) {
     std::ostringstream os;
-    os << "Expect 1, 2, or 3 arguments. Given: " << info.Length();
+    os << "Expect 1 or 2 arguments. Given: " << info.Length();
 
     Napi::TypeError::New(env, os.str()).ThrowAsJavaScriptException();
 
     return {};
   }
-#else
-  if (info.Length() != 2) {
-    std::ostringstream os;
-    os << "Expect only 2 arguments. Given: " << info.Length();
-
-    Napi::TypeError::New(env, os.str()).ThrowAsJavaScriptException();
-
-    return {};
-  }
-#endif
 
   if (!info[0].IsObject()) {
     Napi::TypeError::New(env,
@@ -359,18 +346,6 @@ CreateVoiceActivityDetectorWrapper(const Napi::CallbackInfo &info) {
     buffer_size_in_seconds = info[1].As<Napi::Number>().FloatValue();
   }
 
-#if __OHOS__
-  bool use_resource_manager =
-      info.Length() == 3 && !info[2].IsUndefined() && !info[2].IsNull();
-  if (use_resource_manager && !info[2].IsObject()) {
-    Napi::TypeError::New(
-        env, "You should pass a resource manager as the third argument.")
-        .ThrowAsJavaScriptException();
-
-    return {};
-  }
-#endif
-
   Napi::Object o = info[0].As<Napi::Object>();
 
   SherpaOnnxVadModelConfig c;
@@ -391,24 +366,8 @@ CreateVoiceActivityDetectorWrapper(const Napi::CallbackInfo &info) {
     }
   }
 
-#if __OHOS__
-  const SherpaOnnxVoiceActivityDetector *vad = nullptr;
-
-  if (use_resource_manager) {
-    std::unique_ptr<NativeResourceManager,
-                    decltype(&OH_ResourceManager_ReleaseNativeResourceManager)>
-        mgr(OH_ResourceManager_InitNativeResourceManager(env, info[2]),
-            &OH_ResourceManager_ReleaseNativeResourceManager);
-
-    vad = SherpaOnnxCreateVoiceActivityDetectorOHOS(&c, buffer_size_in_seconds,
-                                                    mgr.get());
-  } else {
-    vad = SherpaOnnxCreateVoiceActivityDetector(&c, buffer_size_in_seconds);
-  }
-#else
   const SherpaOnnxVoiceActivityDetector *vad =
       SherpaOnnxCreateVoiceActivityDetector(&c, buffer_size_in_seconds);
-#endif
   SHERPA_ONNX_DELETE_C_STR(c.silero_vad.model);
   SHERPA_ONNX_DELETE_C_STR(c.ten_vad.model);
   SHERPA_ONNX_DELETE_C_STR(c.provider);

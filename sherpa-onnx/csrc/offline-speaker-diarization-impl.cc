@@ -11,10 +11,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "sherpa-onnx/csrc/macros.h"
 #include "sherpa-onnx/csrc/offline-speaker-diarization-pyannote-impl.h"
 
@@ -49,12 +45,6 @@ OfflineSpeakerDiarizationImpl::Create(
 template std::unique_ptr<OfflineSpeakerDiarizationImpl>
 OfflineSpeakerDiarizationImpl::Create(
     AAssetManager *mgr, const OfflineSpeakerDiarizationConfig &config);
-#endif
-
-#if __OHOS__
-template std::unique_ptr<OfflineSpeakerDiarizationImpl>
-OfflineSpeakerDiarizationImpl::Create(
-    NativeResourceManager *mgr, const OfflineSpeakerDiarizationConfig &config);
 #endif
 
 }  // namespace sherpa_onnx

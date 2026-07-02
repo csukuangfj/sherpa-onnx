@@ -21,10 +21,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "nlohmann/json.hpp"
 #include "sherpa-onnx/csrc/file-utils.h"
 #include "sherpa-onnx/csrc/macros.h"
@@ -49,12 +45,6 @@ std::string ReadTextFile(const std::string &path) {
 
 #if __ANDROID_API__ >= 9
 std::string ReadTextFile(AAssetManager *mgr, const std::string &path) {
-  return ToString(ReadFile(mgr, path));
-}
-#endif
-
-#if __OHOS__
-std::string ReadTextFile(NativeResourceManager *mgr, const std::string &path) {
   return ToString(ReadFile(mgr, path));
 }
 #endif
@@ -1328,11 +1318,6 @@ std::string QwenAsrTokenizer::GetTokenStringStreaming(
 
 #if __ANDROID_API__ >= 9
 template QwenAsrTokenizer::QwenAsrTokenizer(AAssetManager *mgr,
-                                            const std::string &tokenizer_dir);
-#endif
-
-#if __OHOS__
-template QwenAsrTokenizer::QwenAsrTokenizer(NativeResourceManager *mgr,
                                             const std::string &tokenizer_dir);
 #endif
 

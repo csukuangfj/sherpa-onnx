@@ -389,13 +389,6 @@ target_link_libraries(sherpa-onnx-core
   kaldi-decoder-core
   ssentencepiece_core
 )
-if(DEFINED OHOS_ARCH AND SHERPA_ONNX_LINK_OHOS_SYSTEM_LIBS)
-  target_link_libraries(sherpa-onnx-core
-    hilog_ndk.z
-    rawfile.z
-  )
-endif()
-
 if(SHERPA_ONNX_ENABLE_RKNN)
   if(DEFINED ENV{SHERPA_ONNX_RKNN_TOOLKIT2_LIB_DIR})
     target_link_libraries(sherpa-onnx-core -L$ENV{SHERPA_ONNX_RKNN_TOOLKIT2_LIB_DIR} -lrknnrt)

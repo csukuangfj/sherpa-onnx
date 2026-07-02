@@ -17,10 +17,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "sherpa-onnx/csrc/file-utils.h"
 #include "sherpa-onnx/csrc/qnn/macros.h"
 #include "sherpa-onnx/csrc/qnn/qnn-backend.h"
@@ -286,11 +282,6 @@ OfflineSenseVoiceModelQnn::GetModelMetadata() const {
 #if __ANDROID_API__ >= 9
 template OfflineSenseVoiceModelQnn::OfflineSenseVoiceModelQnn(
     AAssetManager *mgr, const OfflineModelConfig &config);
-#endif
-
-#if __OHOS__
-template OfflineSenseVoiceModelQnn::OfflineSenseVoiceModelQnn(
-    NativeResourceManager *mgr, const OfflineModelConfig &config);
 #endif
 
 }  // namespace sherpa_onnx

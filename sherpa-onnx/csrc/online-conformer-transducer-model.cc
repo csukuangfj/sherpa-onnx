@@ -18,10 +18,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "onnxruntime_cxx_api.h"  // NOLINT
 #include "sherpa-onnx/csrc/cat.h"
 #include "sherpa-onnx/csrc/file-utils.h"
@@ -100,11 +96,7 @@ void OnlineConformerTransducerModel::InitEncoder(void *model_data,
     std::ostringstream os;
     os << "---encoder---\n";
     PrintModelMetadata(os, meta_data);
-#if __OHOS__
-    SHERPA_ONNX_LOGE("%{public}s", os.str().c_str());
-#else
     SHERPA_ONNX_LOGE("%s", os.str().c_str());
-#endif
   }
 
   Ort::AllocatorWithDefaultOptions allocator;  // used in the macro below
@@ -141,11 +133,7 @@ void OnlineConformerTransducerModel::InitDecoder(void *model_data,
     std::ostringstream os;
     os << "---decoder---\n";
     PrintModelMetadata(os, meta_data);
-#if __OHOS__
-    SHERPA_ONNX_LOGE("%{public}s", os.str().c_str());
-#else
     SHERPA_ONNX_LOGE("%s", os.str().c_str());
-#endif
   }
 
   Ort::AllocatorWithDefaultOptions allocator;  // used in the macro below
@@ -307,11 +295,6 @@ Ort::Value OnlineConformerTransducerModel::RunJoiner(Ort::Value encoder_out,
 #if __ANDROID_API__ >= 9
 template OnlineConformerTransducerModel::OnlineConformerTransducerModel(
     AAssetManager *mgr, const OnlineModelConfig &config);
-#endif
-
-#if __OHOS__
-template OnlineConformerTransducerModel::OnlineConformerTransducerModel(
-    NativeResourceManager *mgr, const OnlineModelConfig &config);
 #endif
 
 }  // namespace sherpa_onnx

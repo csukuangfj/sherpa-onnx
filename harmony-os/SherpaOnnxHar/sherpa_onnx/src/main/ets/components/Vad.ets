@@ -117,8 +117,8 @@ export class Vad {
   public config: VadConfig;
   private handle: object;
 
-  constructor(config: VadConfig, bufferSizeInSeconds: number = 60, mgr?: object) {
-    this.handle = createVoiceActivityDetector(config, bufferSizeInSeconds, mgr);
+  constructor(config: VadConfig, bufferSizeInSeconds: number = 60) {
+    this.handle = createVoiceActivityDetector(config, bufferSizeInSeconds);
     this.config = config;
   }
 

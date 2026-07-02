@@ -16,10 +16,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "nlohmann/json.hpp"
 #include "sherpa-onnx/csrc/file-utils.h"
 #include "sherpa-onnx/csrc/macros.h"
@@ -278,12 +274,6 @@ std::vector<std::string> SentencePieceTokenizer::EncodeTokens(
 #if __ANDROID_API__ >= 9
 template SentencePieceTokenizer::SentencePieceTokenizer(
     AAssetManager *mgr, const std::string &vocab_json,
-    const std::string &token_scores_json);
-#endif
-
-#if __OHOS__
-template SentencePieceTokenizer::SentencePieceTokenizer(
-    NativeResourceManager *mgr, const std::string &vocab_json,
     const std::string &token_scores_json);
 #endif
 

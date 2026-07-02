@@ -15,10 +15,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "sherpa-onnx/csrc/offline-source-separation-spleeter-impl.h"
 #include "sherpa-onnx/csrc/offline-source-separation-uvr-impl.h"
 #include "sherpa-onnx/csrc/resample.h"
@@ -113,12 +109,6 @@ OfflineSourceSeparationInput OfflineSourceSeparationImpl::Resample(
 template std::unique_ptr<OfflineSourceSeparationImpl>
 OfflineSourceSeparationImpl::Create(
     AAssetManager *mgr, const OfflineSourceSeparationConfig &config);
-#endif
-
-#if __OHOS__
-template std::unique_ptr<OfflineSourceSeparationImpl>
-OfflineSourceSeparationImpl::Create(
-    NativeResourceManager *mgr, const OfflineSourceSeparationConfig &config);
 #endif
 
 }  // namespace sherpa_onnx

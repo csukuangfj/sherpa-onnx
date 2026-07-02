@@ -16,10 +16,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "sherpa-onnx/csrc/file-utils.h"
 #include "sherpa-onnx/csrc/rknn/context-blocking-queue-rknn.h"
 #include "sherpa-onnx/csrc/rknn/macros.h"
@@ -204,15 +200,9 @@ class OnlineZipformerCtcModelRknn::Impl {
     vocab_size_ = output_attrs_[0].dims[2];
 
     if (config_.debug) {
-#if __OHOS__
-      SHERPA_ONNX_LOGE("T: %{public}d", T_);
-      SHERPA_ONNX_LOGE("decode_chunk_len_: %{public}d", decode_chunk_len_);
-      SHERPA_ONNX_LOGE("vocab_size: %{public}d", vocab_size);
-#else
       SHERPA_ONNX_LOGE("T: %d", T_);
       SHERPA_ONNX_LOGE("decode_chunk_len_: %d", decode_chunk_len_);
       SHERPA_ONNX_LOGE("vocab_size: %d", vocab_size_);
-#endif
     }
 
     if (T_ == 0) {
@@ -289,11 +279,6 @@ rknn_tensor_attr OnlineZipformerCtcModelRknn::GetOutAttr() const {
 #if __ANDROID_API__ >= 9
 template OnlineZipformerCtcModelRknn::OnlineZipformerCtcModelRknn(
     AAssetManager *mgr, const OnlineModelConfig &config);
-#endif
-
-#if __OHOS__
-template OnlineZipformerCtcModelRknn::OnlineZipformerCtcModelRknn(
-    NativeResourceManager *mgr, const OnlineModelConfig &config);
 #endif
 
 }  // namespace sherpa_onnx

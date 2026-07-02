@@ -22,10 +22,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "sherpa-onnx/csrc/file-utils.h"
 #include "sherpa-onnx/csrc/macros.h"
 #include "sherpa-onnx/csrc/text-utils.h"
@@ -533,11 +529,6 @@ void SupertonicUnicodeProcessor::Process(
 #if __ANDROID_API__ >= 9
 template SupertonicUnicodeProcessor::SupertonicUnicodeProcessor(
     AAssetManager *mgr, const std::string &unicode_indexer_path);
-#endif
-
-#if __OHOS__
-template SupertonicUnicodeProcessor::SupertonicUnicodeProcessor(
-    NativeResourceManager *mgr, const std::string &unicode_indexer_path);
 #endif
 
 }  // namespace sherpa_onnx

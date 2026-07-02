@@ -127,9 +127,4 @@ template OfflineSenseVoiceModelAxcl::OfflineSenseVoiceModelAxcl(
     AAssetManager *mgr, const OfflineModelConfig &config);
 #endif
 
-#if __OHOS__
-template OfflineSenseVoiceModelAxcl::OfflineSenseVoiceModelAxcl(
-    NativeResourceManager *mgr, const OfflineModelConfig &config);
-#endif
-
 }  // namespace sherpa_onnx

@@ -86,7 +86,5 @@ set_target_properties(onnxruntime
 
 
 target_link_libraries(sherpa_onnx PUBLIC libace_napi.z.so
- libhilog_ndk.z.so # for hilog
- librawfile.z.so
  sherpa_onnx_c_api onnxruntime
 )

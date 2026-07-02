@@ -20,10 +20,6 @@
 #include "android/asset_manager_jni.h"
 #endif
 
-#if __OHOS__
-#include "rawfile/raw_file_manager.h"
-#endif
-
 #include "sherpa-onnx/csrc/file-utils.h"
 #include "sherpa-onnx/csrc/macros.h"
 #include "sherpa-onnx/csrc/symbol-table.h"
@@ -87,11 +83,7 @@ std::vector<int32_t> ConvertTokensToIds(
   ids.reserve(tokens.size());
   for (const auto &s : tokens) {
     if (!token2id.count(s)) {
-#if __OHOS__
-      SHERPA_ONNX_LOGE("Unknown token: %{public}s", s.c_str());
-#else
       SHERPA_ONNX_LOGE("Unknown token: %s", s.c_str());
-#endif
       return {};
     }
     int32_t id = token2id.at(s);
@@ -182,11 +174,7 @@ std::vector<TokenIDs> Lexicon::ConvertTextToTokenIdsChinese(
     }
     os << "\n";
 
-#if __OHOS__
-    SHERPA_ONNX_LOGE("%{public}s", os.str().c_str());
-#else
     SHERPA_ONNX_LOGE("%s", os.str().c_str());
-#endif
   }
 
   std::vector<TokenIDs> ans;
@@ -286,11 +274,7 @@ std::vector<TokenIDs> Lexicon::ConvertTextToTokenIdsNotChinese(
     }
     os << "\n";
 
-#if __OHOS__
-    SHERPA_ONNX_LOGE("%{public}s", os.str().c_str());
-#else
     SHERPA_ONNX_LOGE("%s", os.str().c_str());
-#endif
   }
 
   int32_t blank = token2id_.at(" ");
@@ -348,11 +332,7 @@ void Lexicon::InitLanguage(const std::string &_lang) {
   } else if (!lang.empty()) {
     language_ = Language::kNotChinese;
   } else {
-#if __OHOS__
-    SHERPA_ONNX_LOGE("Unknown language: %{public}s", _lang.c_str());
-#else
     SHERPA_ONNX_LOGE("Unknown language: %s", _lang.c_str());
-#endif
     SHERPA_ONNX_EXIT(-1);
   }
 }
@@ -400,13 +380,6 @@ void Lexicon::InitPunctuations(const std::string &punctuations) {
 #if __ANDROID_API__ >= 9
 template Lexicon::Lexicon(AAssetManager *mgr, const std::string &lexicon,
                           const std::string &tokens,
-                          const std::string &punctuations,
-                          const std::string &language, bool debug = false);
-#endif
-
-#if __OHOS__
-template Lexicon::Lexicon(NativeResourceManager *mgr,
-                          const std::string &lexicon, const std::string &tokens,
                           const std::string &punctuations,
                           const std::string &language, bool debug = false);
 #endif
