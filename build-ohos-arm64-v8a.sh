@@ -79,7 +79,13 @@ fi
 
 sleep 1
 onnxruntime_version=1.27.0
-onnxruntime_dir=onnxruntime-ohos-arm64-v8a-$onnxruntime_version
+
+# SHERPA_ONNX_HARMONY_OS_TYPE: "hos" for HarmonyOS (default), "ohos" for OpenHarmony
+if [ -z $SHERPA_ONNX_HARMONY_OS_TYPE ]; then
+  SHERPA_ONNX_HARMONY_OS_TYPE=hos
+fi
+
+onnxruntime_dir=onnxruntime-${SHERPA_ONNX_HARMONY_OS_TYPE}-arm64-v8a-$onnxruntime_version
 
 if [ ! -f $onnxruntime_dir/lib/libonnxruntime.so ]; then
   wget -c  https://github.com/csukuangfj/onnxruntime-libs/releases/download/v${onnxruntime_version}/$onnxruntime_dir.zip

@@ -65,6 +65,8 @@ fi
 
 sleep 1
 onnxruntime_version=1.27.0
+
+# armeabi-v7a is only available for OpenHarmony
 onnxruntime_dir=onnxruntime-ohos-armeabi-v7a-$onnxruntime_version
 
 if [ ! -f $onnxruntime_dir/lib/libonnxruntime.so ]; then

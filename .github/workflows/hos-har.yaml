@@ -1,9 +1,8 @@
-name: har
+name: hos-har
 
 on:
   push:
     branches:
-      - master
       - ohos-arm32
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+*'
@@ -11,17 +10,17 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: har-${{ github.ref }}
+  group: hos-har-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   build-libs:
-    name: ohos ${{ matrix.arch }}
+    name: hos ${{ matrix.arch }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        arch: [arm64-v8a, armeabi-v7a, x86-64]
+        arch: [arm64-v8a, x86-64]
 
     steps:
       - uses: actions/checkout@v4
@@ -44,55 +43,32 @@ jobs:
         uses: actions/cache@v4
         with:
           path: artifact
-          key: sherpa-onnx-ohos-libs-${{ matrix.arch }}-${{ env.SHERPA_ONNX_VERSION }}-cache-v1
+          key: sherpa-onnx-hos-libs-${{ matrix.arch }}-${{ env.SHERPA_ONNX_VERSION }}-cache-v1
 
-      - name: cache-toolchain
-        if: steps.cache-build-result.outputs.cache-hit != 'true'
+      - name: cache-toolchain (CPU)
         id: cache-toolchain
         uses: actions/cache@v4
         with:
           path: command-line-tools
-          key: ohos-sdk-windows_linux-public-4.0.0
+          key: commandline-tools-linux-x64-5.0.3.906.zip
 
-      - name: Download toolchain 4.0.0
-        if: true
-        # if: steps.cache-toolchain-2.outputs.cache-hit != 'true'
+      - name: Download toolchain
+        if: steps.cache-toolchain.outputs.cache-hit != 'true'
         shell: bash
         run: |
-          # https://laval.csdn.net/67d247833b685529b70a2a54.html
-          # https://github.com/openharmony-rs/ohos-sdk/releases
-          #
-          curl -SL -O https://github.com/openharmony-rs/ohos-sdk/releases/download/v4.0/ohos-sdk-windows_linux-public.tar.gz
-          tar -xzf ohos-sdk-windows_linux-public.tar.gz
-          rm ohos-sdk-windows_linux-public.tar.gz*
+          v=5.0.3.906
+          # curl -SL -O https://huggingface.co/csukuangfj/harmonyos-commandline-tools/resolve/main/commandline-tools-linux-x64-$v.zip
 
-          cd ohos-sdk
+          BASE_URL="https://github.com/csukuangfj/test-github-actions/releases/download/ohos-tools"
+          for i in 00 01 02; do
+            curl -L -O "${BASE_URL}/commandline-tools-part${i}"
+          done
 
-          echo "---linux---"
-          ls -lh linux
+          cat commandline-tools-part00 commandline-tools-part01 commandline-tools-part02 > commandline-tools-linux-x64-5.0.3.906.zip
 
-          echo "---windows---"
-          ls -lh windows
-
-          pushd linux/
-          unzip native-linux-x64-4.0.10.13-Release.zip
-          ls -lh native
-          popd
-
-          cd ..
-
-          dst=command-line-tools/sdk/default/openharmony
-          mkdir -p $dst
-
-          mv ohos-sdk/linux/native $dst
-
-          rm -rf ohos-sdk
-
-          ls
-
-          echo "---"
-
-          ls -lh $dst/
+          unzip commandline-tools-linux-x64-5.0.3.906.zip > /dev/null
+          rm commandline-tools-linux-x64-5.0.3.906.zip
+          rm -v commandline*part*
 
       - name: Set environment variable
         if: steps.cache-build-result.outputs.cache-hit != 'true'
@@ -115,7 +91,7 @@ jobs:
         if: steps.cache-build-result.outputs.cache-hit != 'true'
         uses: hendrikmuhs/ccache-action@v1.2
         with:
-          key: har-linux-${{ matrix.arch }}
+          key: hos-har-linux-${{ matrix.arch }}
 
       - name: Build libraries
         if: steps.cache-build-result.outputs.cache-hit != 'true'
@@ -126,12 +102,11 @@ jobs:
           cmake --version
 
           export OHOS_SDK_NATIVE_DIR="$GITHUB_WORKSPACE/command-line-tools/sdk/default/openharmony/native"
+          export SHERPA_ONNX_HARMONY_OS_TYPE=hos
 
           arch=${{ matrix.arch }}
           if [ $arch == arm64-v8a ]; then
             ./build-ohos-arm64-v8a.sh
-          elif [ $arch == armeabi-v7a ]; then
-            ./build-ohos-armeabi-v7a.sh
           elif [ $arch == x86-64 ]; then
             ./build-ohos-x86-64.sh
           fi
@@ -143,8 +118,6 @@ jobs:
           arch=${{ matrix.arch }}
           if [ $arch == arm64-v8a ]; then
             build_dir=build-ohos-arm64-v8a
-          elif [ $arch == armeabi-v7a ]; then
-            build_dir=build-ohos-armeabi-v7a
           elif [ $arch == x86-64 ]; then
             build_dir=build-ohos-x86-64
           fi
@@ -155,11 +128,11 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: sherpa-onnx-ohos-libs-${{ matrix.arch }}
+          name: sherpa-onnx-hos-libs-${{ matrix.arch }}
           path: ./artifact/
 
   build-har:
-    name: Build Har
+    name: Build HOS Har
     needs: [build-libs]
     runs-on: ubuntu-latest
 
@@ -174,27 +147,22 @@ jobs:
           ./new-release.sh
 
       - name: cache-toolchain
-        id: cache-toolchain-ohos
+        id: cache-toolchain-hos
         uses: actions/cache@v4
         with:
           path: command-line-tools
           key: commandline-tools-linux-x64-5.0.3.906.zip
 
       - name: Download toolchain
-        if: steps.cache-toolchain-ohos.outputs.cache-hit != 'true'
+        if: steps.cache-toolchain-hos.outputs.cache-hit != 'true'
         shell: bash
         run: |
-          # curl -SL -O https://huggingface.co/csukuangfj/harmonyos-commandline-tools/resolve/main/commandline-tools-linux-x64-5.0.3.906.zip
-          #
           BASE_URL="https://github.com/csukuangfj/test-github-actions/releases/download/ohos-tools"
           for i in 00 01 02; do
-            echo "正在下载 commandline-tools-part${i}..."
             curl -L -O "${BASE_URL}/commandline-tools-part${i}"
           done
 
           cat commandline-tools-part00 commandline-tools-part01 commandline-tools-part02 > commandline-tools-linux-x64-5.0.3.906.zip
-
-          ls -lh *.zip
 
           unzip commandline-tools-linux-x64-5.0.3.906.zip > /dev/null
           rm commandline-tools-linux-x64-5.0.3.906.zip
@@ -203,19 +171,13 @@ jobs:
       - name: Retrieve artifact (arm64-v8a)
         uses: actions/download-artifact@v4
         with:
-          name: sherpa-onnx-ohos-libs-arm64-v8a
+          name: sherpa-onnx-hos-libs-arm64-v8a
           path: ./harmony-os/SherpaOnnxHar/sherpa_onnx/src/main/cpp/libs/arm64-v8a
-
-      - name: Retrieve artifact (armeabi-v7a)
-        uses: actions/download-artifact@v4
-        with:
-          name: sherpa-onnx-ohos-libs-armeabi-v7a
-          path: ./harmony-os/SherpaOnnxHar/sherpa_onnx/src/main/cpp/libs/armeabi-v7a
 
       - name: Retrieve artifact (x86_64)
         uses: actions/download-artifact@v4
         with:
-          name: sherpa-onnx-ohos-libs-x86-64
+          name: sherpa-onnx-hos-libs-x86-64
           path: ./harmony-os/SherpaOnnxHar/sherpa_onnx/src/main/cpp/libs/x86_64
 
       - name: Display libs
@@ -223,9 +185,6 @@ jobs:
         run: |
           echo "---arm64-v8a---"
           ls -lh ./harmony-os/SherpaOnnxHar/sherpa_onnx/src/main/cpp/libs/arm64-v8a/
-
-          echo "---armeabi-v7a---"
-          ls -lh ./harmony-os/SherpaOnnxHar/sherpa_onnx/src/main/cpp/libs/armeabi-v7a/
 
           echo "---x86_64---"
           ls -lh ./harmony-os/SherpaOnnxHar/sherpa_onnx/src/main/cpp/libs/x86_64/
@@ -247,32 +206,16 @@ jobs:
 
           popd
 
-          export HAR_PATH="$GITHUB_WORKSPACE/harmony-os/SherpaOnnxHar/sherpa_onnx/build/default/outputs/default/sherpa_onnx.har"
-
-          # Patch armeabi-v7a libs into the HAR (hvigorw doesn't support armeabi-v7a directly)
-          # HAR is a tar.gz file with contents under package/
-          mkdir -p $GITHUB_WORKSPACE/patch-workdir
-          cd $GITHUB_WORKSPACE/patch-workdir
-          tar xzf "$HAR_PATH"
-
-          mkdir -p package/libs/armeabi-v7a
-          cp -v $GITHUB_WORKSPACE/harmony-os/SherpaOnnxHar/sherpa_onnx/src/main/cpp/libs/armeabi-v7a/libsherpa-onnx-c-api.so package/libs/armeabi-v7a/
-          cp -v $GITHUB_WORKSPACE/harmony-os/SherpaOnnxHar/sherpa_onnx/src/main/cpp/libs/armeabi-v7a/libonnxruntime.so package/libs/armeabi-v7a/
-
-          # Patch build-profile.json5 to include armeabi-v7a in abiFilters
-          sed -i 's/"x86_64"/"armeabi-v7a",\n        "x86_64"/' package/build-profile.json5
-
-          tar czf "$HAR_PATH" *
-
-          cp -v "$HAR_PATH" $GITHUB_WORKSPACE/
+          cp -v ./harmony-os/SherpaOnnxHar/sherpa_onnx/build/default/outputs/default/sherpa_onnx.har $GITHUB_WORKSPACE/sherpa_onnx_hos.har
 
           ls -lh $GITHUB_WORKSPACE/*.har
 
       - name: View Har
         shell: bash
         run: |
-          file sherpa_onnx.har
-          tar xvf sherpa_onnx.har
+          file sherpa_onnx_hos.har
+          mkdir -p view-har && cd view-har
+          tar xzf $GITHUB_WORKSPACE/sherpa_onnx_hos.har
 
           cd package
           ls -lh
@@ -283,9 +226,6 @@ jobs:
 
           echo "---libs/arm64-v8a---"
           ls -lh libs/arm64-v8a
-
-          echo "---libs/armeabi-v7a---"
-          ls -lh libs/armeabi-v7a
 
           echo "---src/main/ets/components---"
           ls -lh src/main/ets/components/
@@ -302,16 +242,15 @@ jobs:
           SHERPA_ONNX_VERSION=v$(grep "SHERPA_ONNX_VERSION" ./CMakeLists.txt  | cut -d " " -f 2  | cut -d '"' -f 2)
           echo "SHERPA_ONNX_VERSION=$SHERPA_ONNX_VERSION" >> "$GITHUB_ENV"
 
-          mv sherpa_onnx.har sherpa_onnx-$SHERPA_ONNX_VERSION.har
+          mv sherpa_onnx_hos.har sherpa_onnx_hos-$SHERPA_ONNX_VERSION.har
 
       - uses: actions/upload-artifact@v4
         with:
-          name: sherpa-onnx-har
-          path: ./sherpa_onnx*.har
+          name: sherpa-onnx-hos-har
+          path: ./sherpa_onnx_hos*.har
 
       - name: Release har
-        # if: false
-        # if: github.repository_owner == 'csukuangfj' && github.event_name == 'push' && contains(github.ref, 'refs/tags/')
+        if: (github.repository_owner == 'csukuangfj' || github.repository_owner == 'k2-fsa') && github.event_name == 'push' && contains(github.ref, 'refs/tags/')
         uses: svenstaro/upload-release-action@v2
         with:
           file_glob: true
@@ -319,18 +258,9 @@ jobs:
           file: ./*.har
           repo_name: k2-fsa/sherpa-onnx
           repo_token: ${{ secrets.UPLOAD_GH_SHERPA_ONNX_TOKEN }}
-          tag: v1.13.3
-
-      - name: Release har
-        if: github.repository_owner == 'k2-fsa' && github.event_name == 'push' && contains(github.ref, 'refs/tags/')
-        uses: svenstaro/upload-release-action@v2
-        with:
-          file_glob: true
-          overwrite: true
-          file: ./*.har
 
       - name: Publish to huggingface
-        # if: (github.repository_owner == 'csukuangfj' || github.repository_owner == 'k2-fsa') && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        if: (github.repository_owner == 'csukuangfj' || github.repository_owner == 'k2-fsa') && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         uses: nick-fields/retry@v3
