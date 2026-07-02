@@ -84,8 +84,8 @@ jobs:
           sed -i.bak 's/set(UNIX TRUE CACHE BOOL FROCE)/set(UNIX TRUE CACHE BOOL "Force UNIX" FORCE)/g' $toolchain_file
 
           sed -i.bak s/CMAKE_SYSTEM_NAME\ OHOS/CMAKE_SYSTEM_NAME\ Linux/g $toolchain_file
-          sed -i.bak 's/set(CMAKE_C_FLAGS "${OHOS_C_COMPILER_FLAGS} ${CMAKE_C_FLAGS} -D__MUSL__")/set(CMAKE_C_FLAGS "${OHOS_C_COMPILER_FLAGS} ${CMAKE_C_FLAGS} -D__MUSL__ -D__OHOS__")/' $toolchain_file
-          sed -i.bak 's/set(CMAKE_CXX_FLAGS "${OHOS_CXX_COMPILER_FLAGS} ${CMAKE_CXX_FLAGS} -D__MUSL__")/set(CMAKE_CXX_FLAGS "${OHOS_CXX_COMPILER_FLAGS} ${CMAKE_CXX_FLAGS} -D__MUSL__ -D__OHOS__")/' $toolchain_file
+          sed -i.bak 's/set(CMAKE_C_FLAGS "${OHOS_C_COMPILER_FLAGS} ${CMAKE_C_FLAGS} -D__MUSL__")/set(CMAKE_C_FLAGS "${OHOS_C_COMPILER_FLAGS} ${CMAKE_C_FLAGS} -D__MUSL__ -D__OHOS__ -Wno-unused-command-line-argument")/' $toolchain_file
+          sed -i.bak 's/set(CMAKE_CXX_FLAGS "${OHOS_CXX_COMPILER_FLAGS} ${CMAKE_CXX_FLAGS} -D__MUSL__")/set(CMAKE_CXX_FLAGS "${OHOS_CXX_COMPILER_FLAGS} ${CMAKE_CXX_FLAGS} -D__MUSL__ -D__OHOS__ -Wno-unused-command-line-argument")/' $toolchain_file
 
       - name: ccache
         if: steps.cache-build-result.outputs.cache-hit != 'true'
