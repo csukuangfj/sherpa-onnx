@@ -179,7 +179,7 @@ due to containing unused large files.
   config.modelConfig.numThreads = 2;
   config.enableEndpoint = true;
 
-  return new OnlineRecognizer(config, context.resourceManager);
+  return new OnlineRecognizer(config);
 }
 
 interface DecodeFileResult {

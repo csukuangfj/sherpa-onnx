@@ -45,7 +45,7 @@ function initOfflineSpeakerDiarization(context: Context): OfflineSpeakerDiarizat
 
   config.minDurationOn = 0.2;
   config.minDurationOff = 0.5;
-  return new OfflineSpeakerDiarization(config, context.resourceManager);
+  return new OfflineSpeakerDiarization(config);
 
   // For the above two models files, you should have the following directory structure
   /*

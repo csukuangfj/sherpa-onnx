@@ -36,7 +36,7 @@ total 77336
   config.numThreads = 2;
   config.debug = true;
 
-  return new SpeakerEmbeddingExtractor(config, context.resourceManager);
+  return new SpeakerEmbeddingExtractor(config);
 }
 
 function extractEmbedding(samples: Samples): Float32Array {

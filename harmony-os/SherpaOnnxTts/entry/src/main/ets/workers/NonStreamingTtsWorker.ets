@@ -30,8 +30,7 @@ function mkdir(context: Context, parts: string[]) {
 }
 
 function copyRawFileDirToSandbox(context: Context, srcDir: string) {
-  let mgr = context.resourceManager;
-  const allFiles: string[] = listRawfileDir(mgr, srcDir);
+  const allFiles: string[] = listRawfileDir(srcDir);
   for (const src of allFiles) {
     const parts: string[] = src.split('/');
     if (parts.length != 1) {
@@ -286,7 +285,7 @@ function initTts(context: Context): OfflineTts {
   config.ruleFsts = ruleFsts;
   config.ruleFars = ruleFars;
 
-  return new OfflineTts(config, context.resourceManager);
+  return new OfflineTts(config);
 }
 
 interface TtsCallbackData {

@@ -23,7 +23,6 @@ let vad: Vad; // vad for decoding files
 let vadMic: Vad; // vad for mic
 
 function initVad(context: Context): Vad {
-  let mgr = context.resourceManager;
   const config: VadConfig = new VadConfig(
     new SileroVadConfig(
       'silero_vad.onnx',
@@ -49,7 +48,6 @@ function initVad(context: Context): Vad {
 }
 
 function initNonStreamingAsr(context: Context): OfflineRecognizer {
-  let mgr = context.resourceManager;
   const config: OfflineRecognizerConfig = new OfflineRecognizerConfig();
 
   // Note that you can switch to a new model by changing type
