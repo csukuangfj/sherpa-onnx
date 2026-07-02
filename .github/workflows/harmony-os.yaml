@@ -15,8 +15,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  harmony_os:
-    name: HarmonyOS ${{ matrix.arch }}
+  build-libs:
+    name: HarmonyOS libs ${{ matrix.arch }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -36,7 +36,7 @@ jobs:
       - name: ccache
         uses: hendrikmuhs/ccache-action@v1.2
         with:
-          key: harmony-os-${{ matrix.arch }}
+          key: harmony-os-libs-${{ matrix.arch }}
 
       - name: cache-toolchain
         id: cache-toolchain
@@ -70,7 +70,6 @@ jobs:
         run: |
           toolchain_file=$GITHUB_WORKSPACE/command-line-tools/sdk/default/openharmony/native/build/cmake/ohos.toolchain.cmake
           sed -i.bak 's/set(UNIX TRUE CACHE BOOL FROCE)/set(UNIX TRUE CACHE BOOL "Force UNIX" FORCE)/g' $toolchain_file
-
           sed -i.bak s/CMAKE_SYSTEM_NAME\ OHOS/CMAKE_SYSTEM_NAME\ Linux/g $toolchain_file
           sed -i.bak 's/set(CMAKE_C_FLAGS "${OHOS_C_COMPILER_FLAGS} ${CMAKE_C_FLAGS} -D__MUSL__")/set(CMAKE_C_FLAGS "${OHOS_C_COMPILER_FLAGS} ${CMAKE_C_FLAGS} -D__MUSL__ -D__OHOS__ -Wno-unused-command-line-argument")/' $toolchain_file
           sed -i.bak 's/set(CMAKE_CXX_FLAGS "${OHOS_CXX_COMPILER_FLAGS} ${CMAKE_CXX_FLAGS} -D__MUSL__")/set(CMAKE_CXX_FLAGS "${OHOS_CXX_COMPILER_FLAGS} ${CMAKE_CXX_FLAGS} -D__MUSL__ -D__OHOS__ -Wno-unused-command-line-argument")/' $toolchain_file
@@ -84,17 +83,127 @@ jobs:
 
           export OHOS_SDK_NATIVE_DIR="$GITHUB_WORKSPACE/command-line-tools/sdk/default/openharmony/native"
           export SHERPA_ONNX_HARMONY_OS_TYPE=hos
-          export SHERPA_ONNX_ENABLE_BINARY=ON
+          export SHERPA_ONNX_ENABLE_BINARY=OFF
+          export SHERPA_ONNX_LINK_OHOS_SYSTEM_LIBS=ON
 
           arch=${{ matrix.arch }}
-
           if [[ $arch == arm64-v8a ]]; then
             ./build-ohos-arm64-v8a.sh
           elif [[ $arch == x86_64 ]]; then
             ./build-ohos-x86-64.sh
           fi
 
-      - name: Collect result for ${{ matrix.arch }}
+      - name: Collect
+        shell: bash
+        run: |
+          SHERPA_ONNX_VERSION=v$(grep "SHERPA_ONNX_VERSION" ./CMakeLists.txt  | cut -d " " -f 2  | cut -d '"' -f 2)
+          echo "SHERPA_ONNX_VERSION=$SHERPA_ONNX_VERSION" >> "$GITHUB_ENV"
+
+          arch=${{ matrix.arch }}
+          if [[ $arch == x86_64 ]]; then
+            cd ./build-ohos-x86-64
+          else
+            cd ./build-ohos-$arch
+          fi
+
+          d=sherpa-onnx-$SHERPA_ONNX_VERSION-hos-${arch}-lib
+          mkdir -p ${d}/lib
+          cp -av install/lib/lib*.so ${d}/lib/
+          tar cjfv ${d}.tar.bz2 ${d}
+          mv ${d}.tar.bz2 ../
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sherpa-onnx-hos-libs-${{ matrix.arch }}
+          path: ./*.tar.bz2
+
+      - name: Release
+        if: (github.repository_owner == 'csukuangfj' || github.repository_owner == 'k2-fsa') && github.event_name == 'push' && contains(github.ref, 'refs/tags/')
+        uses: svenstaro/upload-release-action@v2
+        with:
+          file_glob: true
+          overwrite: true
+          file: ./*.tar.bz2
+
+  build-binaries:
+    name: HarmonyOS bin ${{ matrix.arch }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [arm64-v8a, x86_64]
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Update version
+        shell: bash
+        run: |
+          ./new-release.sh
+
+      - name: ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: harmony-os-bin-${{ matrix.arch }}
+
+      - name: cache-toolchain
+        id: cache-toolchain
+        uses: actions/cache@v4
+        with:
+          path: command-line-tools
+          key: commandline-tools-linux-x64-5.0.3.906.zip
+
+      - name: Download toolchain
+        if: steps.cache-toolchain.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          BASE_URL="https://github.com/csukuangfj/test-github-actions/releases/download/ohos-tools"
+          for i in 00 01 02; do
+            curl -L -O "${BASE_URL}/commandline-tools-part${i}"
+          done
+
+          cat commandline-tools-part00 commandline-tools-part01 commandline-tools-part02 > commandline-tools-linux-x64-5.0.3.906.zip
+
+          unzip commandline-tools-linux-x64-5.0.3.906.zip > /dev/null
+          rm commandline-tools-linux-x64-5.0.3.906.zip
+          rm -v commandline*part*
+
+      - name: Set environment variable
+        shell: bash
+        run: |
+          echo "$GITHUB_WORKSPACE/command-line-tools/sdk/default/openharmony/native/build-tools/cmake/bin"  >> "$GITHUB_PATH"
+
+      - name: Patch toolchain file (no __OHOS__)
+        shell: bash
+        run: |
+          toolchain_file=$GITHUB_WORKSPACE/command-line-tools/sdk/default/openharmony/native/build/cmake/ohos.toolchain.cmake
+          sed -i.bak 's/set(UNIX TRUE CACHE BOOL FROCE)/set(UNIX TRUE CACHE BOOL "Force UNIX" FORCE)/g' $toolchain_file
+          sed -i.bak s/CMAKE_SYSTEM_NAME\ OHOS/CMAKE_SYSTEM_NAME\ Linux/g $toolchain_file
+          sed -i.bak 's/set(CMAKE_C_FLAGS "${OHOS_C_COMPILER_FLAGS} ${CMAKE_C_FLAGS} -D__MUSL__")/set(CMAKE_C_FLAGS "${OHOS_C_COMPILER_FLAGS} ${CMAKE_C_FLAGS} -D__MUSL__ -Wno-unused-command-line-argument")/' $toolchain_file
+          sed -i.bak 's/set(CMAKE_CXX_FLAGS "${OHOS_CXX_COMPILER_FLAGS} ${CMAKE_CXX_FLAGS} -D__MUSL__")/set(CMAKE_CXX_FLAGS "${OHOS_CXX_COMPILER_FLAGS} ${CMAKE_CXX_FLAGS} -D__MUSL__ -Wno-unused-command-line-argument")/' $toolchain_file
+
+      - name: Build ${{ matrix.arch }}
+        shell: bash
+        run: |
+          export CMAKE_CXX_COMPILER_LAUNCHER=ccache
+          export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
+          cmake --version
+
+          export OHOS_SDK_NATIVE_DIR="$GITHUB_WORKSPACE/command-line-tools/sdk/default/openharmony/native"
+          export SHERPA_ONNX_HARMONY_OS_TYPE=hos
+          export SHERPA_ONNX_ENABLE_BINARY=ON
+          export SHERPA_ONNX_LINK_OHOS_SYSTEM_LIBS=OFF
+
+          arch=${{ matrix.arch }}
+          if [[ $arch == arm64-v8a ]]; then
+            ./build-ohos-arm64-v8a.sh
+          elif [[ $arch == x86_64 ]]; then
+            ./build-ohos-x86-64.sh
+          fi
+
+      - name: Collect
         shell: bash
         run: |
           SHERPA_ONNX_VERSION=v$(grep "SHERPA_ONNX_VERSION" ./CMakeLists.txt  | cut -d " " -f 2  | cut -d '"' -f 2)
@@ -113,24 +222,14 @@ jobs:
           ls -lh $d/lib
           ls -lh $d/bin
 
-          file $d/lib/*
-          readelf -d $d/lib/libsherpa-onnx-c-api.so
-
           # strip $d/bin/*
 
-          tar cjfv $d.tar.bz2 $d
-
-          # Also create a lib-only archive
-          lib_d=${d}-lib
-          mkdir -p ${lib_d}/lib
-          cp -av $d/lib/lib*.so ${lib_d}/lib/
-          tar cjfv ${lib_d}.tar.bz2 ${lib_d}
-
-          mv *.tar.bz2 ../
+          tar cjfv ${d}.tar.bz2 $d
+          mv ${d}.tar.bz2 ../
 
       - uses: actions/upload-artifact@v4
         with:
-          name: sherpa-onnx-hos-${{ matrix.arch }}
+          name: sherpa-onnx-hos-bin-${{ matrix.arch }}
           path: ./*.tar.bz2
 
       - name: Release
