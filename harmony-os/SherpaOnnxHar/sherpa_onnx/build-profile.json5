@@ -7,7 +7,7 @@
       "cppFlags": "-std=c++17",
       "abiFilters": [
         "arm64-v8a",
-        "armeabi-v7a",
+        // "armeabi-v7a", // hvigorw rejects it; patched into HAR after building (see har.yaml)
         "x86_64"
       ],
     },

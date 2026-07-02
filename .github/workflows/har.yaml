@@ -244,11 +244,29 @@ jobs:
 
           hvigorw --mode module -p product=default -p module=sherpa_onnx@default assembleHar --analyze=normal --parallel --incremental --no-daemon
           ls -lh ./sherpa_onnx/build/default/outputs/default/sherpa_onnx.har
-          cp -v ./sherpa_onnx/build/default/outputs/default/sherpa_onnx.har ../../
 
           popd
 
-          ls -lh *.har
+          export HAR_PATH="$GITHUB_WORKSPACE/harmony-os/SherpaOnnxHar/sherpa_onnx/build/default/outputs/default/sherpa_onnx.har"
+
+          # Patch armeabi-v7a libs into the HAR (hvigorw doesn't support armeabi-v7a directly)
+          # HAR is a tar.gz file with contents under package/
+          mkdir -p $GITHUB_WORKSPACE/patch-workdir
+          cd $GITHUB_WORKSPACE/patch-workdir
+          tar xzf "$HAR_PATH"
+
+          mkdir -p package/libs/armeabi-v7a
+          cp -v $GITHUB_WORKSPACE/harmony-os/SherpaOnnxHar/sherpa_onnx/src/main/cpp/libs/armeabi-v7a/libsherpa-onnx-c-api.so package/libs/armeabi-v7a/
+          cp -v $GITHUB_WORKSPACE/harmony-os/SherpaOnnxHar/sherpa_onnx/src/main/cpp/libs/armeabi-v7a/libonnxruntime.so package/libs/armeabi-v7a/
+
+          # Patch build-profile.json5 to include armeabi-v7a in abiFilters
+          sed -i 's/"x86_64"/"armeabi-v7a",\n        "x86_64"/' package/build-profile.json5
+
+          tar czf "$HAR_PATH" *
+
+          cp -v "$HAR_PATH" $GITHUB_WORKSPACE/
+
+          ls -lh $GITHUB_WORKSPACE/*.har
 
       - name: View Har
         shell: bash
