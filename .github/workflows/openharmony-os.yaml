@@ -1,27 +1,27 @@
-name: harmony-os
+name: openharmony-os
 
 on:
   push:
     branches:
       - master
-      - ohos-arm32
+      - ohos
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+*'
 
   workflow_dispatch:
 
 concurrency:
-  group: harmony-os-${{ github.ref }}
+  group: openharmony-os-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  harmony_os:
-    name: HarmonyOS ${{ matrix.arch }}
+  openharmony_os:
+    name: OpenHarmony ${{ matrix.arch }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        arch: [arm64-v8a, x86_64]
+        arch: [arm64-v8a, armeabi-v7a, x86_64]
 
     steps:
       - uses: actions/checkout@v4
@@ -36,29 +36,29 @@ jobs:
       - name: ccache
         uses: hendrikmuhs/ccache-action@v1.2
         with:
-          key: harmony-os-${{ matrix.arch }}
+          key: openharmony-${{ matrix.arch }}
 
-      - name: cache-toolchain
-        id: cache-toolchain
-        uses: actions/cache@v4
-        with:
-          path: command-line-tools
-          key: commandline-tools-linux-x64-5.0.3.906.zip
-
-      - name: Download toolchain
-        if: steps.cache-toolchain.outputs.cache-hit != 'true'
+      - name: Download toolchain 4.0.0
         shell: bash
         run: |
-          BASE_URL="https://github.com/csukuangfj/test-github-actions/releases/download/ohos-tools"
-          for i in 00 01 02; do
-            curl -L -O "${BASE_URL}/commandline-tools-part${i}"
-          done
+          curl -SL -O https://github.com/openharmony-rs/ohos-sdk/releases/download/v4.0/ohos-sdk-windows_linux-public.tar.gz
+          tar -xzf ohos-sdk-windows_linux-public.tar.gz
+          rm ohos-sdk-windows_linux-public.tar.gz*
 
-          cat commandline-tools-part00 commandline-tools-part01 commandline-tools-part02 > commandline-tools-linux-x64-5.0.3.906.zip
+          cd ohos-sdk
 
-          unzip commandline-tools-linux-x64-5.0.3.906.zip > /dev/null
-          rm commandline-tools-linux-x64-5.0.3.906.zip
-          rm -v commandline*part*
+          pushd linux/
+          unzip native-linux-x64-4.0.10.13-Release.zip
+          popd
+
+          cd ..
+
+          dst=command-line-tools/sdk/default/openharmony
+          mkdir -p $dst
+
+          mv ohos-sdk/linux/native $dst
+
+          rm -rf ohos-sdk
 
       - name: Set environment variable
         shell: bash
@@ -83,13 +83,15 @@ jobs:
           cmake --version
 
           export OHOS_SDK_NATIVE_DIR="$GITHUB_WORKSPACE/command-line-tools/sdk/default/openharmony/native"
-          export SHERPA_ONNX_HARMONY_OS_TYPE=hos
+          export SHERPA_ONNX_HARMONY_OS_TYPE=ohos
           export SHERPA_ONNX_ENABLE_BINARY=ON
 
           arch=${{ matrix.arch }}
 
           if [[ $arch == arm64-v8a ]]; then
             ./build-ohos-arm64-v8a.sh
+          elif [[ $arch == armeabi-v7a ]]; then
+            ./build-ohos-armeabi-v7a.sh
           elif [[ $arch == x86_64 ]]; then
             ./build-ohos-x86-64.sh
           fi
@@ -107,7 +109,7 @@ jobs:
             cd ./build-ohos-$arch
           fi
 
-          d=sherpa-onnx-$SHERPA_ONNX_VERSION-hos-$arch
+          d=sherpa-onnx-$SHERPA_ONNX_VERSION-ohos-$arch
           mv install $d
 
           ls -lh $d/lib
@@ -130,7 +132,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: sherpa-onnx-hos-${{ matrix.arch }}
+          name: sherpa-onnx-ohos-${{ matrix.arch }}
           path: ./*.tar.bz2
 
       - name: Release
