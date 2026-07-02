@@ -45,17 +45,7 @@ jobs:
           path: artifact
           key: sherpa-onnx-ohos-libs-${{ matrix.arch }}-${{ env.SHERPA_ONNX_VERSION }}-cache-v1
 
-      - name: cache-toolchain
-        if: steps.cache-build-result.outputs.cache-hit != 'true'
-        id: cache-toolchain
-        uses: actions/cache@v4
-        with:
-          path: command-line-tools
-          key: ohos-sdk-windows_linux-public-4.0.0
-
       - name: Download toolchain 4.0.0
-        if: true
-        # if: steps.cache-toolchain-2.outputs.cache-hit != 'true'
         shell: bash
         run: |
           # https://laval.csdn.net/67d247833b685529b70a2a54.html
@@ -80,7 +70,8 @@ jobs:
 
           cd ..
 
-          dst=command-line-tools/sdk/default/openharmony
+          dst=command-line-tools/sdk/default/openharmony/
+          rm -rf $dst
           mkdir -p $dst
 
           mv ohos-sdk/linux/native $dst
