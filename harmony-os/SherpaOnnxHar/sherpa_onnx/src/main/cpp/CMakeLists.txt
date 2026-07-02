@@ -61,7 +61,15 @@ add_library(sherpa_onnx SHARED
   resampler.cc
 )
 
-target_sources(sherpa_onnx PRIVATE napi-stubs.c)
+# HarmonyOS has CMAKE_SYSTEM_NAME=OHOS and exports all NAPI symbols.
+# OpenHarmony (API 10) has CMAKE_SYSTEM_NAME=Linux (patched toolchain) and
+# doesn't export napi_add_finalizer etc., so we provide weak stubs.
+if(NOT CMAKE_SYSTEM_NAME STREQUAL "OHOS")
+  message(STATUS "OpenHarmony build: adding NAPI compatibility stubs")
+  target_sources(sherpa_onnx PRIVATE napi-stubs.c)
+else()
+  message(STATUS "HarmonyOS build: using system NAPI implementation")
+endif()
 
 if(${OHOS_ARCH} STREQUAL "armeabi-v7a")
   target_compile_options(sherpa_onnx PRIVATE
