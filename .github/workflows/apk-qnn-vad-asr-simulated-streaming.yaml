@@ -16,16 +16,30 @@ permissions:
   contents: write
 
 jobs:
+  generate_matrix:
+    if: github.repository_owner == 'csukuangfj' || github.repository_owner == 'k2-fsa'
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Generate matrix
+        id: set-matrix
+        run: |
+          MATRIX=$(python3 .github/scripts/apk/get_num_jobs.py --script qnn-vad-asr)
+          echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
+
   simulated_streaming_asr:
+    needs: [generate_matrix]
     if: github.repository_owner == 'csukuangfj' || github.repository_owner == 'k2-fsa'
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.index }}/${{ matrix.total }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
-        total: ["20"]
-        index: ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19"]
+        ${{ fromJson(needs.generate_matrix.outputs.matrix) }}
 
     steps:
       - uses: actions/checkout@v4

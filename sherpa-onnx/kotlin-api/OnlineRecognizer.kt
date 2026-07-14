@@ -613,6 +613,34 @@ fun getModelConfig(type: Int): OnlineModelConfig? {
             )
         }
 
+        1000 -> {
+            val modelDir = "sherpa-onnx-rk3588-streaming-zipformer-bilingual-zh-en-2023-02-20"
+            return OnlineModelConfig(
+                transducer = OnlineTransducerModelConfig(
+                    encoder = "$modelDir/encoder.rknn",
+                    decoder = "$modelDir/decoder.rknn",
+                    joiner = "$modelDir/joiner.rknn",
+                ),
+                tokens = "$modelDir/tokens.txt",
+                modelType = "zipformer",
+                provider = "rknn",
+            )
+        }
+
+        1001 -> {
+            val modelDir = "sherpa-onnx-rk3588-streaming-zipformer-small-bilingual-zh-en-2023-02-16"
+            return OnlineModelConfig(
+                transducer = OnlineTransducerModelConfig(
+                    encoder = "$modelDir/encoder.rknn",
+                    decoder = "$modelDir/decoder.rknn",
+                    joiner = "$modelDir/joiner.rknn",
+                ),
+                tokens = "$modelDir/tokens.txt",
+                modelType = "zipformer",
+                provider = "rknn",
+            )
+        }
+
         9025 -> {
             val modelDir =
                 "sherpa-onnx-qnn-streaming-zipformer-transducer-zh-en-2023-03-20-chunk-size-32-android-aarch64"
@@ -653,6 +681,7 @@ fun getModelConfig(type: Int): OnlineModelConfig? {
             )
         }
 
+        // x-asr streaming models
         9027 -> {
             val modelDir =
                 "sherpa-onnx-qnn-x-asr-streaming-zipformer-transducer-zh-en-2026-06-05-chunk-size-480ms-android-aarch64"
@@ -673,6 +702,7 @@ fun getModelConfig(type: Int): OnlineModelConfig? {
             )
         }
 
+        // x-asr streaming punct models
         9028 -> {
             val modelDir =
                 "sherpa-onnx-qnn-x-asr-streaming-zipformer-transducer-zh-en-punct-2026-06-05-chunk-size-480ms-android-aarch64"
@@ -693,8 +723,8 @@ fun getModelConfig(type: Int): OnlineModelConfig? {
             )
         }
 
+        // SM8850 binary x-asr streaming models
         9029 -> {
-            // for Xiaomi 17 Pro
             val modelDir =
                 "sherpa-onnx-qnn-SM8850-binary-x-asr-streaming-zipformer-transducer-zh-en-2026-06-05-chunk-size-480ms"
             return OnlineModelConfig(
@@ -702,7 +732,6 @@ fun getModelConfig(type: Int): OnlineModelConfig? {
                     qnnConfig = QnnConfig(
                         backendLib = "libQnnHtp.so",
                         systemLib = "libQnnSystem.so",
-                        contextBinary = "$modelDir/encoder.bin,$modelDir/decoder.bin,$modelDir/joiner.bin",
                     ),
                 ),
                 tokens = "$modelDir/tokens.txt",
@@ -711,12 +740,31 @@ fun getModelConfig(type: Int): OnlineModelConfig? {
             )
         }
 
+        // SM8850 binary x-asr streaming punct models
         9030 -> {
-            // for Xiaomi 17 Pro
             val modelDir =
                 "sherpa-onnx-qnn-SM8850-binary-x-asr-streaming-zipformer-transducer-zh-en-punct-2026-06-05-chunk-size-480ms"
             return OnlineModelConfig(
                 transducer = OnlineTransducerModelConfig(
+                    qnnConfig = QnnConfig(
+                        backendLib = "libQnnHtp.so",
+                        systemLib = "libQnnSystem.so",
+                    ),
+                ),
+                tokens = "$modelDir/tokens.txt",
+                provider = "qnn",
+                modelType = "zipformer",
+            )
+        }
+
+        // nemotron streaming models
+        9031 -> {
+            val modelDir = "sherpa-onnx-qnn-nemotron-speech-streaming-en-0.6b-1120s-android-aarch64"
+            return OnlineModelConfig(
+                transducer = OnlineTransducerModelConfig(
+                    encoder = "$modelDir/libencoder.so",
+                    decoder = "$modelDir/libdecoder.so",
+                    joiner = "$modelDir/libjoiner.so",
                     qnnConfig = QnnConfig(
                         backendLib = "libQnnHtp.so",
                         systemLib = "libQnnSystem.so",
@@ -725,35 +773,59 @@ fun getModelConfig(type: Int): OnlineModelConfig? {
                 ),
                 tokens = "$modelDir/tokens.txt",
                 provider = "qnn",
-                modelType = "zipformer",
+                modelType = "nemo_transducer",
             )
         }
 
-        1000 -> {
-            val modelDir = "sherpa-onnx-rk3588-streaming-zipformer-bilingual-zh-en-2023-02-20"
+        // SM8850 binary nemotron streaming models
+        9032 -> {
+            val modelDir = "sherpa-onnx-qnn-SM8850-binary-nemotron-speech-streaming-en-0.6b-1120ms"
             return OnlineModelConfig(
                 transducer = OnlineTransducerModelConfig(
-                    encoder = "$modelDir/encoder.rknn",
-                    decoder = "$modelDir/decoder.rknn",
-                    joiner = "$modelDir/joiner.rknn",
+                    qnnConfig = QnnConfig(
+                        backendLib = "libQnnHtp.so",
+                        systemLib = "libQnnSystem.so",
+                    ),
                 ),
                 tokens = "$modelDir/tokens.txt",
-                modelType = "zipformer",
-                provider = "rknn",
+                provider = "qnn",
+                modelType = "nemo_transducer",
             )
         }
 
-        1001 -> {
-            val modelDir = "sherpa-onnx-rk3588-streaming-zipformer-small-bilingual-zh-en-2023-02-16"
+        // nemotron-3.5 streaming models
+        9033 -> {
+            val modelDir = "sherpa-onnx-qnn-nemotron-3.5-asr-streaming-0.6b-1120s-android-aarch64"
             return OnlineModelConfig(
                 transducer = OnlineTransducerModelConfig(
-                    encoder = "$modelDir/encoder.rknn",
-                    decoder = "$modelDir/decoder.rknn",
-                    joiner = "$modelDir/joiner.rknn",
+                    encoder = "$modelDir/libencoder.so",
+                    decoder = "$modelDir/libdecoder.so",
+                    joiner = "$modelDir/libjoiner.so",
+                    qnnConfig = QnnConfig(
+                        backendLib = "libQnnHtp.so",
+                        systemLib = "libQnnSystem.so",
+                        contextBinary = "$modelDir/encoder.bin,$modelDir/decoder.bin,$modelDir/joiner.bin",
+                    ),
                 ),
                 tokens = "$modelDir/tokens.txt",
-                modelType = "zipformer",
-                provider = "rknn",
+                provider = "qnn",
+                modelType = "nemo_transducer",
+            )
+        }
+
+        // SM8850 binary nemotron-3.5 streaming models
+        9034 -> {
+            val modelDir = "sherpa-onnx-qnn-SM8850-binary-nemotron-3.5-asr-streaming-0.6b-1120ms"
+            return OnlineModelConfig(
+                transducer = OnlineTransducerModelConfig(
+                    qnnConfig = QnnConfig(
+                        backendLib = "libQnnHtp.so",
+                        systemLib = "libQnnSystem.so",
+                    ),
+                ),
+                tokens = "$modelDir/tokens.txt",
+                provider = "qnn",
+                modelType = "nemo_transducer",
             )
         }
 

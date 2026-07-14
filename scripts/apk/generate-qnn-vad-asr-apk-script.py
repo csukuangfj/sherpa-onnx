@@ -57,6 +57,7 @@ class Model:
 # See get_2nd_models() in ./generate-asr-2pass-apk-script.py
 def get_models():
     models = [
+        # sense-voice with different durations
         Model(
             model_name="sherpa-onnx-qnn-5-seconds-sense-voice-zh-en-ja-ko-yue-2024-07-17-int8-android-aarch64",
             idx=9000,
@@ -73,12 +74,14 @@ def get_models():
             popd
             """,
         ),
-        Model(
-            model_name="sherpa-onnx-qnn-8-seconds-sense-voice-zh-en-ja-ko-yue-2024-07-17-int8-android-aarch64",
-            idx=9001,
+        *[Model(
+            model_name=f"sherpa-onnx-qnn-{s}-seconds-sense-voice-zh-en-ja-ko-yue-2024-07-17-int8-android-aarch64",
+            idx=9000,
             lang="zh_en_ko_ja_yue",
-            short_name="8-seconds-sense_voice_2024_07_17_int8",
+            short_name=f"{s}-seconds-sense_voice_2024_07_17_int8",
             use_hr=True,
+            sed_old="5-seconds-",
+            sed_new=f"{s}-seconds-",
             cmd="""
             pushd $model_name
 
@@ -88,151 +91,8 @@ def get_models():
 
             popd
             """,
-        ),
-        Model(
-            model_name="sherpa-onnx-qnn-10-seconds-sense-voice-zh-en-ja-ko-yue-2024-07-17-int8-android-aarch64",
-            idx=9002,
-            lang="zh_en_ko_ja_yue",
-            short_name="10-seconds-sense_voice_2024_07_17_int8",
-            use_hr=True,
-            cmd="""
-            pushd $model_name
-
-            rm -rfv test_wavs
-
-            ls -lh
-
-            popd
-            """,
-        ),
-        Model(
-            model_name="sherpa-onnx-qnn-13-seconds-sense-voice-zh-en-ja-ko-yue-2024-07-17-int8-android-aarch64",
-            idx=9003,
-            lang="zh_en_ko_ja_yue",
-            short_name="13-seconds-sense_voice_2024_07_17_int8",
-            use_hr=True,
-            cmd="""
-            pushd $model_name
-
-            rm -rfv test_wavs
-
-            ls -lh
-
-            popd
-            """,
-        ),
-        Model(
-            model_name="sherpa-onnx-qnn-15-seconds-sense-voice-zh-en-ja-ko-yue-2024-07-17-int8-android-aarch64",
-            idx=9004,
-            lang="zh_en_ko_ja_yue",
-            short_name="15-seconds-sense_voice_2024_07_17_int8",
-            use_hr=True,
-            cmd="""
-            pushd $model_name
-
-            rm -rfv test_wavs
-
-            ls -lh
-
-            popd
-            """,
-        ),
-        Model(
-            model_name="sherpa-onnx-qnn-18-seconds-sense-voice-zh-en-ja-ko-yue-2024-07-17-int8-android-aarch64",
-            idx=9005,
-            lang="zh_en_ko_ja_yue",
-            short_name="18-seconds-sense_voice_2024_07_17_int8",
-            use_hr=True,
-            cmd="""
-            pushd $model_name
-
-            rm -rfv test_wavs
-
-            ls -lh
-
-            popd
-            """,
-        ),
-        Model(
-            model_name="sherpa-onnx-qnn-20-seconds-sense-voice-zh-en-ja-ko-yue-2024-07-17-int8-android-aarch64",
-            idx=9006,
-            lang="zh_en_ko_ja_yue",
-            short_name="20-seconds-sense_voice_2024_07_17_int8",
-            use_hr=True,
-            cmd="""
-            pushd $model_name
-
-            rm -rfv test_wavs
-
-            ls -lh
-
-            popd
-            """,
-        ),
-        Model(
-            model_name="sherpa-onnx-qnn-23-seconds-sense-voice-zh-en-ja-ko-yue-2024-07-17-int8-android-aarch64",
-            idx=9007,
-            lang="zh_en_ko_ja_yue",
-            short_name="23-seconds-sense_voice_2024_07_17_int8",
-            use_hr=True,
-            cmd="""
-            pushd $model_name
-
-            rm -rfv test_wavs
-
-            ls -lh
-
-            popd
-            """,
-        ),
-        Model(
-            model_name="sherpa-onnx-qnn-25-seconds-sense-voice-zh-en-ja-ko-yue-2024-07-17-int8-android-aarch64",
-            idx=9008,
-            lang="zh_en_ko_ja_yue",
-            short_name="25-seconds-sense_voice_2024_07_17_int8",
-            use_hr=True,
-            cmd="""
-            pushd $model_name
-
-            rm -rfv test_wavs
-
-            ls -lh
-
-            popd
-            """,
-        ),
-        Model(
-            model_name="sherpa-onnx-qnn-28-seconds-sense-voice-zh-en-ja-ko-yue-2024-07-17-int8-android-aarch64",
-            idx=9009,
-            lang="zh_en_ko_ja_yue",
-            short_name="28-seconds-sense_voice_2024_07_17_int8",
-            use_hr=True,
-            cmd="""
-            pushd $model_name
-
-            rm -rfv test_wavs
-
-            ls -lh
-
-            popd
-            """,
-        ),
-        Model(
-            model_name="sherpa-onnx-qnn-30-seconds-sense-voice-zh-en-ja-ko-yue-2024-07-17-int8-android-aarch64",
-            idx=9010,
-            lang="zh_en_ko_ja_yue",
-            short_name="30-seconds-sense_voice_2024_07_17_int8",
-            use_hr=True,
-            cmd="""
-            pushd $model_name
-
-            rm -rfv test_wavs
-
-            ls -lh
-
-            popd
-            """,
-        ),
+        ) for s in [8, 10, 13, 15, 18, 20, 23, 25, 28, 30]],
+        # zipformer-ctc-zh with different durations
         Model(
             model_name="sherpa-onnx-qnn-5-seconds-zipformer-ctc-zh-2025-07-03-int8-android-aarch64",
             idx=9011,
@@ -249,12 +109,14 @@ def get_models():
             popd
             """,
         ),
-        Model(
-            model_name="sherpa-onnx-qnn-8-seconds-zipformer-ctc-zh-2025-07-03-int8-android-aarch64",
-            idx=9012,
+        *[Model(
+            model_name=f"sherpa-onnx-qnn-{s}-seconds-zipformer-ctc-zh-2025-07-03-int8-android-aarch64",
+            idx=9011,
             lang="zh",
-            short_name="8-seconds-zipformer_ctc_2025_07_03_int8",
+            short_name=f"{s}-seconds-zipformer_ctc_2025_07_03_int8",
             use_hr=True,
+            sed_old="5-seconds-",
+            sed_new=f"{s}-seconds-",
             cmd="""
             pushd $model_name
 
@@ -264,151 +126,7 @@ def get_models():
 
             popd
             """,
-        ),
-        Model(
-            model_name="sherpa-onnx-qnn-10-seconds-zipformer-ctc-zh-2025-07-03-int8-android-aarch64",
-            idx=9013,
-            lang="zh",
-            short_name="10-seconds-zipformer_ctc_2025_07_03_int8",
-            use_hr=True,
-            cmd="""
-            pushd $model_name
-
-            rm -rfv test_wavs
-
-            ls -lh
-
-            popd
-            """,
-        ),
-        Model(
-            model_name="sherpa-onnx-qnn-13-seconds-zipformer-ctc-zh-2025-07-03-int8-android-aarch64",
-            idx=9014,
-            lang="zh",
-            short_name="13-seconds-zipformer_ctc_2025_07_03_int8",
-            use_hr=True,
-            cmd="""
-            pushd $model_name
-
-            rm -rfv test_wavs
-
-            ls -lh
-
-            popd
-            """,
-        ),
-        Model(
-            model_name="sherpa-onnx-qnn-15-seconds-zipformer-ctc-zh-2025-07-03-int8-android-aarch64",
-            idx=9015,
-            lang="zh",
-            short_name="15-seconds-zipformer_ctc_2025_07_03_int8",
-            use_hr=True,
-            cmd="""
-            pushd $model_name
-
-            rm -rfv test_wavs
-
-            ls -lh
-
-            popd
-            """,
-        ),
-        Model(
-            model_name="sherpa-onnx-qnn-18-seconds-zipformer-ctc-zh-2025-07-03-int8-android-aarch64",
-            idx=9016,
-            lang="zh",
-            short_name="18-seconds-zipformer_ctc_2025_07_03_int8",
-            use_hr=True,
-            cmd="""
-            pushd $model_name
-
-            rm -rfv test_wavs
-
-            ls -lh
-
-            popd
-            """,
-        ),
-        Model(
-            model_name="sherpa-onnx-qnn-20-seconds-zipformer-ctc-zh-2025-07-03-int8-android-aarch64",
-            idx=9017,
-            lang="zh",
-            short_name="20-seconds-zipformer_ctc_2025_07_03_int8",
-            use_hr=True,
-            cmd="""
-            pushd $model_name
-
-            rm -rfv test_wavs
-
-            ls -lh
-
-            popd
-            """,
-        ),
-        Model(
-            model_name="sherpa-onnx-qnn-23-seconds-zipformer-ctc-zh-2025-07-03-int8-android-aarch64",
-            idx=9018,
-            lang="zh",
-            short_name="23-seconds-zipformer_ctc_2025_07_03_int8",
-            use_hr=True,
-            cmd="""
-            pushd $model_name
-
-            rm -rfv test_wavs
-
-            ls -lh
-
-            popd
-            """,
-        ),
-        Model(
-            model_name="sherpa-onnx-qnn-25-seconds-zipformer-ctc-zh-2025-07-03-int8-android-aarch64",
-            idx=9019,
-            lang="zh",
-            short_name="25-seconds-zipformer_ctc_2025_07_03_int8",
-            use_hr=True,
-            cmd="""
-            pushd $model_name
-
-            rm -rfv test_wavs
-
-            ls -lh
-
-            popd
-            """,
-        ),
-        Model(
-            model_name="sherpa-onnx-qnn-28-seconds-zipformer-ctc-zh-2025-07-03-int8-android-aarch64",
-            idx=9020,
-            lang="zh",
-            short_name="28-seconds-zipformer_ctc_2025_07_03_int8",
-            use_hr=True,
-            cmd="""
-            pushd $model_name
-
-            rm -rfv test_wavs
-
-            ls -lh
-
-            popd
-            """,
-        ),
-        Model(
-            model_name="sherpa-onnx-qnn-30-seconds-zipformer-ctc-zh-2025-07-03-int8-android-aarch64",
-            idx=9021,
-            lang="zh",
-            short_name="30-seconds-zipformer_ctc_2025_07_03_int8",
-            use_hr=True,
-            cmd="""
-            pushd $model_name
-
-            rm -rfv test_wavs
-
-            ls -lh
-
-            popd
-            """,
-        ),
+        ) for s in [8, 10, 13, 15, 18, 20, 23, 25, 28, 30]],
         Model(
             model_name="sherpa-onnx-qnn-SM8850-binary-10-seconds-sense-voice-zh-en-ja-ko-yue-2024-07-17-int8",
             idx=9022,
@@ -475,6 +193,7 @@ def get_models():
             popd
             """,
         ),
+        # reazonspeech-zipformer-transducer with different durations
         Model(
             model_name="sherpa-onnx-qnn-reazonspeech-zipformer-transducer-ja-5s-2024-08-01-android-aarch64",
             idx=9026,
@@ -490,13 +209,13 @@ def get_models():
             popd
             """,
         ),
-        Model(
-            model_name="sherpa-onnx-qnn-reazonspeech-zipformer-transducer-ja-8s-2024-08-01-android-aarch64",
+        *[Model(
+            model_name=f"sherpa-onnx-qnn-reazonspeech-zipformer-transducer-ja-{s}s-2024-08-01-android-aarch64",
             idx=9026,
             lang="ja",
-            short_name="reazonspeech_zipformer_transducer_ja_8s",
+            short_name=f"reazonspeech_zipformer_transducer_ja_{s}s",
             sed_old="ja-5s-",
-            sed_new="ja-8s-",
+            sed_new=f"ja-{s}s-",
             cmd="""
             pushd $model_name
 
@@ -506,160 +225,8 @@ def get_models():
 
             popd
             """,
-        ),
-        Model(
-            model_name="sherpa-onnx-qnn-reazonspeech-zipformer-transducer-ja-10s-2024-08-01-android-aarch64",
-            idx=9026,
-            lang="ja",
-            short_name="reazonspeech_zipformer_transducer_ja_10s",
-            sed_old="ja-5s-",
-            sed_new="ja-10s-",
-            cmd="""
-            pushd $model_name
-
-            rm -rfv test_wavs
-
-            ls -lh
-
-            popd
-            """,
-        ),
-        Model(
-            model_name="sherpa-onnx-qnn-reazonspeech-zipformer-transducer-ja-13s-2024-08-01-android-aarch64",
-            idx=9026,
-            lang="ja",
-            short_name="reazonspeech_zipformer_transducer_ja_13s",
-            sed_old="ja-5s-",
-            sed_new="ja-13s-",
-            cmd="""
-            pushd $model_name
-
-            rm -rfv test_wavs
-
-            ls -lh
-
-            popd
-            """,
-        ),
-        Model(
-            model_name="sherpa-onnx-qnn-reazonspeech-zipformer-transducer-ja-15s-2024-08-01-android-aarch64",
-            idx=9026,
-            lang="ja",
-            short_name="reazonspeech_zipformer_transducer_ja_15s",
-            sed_old="ja-5s-",
-            sed_new="ja-15s-",
-            cmd="""
-            pushd $model_name
-
-            rm -rfv test_wavs
-
-            ls -lh
-
-            popd
-            """,
-        ),
-        Model(
-            model_name="sherpa-onnx-qnn-reazonspeech-zipformer-transducer-ja-18s-2024-08-01-android-aarch64",
-            idx=9026,
-            lang="ja",
-            short_name="reazonspeech_zipformer_transducer_ja_18s",
-            sed_old="ja-5s-",
-            sed_new="ja-18s-",
-            cmd="""
-            pushd $model_name
-
-            rm -rfv test_wavs
-
-            ls -lh
-
-            popd
-            """,
-        ),
-        Model(
-            model_name="sherpa-onnx-qnn-reazonspeech-zipformer-transducer-ja-20s-2024-08-01-android-aarch64",
-            idx=9026,
-            lang="ja",
-            short_name="reazonspeech_zipformer_transducer_ja_20s",
-            sed_old="ja-5s-",
-            sed_new="ja-20s-",
-            cmd="""
-            pushd $model_name
-
-            rm -rfv test_wavs
-
-            ls -lh
-
-            popd
-            """,
-        ),
-        Model(
-            model_name="sherpa-onnx-qnn-reazonspeech-zipformer-transducer-ja-23s-2024-08-01-android-aarch64",
-            idx=9026,
-            lang="ja",
-            short_name="reazonspeech_zipformer_transducer_ja_23s",
-            sed_old="ja-5s-",
-            sed_new="ja-23s-",
-            cmd="""
-            pushd $model_name
-
-            rm -rfv test_wavs
-
-            ls -lh
-
-            popd
-            """,
-        ),
-        Model(
-            model_name="sherpa-onnx-qnn-reazonspeech-zipformer-transducer-ja-25s-2024-08-01-android-aarch64",
-            idx=9026,
-            lang="ja",
-            short_name="reazonspeech_zipformer_transducer_ja_25s",
-            sed_old="ja-5s-",
-            sed_new="ja-25s-",
-            cmd="""
-            pushd $model_name
-
-            rm -rfv test_wavs
-
-            ls -lh
-
-            popd
-            """,
-        ),
-        Model(
-            model_name="sherpa-onnx-qnn-reazonspeech-zipformer-transducer-ja-28s-2024-08-01-android-aarch64",
-            idx=9026,
-            lang="ja",
-            short_name="reazonspeech_zipformer_transducer_ja_28s",
-            sed_old="ja-5s-",
-            sed_new="ja-28s-",
-            cmd="""
-            pushd $model_name
-
-            rm -rfv test_wavs
-
-            ls -lh
-
-            popd
-            """,
-        ),
-        Model(
-            model_name="sherpa-onnx-qnn-reazonspeech-zipformer-transducer-ja-30s-2024-08-01-android-aarch64",
-            idx=9026,
-            lang="ja",
-            short_name="reazonspeech_zipformer_transducer_ja_30s",
-            sed_old="ja-5s-",
-            sed_new="ja-30s-",
-            cmd="""
-            pushd $model_name
-
-            rm -rfv test_wavs
-
-            ls -lh
-
-            popd
-            """,
-        ),
+        ) for s in [8, 10, 13, 15, 18, 20, 23, 25, 28, 30]],
+        # SM8850 binary reazonspeech-zipformer-transducer with different durations
         Model(
             model_name="sherpa-onnx-qnn-SM8850-binary-reazonspeech-zipformer-transducer-ja-5s-2024-08-01",
             idx=9027,
@@ -676,14 +243,32 @@ def get_models():
             popd
             """,
         ),
-        Model(
-            model_name="sherpa-onnx-qnn-SM8850-binary-reazonspeech-zipformer-transducer-ja-8s-2024-08-01",
+        *[Model(
+            model_name=f"sherpa-onnx-qnn-SM8850-binary-reazonspeech-zipformer-transducer-ja-{s}s-2024-08-01",
             idx=9027,
             lang="ja",
-            short_name="SM8850_reazonspeech_zipformer_transducer_ja_8s",
+            short_name=f"SM8850_reazonspeech_zipformer_transducer_ja_{s}s",
             release_tag="asr-models-qnn-binary",
             sed_old="ja-5s-",
-            sed_new="ja-8s-",
+            sed_new=f"ja-{s}s-",
+            cmd="""
+            pushd $model_name
+
+            rm -rfv test_wavs
+
+            ls -lh
+
+            popd
+            """,
+        ) for s in [8, 10, 13, 15, 18, 20, 23, 25, 28, 30]],
+
+        # moonshine QNN models (lib files)
+        # All use idx=9030, sed replaces language/model variants
+        Model(
+            model_name="sherpa-onnx-qnn-moonshine-tiny-en-5s-android-aarch64",
+            idx=9030,
+            lang="en",
+            short_name="moonshine_tiny_en_5s",
             cmd="""
             pushd $model_name
 
@@ -694,14 +279,100 @@ def get_models():
             popd
             """,
         ),
+        *[Model(
+            model_name=f"sherpa-onnx-qnn-moonshine-tiny-en-{s}s-android-aarch64",
+            idx=9030,
+            lang="en",
+            short_name=f"moonshine_tiny_en_{s}s",
+            sed_old="tiny-en-5s",
+            sed_new=f"tiny-en-{s}s",
+            cmd="""
+            pushd $model_name
+
+            rm -rfv test_wavs
+
+            ls -lh
+
+            popd
+            """,
+        ) for s in [8, 10]],
+        *[Model(
+            model_name=f"sherpa-onnx-qnn-moonshine-tiny-{l}-5s-android-aarch64",
+            idx=9030,
+            lang=l,
+            short_name=f"moonshine_tiny_{l}_5s",
+            sed_old="tiny-en-",
+            sed_new=f"tiny-{l}-",
+            cmd="""
+            pushd $model_name
+
+            rm -rfv test_wavs
+
+            ls -lh
+
+            popd
+            """,
+        ) for l in ["zh", "ja", "ko", "vi", "uk", "ar"]],
+        *[Model(
+            model_name=f"sherpa-onnx-qnn-moonshine-tiny-{l}-{s}s",
+            idx=9030,
+            lang=l,
+            short_name=f"moonshine_tiny_{l}_{s}s",
+            sed_old="tiny-en-5s",
+            sed_new=f"tiny-{l}-{s}s",
+            cmd="""
+            pushd $model_name
+
+            rm -rfv test_wavs
+
+            ls -lh
+
+            popd
+            """,
+        ) for l in ["zh", "ja", "ko", "vi", "uk", "ar"] for s in [8, 10]],
+        *[Model(
+            model_name=f"sherpa-onnx-qnn-moonshine-base-{l}-5s-android-aarch64",
+            idx=9030,
+            lang=l if l != "en" else "en",
+            short_name=f"moonshine_base_{l}_5s",
+            sed_old="tiny-en-",
+            sed_new=f"base-{l}-",
+            cmd="""
+            pushd $model_name
+
+            rm -rfv test_wavs
+
+            ls -lh
+
+            popd
+            """,
+        ) for l in ["en", "zh", "ja", "ko", "vi", "uk", "ar"]],
+        *[Model(
+            model_name=f"sherpa-onnx-qnn-moonshine-base-{l}-{s}s",
+            idx=9030,
+            lang=l if l != "en" else "en",
+            short_name=f"moonshine_base_{l}_{s}s",
+            sed_old="tiny-en-5s",
+            sed_new=f"base-{l}-{s}s",
+            cmd="""
+            pushd $model_name
+
+            rm -rfv test_wavs
+
+            ls -lh
+
+            popd
+            """,
+        ) for l in ["en", "zh", "ja", "ko", "vi", "uk", "ar"] for s in [8, 10]],
+
+        # SM8850 binary moonshine models (for Xiaomi 17 Pro)
+        # All use idx=9034, sed replaces language/model variants
         Model(
-            model_name="sherpa-onnx-qnn-SM8850-binary-reazonspeech-zipformer-transducer-ja-10s-2024-08-01",
-            idx=9027,
-            lang="ja",
-            short_name="SM8850_reazonspeech_zipformer_transducer_ja_10s",
+            model_name="sherpa-onnx-qnn-SM8850-binary-moonshine-tiny-en-5s",
+            idx=9034,
+            lang="en",
+            short_name="SM8850_moonshine_tiny_en_5s",
             release_tag="asr-models-qnn-binary",
-            sed_old="ja-5s-",
-            sed_new="ja-10s-",
             cmd="""
             pushd $model_name
 
@@ -712,14 +383,14 @@ def get_models():
             popd
             """,
         ),
-        Model(
-            model_name="sherpa-onnx-qnn-SM8850-binary-reazonspeech-zipformer-transducer-ja-13s-2024-08-01",
-            idx=9027,
-            lang="ja",
-            short_name="SM8850_reazonspeech_zipformer_transducer_ja_13s",
+        *[Model(
+            model_name=f"sherpa-onnx-qnn-SM8850-binary-moonshine-tiny-en-{s}s",
+            idx=9034,
+            lang="en",
+            short_name=f"SM8850_moonshine_tiny_en_{s}s",
             release_tag="asr-models-qnn-binary",
-            sed_old="ja-5s-",
-            sed_new="ja-13s-",
+            sed_old="tiny-en-5s",
+            sed_new=f"tiny-en-{s}s",
             cmd="""
             pushd $model_name
 
@@ -729,15 +400,15 @@ def get_models():
 
             popd
             """,
-        ),
-        Model(
-            model_name="sherpa-onnx-qnn-SM8850-binary-reazonspeech-zipformer-transducer-ja-15s-2024-08-01",
-            idx=9027,
-            lang="ja",
-            short_name="SM8850_reazonspeech_zipformer_transducer_ja_15s",
+        ) for s in [8, 10]],
+        *[Model(
+            model_name=f"sherpa-onnx-qnn-SM8850-binary-moonshine-tiny-{l}-5s",
+            idx=9034,
+            lang=l,
+            short_name=f"SM8850_moonshine_tiny_{l}_5s",
             release_tag="asr-models-qnn-binary",
-            sed_old="ja-5s-",
-            sed_new="ja-15s-",
+            sed_old="tiny-en-",
+            sed_new=f"tiny-{l}-",
             cmd="""
             pushd $model_name
 
@@ -747,15 +418,15 @@ def get_models():
 
             popd
             """,
-        ),
-        Model(
-            model_name="sherpa-onnx-qnn-SM8850-binary-reazonspeech-zipformer-transducer-ja-18s-2024-08-01",
-            idx=9027,
-            lang="ja",
-            short_name="SM8850_reazonspeech_zipformer_transducer_ja_18s",
+        ) for l in ["zh", "ja", "ko", "vi", "uk", "ar"]],
+        *[Model(
+            model_name=f"sherpa-onnx-qnn-SM8850-binary-moonshine-tiny-{l}-{s}s",
+            idx=9034,
+            lang=l,
+            short_name=f"SM8850_moonshine_tiny_{l}_{s}s",
             release_tag="asr-models-qnn-binary",
-            sed_old="ja-5s-",
-            sed_new="ja-18s-",
+            sed_old="tiny-en-5s",
+            sed_new=f"tiny-{l}-{s}s",
             cmd="""
             pushd $model_name
 
@@ -765,15 +436,15 @@ def get_models():
 
             popd
             """,
-        ),
-        Model(
-            model_name="sherpa-onnx-qnn-SM8850-binary-reazonspeech-zipformer-transducer-ja-20s-2024-08-01",
-            idx=9027,
-            lang="ja",
-            short_name="SM8850_reazonspeech_zipformer_transducer_ja_20s",
+        ) for l in ["zh", "ja", "ko", "vi", "uk", "ar"] for s in [8, 10]],
+        *[Model(
+            model_name=f"sherpa-onnx-qnn-SM8850-binary-moonshine-base-{l}-5s",
+            idx=9034,
+            lang=l if l != "en" else "en",
+            short_name=f"SM8850_moonshine_base_{l}_5s",
             release_tag="asr-models-qnn-binary",
-            sed_old="ja-5s-",
-            sed_new="ja-20s-",
+            sed_old="tiny-en-",
+            sed_new=f"base-{l}-",
             cmd="""
             pushd $model_name
 
@@ -783,15 +454,15 @@ def get_models():
 
             popd
             """,
-        ),
-        Model(
-            model_name="sherpa-onnx-qnn-SM8850-binary-reazonspeech-zipformer-transducer-ja-23s-2024-08-01",
-            idx=9027,
-            lang="ja",
-            short_name="SM8850_reazonspeech_zipformer_transducer_ja_23s",
+        ) for l in ["en", "zh", "ja", "ko", "vi", "uk", "ar"]],
+        *[Model(
+            model_name=f"sherpa-onnx-qnn-SM8850-binary-moonshine-base-{l}-{s}s",
+            idx=9034,
+            lang=l if l != "en" else "en",
+            short_name=f"SM8850_moonshine_base_{l}_{s}s",
             release_tag="asr-models-qnn-binary",
-            sed_old="ja-5s-",
-            sed_new="ja-23s-",
+            sed_old="tiny-en-5s",
+            sed_new=f"base-{l}-{s}s",
             cmd="""
             pushd $model_name
 
@@ -801,61 +472,7 @@ def get_models():
 
             popd
             """,
-        ),
-        Model(
-            model_name="sherpa-onnx-qnn-SM8850-binary-reazonspeech-zipformer-transducer-ja-25s-2024-08-01",
-            idx=9027,
-            lang="ja",
-            short_name="SM8850_reazonspeech_zipformer_transducer_ja_25s",
-            release_tag="asr-models-qnn-binary",
-            sed_old="ja-5s-",
-            sed_new="ja-25s-",
-            cmd="""
-            pushd $model_name
-
-            rm -rfv test_wavs
-
-            ls -lh
-
-            popd
-            """,
-        ),
-        Model(
-            model_name="sherpa-onnx-qnn-SM8850-binary-reazonspeech-zipformer-transducer-ja-28s-2024-08-01",
-            idx=9027,
-            lang="ja",
-            short_name="SM8850_reazonspeech_zipformer_transducer_ja_28s",
-            release_tag="asr-models-qnn-binary",
-            sed_old="ja-5s-",
-            sed_new="ja-28s-",
-            cmd="""
-            pushd $model_name
-
-            rm -rfv test_wavs
-
-            ls -lh
-
-            popd
-            """,
-        ),
-        Model(
-            model_name="sherpa-onnx-qnn-SM8850-binary-reazonspeech-zipformer-transducer-ja-30s-2024-08-01",
-            idx=9027,
-            lang="ja",
-            short_name="SM8850_reazonspeech_zipformer_transducer_ja_30s",
-            release_tag="asr-models-qnn-binary",
-            sed_old="ja-5s-",
-            sed_new="ja-30s-",
-            cmd="""
-            pushd $model_name
-
-            rm -rfv test_wavs
-
-            ls -lh
-
-            popd
-            """,
-        ),
+        ) for l in ["en", "zh", "ja", "ko", "vi", "uk", "ar"] for s in [8, 10]],
     ]
     return models
 

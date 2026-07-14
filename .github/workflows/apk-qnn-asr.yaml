@@ -19,16 +19,30 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
+  generate_matrix:
+    if: github.repository_owner == 'csukuangfj' || github.repository_owner == 'k2-fsa'
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Generate matrix
+        id: set-matrix
+        run: |
+          MATRIX=$(python3 .github/scripts/apk/get_num_jobs.py --script qnn-asr)
+          echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
+
   asr:
+    needs: [generate_matrix]
     if: github.repository_owner == 'csukuangfj' || github.repository_owner == 'k2-fsa'
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.index }}/${{ matrix.total }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
-        total: ["1"]
-        index: ["0"]
+        ${{ fromJson(needs.generate_matrix.outputs.matrix) }}
 
     steps:
       - uses: actions/checkout@v4

@@ -8,6 +8,7 @@ public class OfflineMoonshineModelConfig {
     private final String uncachedDecoder;
     private final String cachedDecoder;
     private final String mergedDecoder;
+    private final String decoder;
 
     private OfflineMoonshineModelConfig(Builder builder) {
         this.preprocessor = builder.preprocessor;
@@ -15,6 +16,7 @@ public class OfflineMoonshineModelConfig {
         this.uncachedDecoder = builder.uncachedDecoder;
         this.cachedDecoder = builder.cachedDecoder;
         this.mergedDecoder = builder.mergedDecoder;
+        this.decoder = builder.decoder;
     }
 
     public static Builder builder() {
@@ -41,12 +43,17 @@ public class OfflineMoonshineModelConfig {
         return mergedDecoder;
     }
 
+    public String getDecoder() {
+        return decoder;
+    }
+
     public static class Builder {
         private String preprocessor = "";
         private String encoder = "";
         private String uncachedDecoder = "";
         private String cachedDecoder = "";
         private String mergedDecoder = "";
+        private String decoder = "";
 
         public OfflineMoonshineModelConfig build() {
             return new OfflineMoonshineModelConfig(this);
@@ -74,6 +81,11 @@ public class OfflineMoonshineModelConfig {
 
         public Builder setMergedDecoder(String mergedDecoder) {
             this.mergedDecoder = mergedDecoder;
+            return this;
+        }
+
+        public Builder setDecoder(String decoder) {
+            this.decoder = decoder;
             return this;
         }
     }
