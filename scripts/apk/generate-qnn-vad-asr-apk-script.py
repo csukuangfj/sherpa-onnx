@@ -317,7 +317,7 @@ def get_models():
             """,
         ) for l in ["zh", "ja", "ko", "vi", "uk", "ar"]],
         *[Model(
-            model_name=f"sherpa-onnx-qnn-moonshine-tiny-{l}-{s}s",
+            model_name=f"sherpa-onnx-qnn-moonshine-tiny-{l}-{s}s-android-aarch64",
             idx=9030,
             lang=l,
             short_name=f"moonshine_tiny_{l}_{s}s",
@@ -353,12 +353,12 @@ def get_models():
             """,
         ) for l in ["en", "zh", "ja", "ko", "vi", "uk", "ar"]],
         *[Model(
-            model_name=f"sherpa-onnx-qnn-moonshine-base-{l}-{s}s",
+            model_name=f"sherpa-onnx-qnn-moonshine-base-{l}-{s}s-android-aarch64" if l != "en" else f"sherpa-onnx-qnn-moonshine-base-{s}s-android-aarch64",
             idx=9030,
             lang=l if l != "en" else "en",
             short_name=f"moonshine_base_{l}_{s}s",
             sed_old="tiny-en-5s",
-            sed_new=f"base-{l}-{s}s",
+            sed_new=f"base-{l}-{s}s" if l != "en" else f"base-{s}s",
             release_tag="asr-models-qnn-3",
             cmd="""
             pushd $model_name
