@@ -1184,11 +1184,10 @@ fun getOfflineModelConfig(type: Int): OfflineModelConfig? {
             return OfflineModelConfig(
                 provider = "qnn",
                 moonshine = OfflineMoonshineModelConfig(
-                    encoder = "$modelDir/encoder.bin",
-                    decoder = "$modelDir/decoder.bin",
                     qnnConfig = QnnConfig(
                         backendLib = "libQnnHtp.so",
                         systemLib = "libQnnSystem.so",
+                        contextBinary = "$modelDir/encoder.bin,$modelDir/decoder.bin",
                     ),
                 ),
                 tokens = "$modelDir/tokens.txt",

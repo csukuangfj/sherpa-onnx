@@ -40,7 +40,7 @@ OfflineRecognitionResult Convert(const OfflineMoonshineDecoderResult &src,
     r.tokens.push_back(s);
   }
 
-  r.text = text;
+  r.text = RemoveSpaceBetweenCjk(text);
 
   return r;
 }
