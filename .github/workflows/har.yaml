@@ -174,7 +174,8 @@ jobs:
           path: ./sherpa_onnx*.har
 
       - name: Release har
-        if: (github.repository_owner == 'csukuangfj' || github.repository_owner == 'k2-fsa') && github.event_name == 'push' && contains(github.ref, 'refs/tags/')
+        # if: (github.repository_owner == 'csukuangfj' || github.repository_owner == 'k2-fsa') && github.event_name == 'push' && contains(github.ref, 'refs/tags/')
+        if: false
         uses: svenstaro/upload-release-action@v2
         with:
           file_glob: true
@@ -185,7 +186,8 @@ jobs:
           # tag: v1.12.30
 
       - name: Publish to huggingface
-        if: (github.repository_owner == 'csukuangfj' || github.repository_owner == 'k2-fsa') && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        if: false
+        # if: (github.repository_owner == 'csukuangfj' || github.repository_owner == 'k2-fsa') && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         uses: nick-fields/retry@v3

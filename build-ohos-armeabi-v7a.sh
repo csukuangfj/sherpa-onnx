@@ -64,12 +64,11 @@ if [ ! -f $OHOS_TOOLCHAIN_FILE ]; then
 fi
 
 sleep 1
-onnxruntime_version=1.16.3
+onnxruntime_version=1.27.0
 onnxruntime_dir=onnxruntime-ohos-armeabi-v7a-$onnxruntime_version
 
 if [ ! -f $onnxruntime_dir/lib/libonnxruntime.so ]; then
-  # wget -c https://github.com/csukuangfj/onnxruntime-libs/releases/download/v${onnxruntime_version}/$onnxruntime_dir.zip
-  wget -c https://hf-mirror.com/csukuangfj/onnxruntime-libs/resolve/main/$onnxruntime_dir.zip
+  wget -c https://github.com/csukuangfj/onnxruntime-libs/releases/download/v${onnxruntime_version}/$onnxruntime_dir.zip
   unzip $onnxruntime_dir.zip
   rm $onnxruntime_dir.zip
 fi
