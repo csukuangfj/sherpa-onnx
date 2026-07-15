@@ -78,8 +78,8 @@ if [ ! -f $OHOS_TOOLCHAIN_FILE ]; then
 fi
 
 sleep 1
-onnxruntime_version=1.27.0
-onnxruntime_dir=onnxruntime-hos-x86_64-$onnxruntime_version
+onnxruntime_version=1.26.0
+onnxruntime_dir=onnxruntime-ohos-x86_64-$onnxruntime_version
 
 if [ ! -f $onnxruntime_dir/lib/libonnxruntime.so ]; then
   wget -c https://github.com/csukuangfj/onnxruntime-libs/releases/download/v${onnxruntime_version}/$onnxruntime_dir.zip

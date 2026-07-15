@@ -44,15 +44,16 @@ jobs:
         uses: actions/cache@v4
         with:
           path: command-line-tools
-          key: commandline-tools-linux-x64-5.0.5.200.zip
+          # key: commandline-tools-linux-x64-5.0.5.200.zip
+          key: commandline-tools-linux-x64-5.0.3.906.zip
 
       - name: Download toolchain
         if: steps.cache-toolchain-ohos.outputs.cache-hit != 'true'
         shell: bash
         run: |
-          curl -SL -O https://huggingface.co/csukuangfj/harmonyos-commandline-tools/resolve/main/commandline-tools-linux-x64-5.0.5.200.zip
-          unzip commandline-tools-linux-x64-5.0.5.200.zip
-          rm commandline-tools-linux-x64-5.0.5.200.zip
+          curl -SL -O https://huggingface.co/csukuangfj/harmonyos-commandline-tools/resolve/main/commandline-tools-linux-x64-5.0.3.906.zip
+          unzip commandline-tools-linux-x64-5.0.3.906.zip
+          rm commandline-tools-linux-x64-5.0.3.906.zip
 
       - name: Set environment variable
         shell: bash
