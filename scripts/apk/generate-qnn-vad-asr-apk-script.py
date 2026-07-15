@@ -287,6 +287,7 @@ def get_models():
             short_name=f"moonshine_tiny_en_{s}s",
             sed_old="tiny-en-5s",
             sed_new=f"tiny-en-{s}s",
+            release_tag="asr-models-qnn-3",
             cmd="""
             pushd $model_name
 
@@ -304,6 +305,7 @@ def get_models():
             short_name=f"moonshine_tiny_{l}_5s",
             sed_old="tiny-en-",
             sed_new=f"tiny-{l}-",
+            release_tag="asr-models-qnn-3",
             cmd="""
             pushd $model_name
 
@@ -321,6 +323,7 @@ def get_models():
             short_name=f"moonshine_tiny_{l}_{s}s",
             sed_old="tiny-en-5s",
             sed_new=f"tiny-{l}-{s}s",
+            release_tag="asr-models-qnn-3",
             cmd="""
             pushd $model_name
 
@@ -332,12 +335,13 @@ def get_models():
             """,
         ) for l in ["zh", "ja", "ko", "vi", "uk", "ar"] for s in [8, 10]],
         *[Model(
-            model_name=f"sherpa-onnx-qnn-moonshine-base-{l}-5s-android-aarch64",
+            model_name=f"sherpa-onnx-qnn-moonshine-base-{l}-5s-android-aarch64" if l != "en" else "sherpa-onnx-qnn-moonshine-base-5s-android-aarch64",
             idx=9030,
             lang=l if l != "en" else "en",
             short_name=f"moonshine_base_{l}_5s",
             sed_old="tiny-en-",
-            sed_new=f"base-{l}-",
+            sed_new=f"base-{l}-" if l != "en" else "base-",
+            release_tag="asr-models-qnn-3",
             cmd="""
             pushd $model_name
 
@@ -355,6 +359,7 @@ def get_models():
             short_name=f"moonshine_base_{l}_{s}s",
             sed_old="tiny-en-5s",
             sed_new=f"base-{l}-{s}s",
+            release_tag="asr-models-qnn-3",
             cmd="""
             pushd $model_name
 
@@ -439,13 +444,13 @@ def get_models():
             """,
         ) for l in ["zh", "ja", "ko", "vi", "uk", "ar"] for s in [8, 10]],
         *[Model(
-            model_name=f"sherpa-onnx-qnn-SM8850-binary-moonshine-base-{l}-5s",
+            model_name=f"sherpa-onnx-qnn-SM8850-binary-moonshine-base-{l}-5s" if l != "en" else "sherpa-onnx-qnn-SM8850-binary-moonshine-base-5s",
             idx=9034,
             lang=l if l != "en" else "en",
             short_name=f"SM8850_moonshine_base_{l}_5s",
             release_tag="asr-models-qnn-binary-3",
             sed_old="tiny-en-",
-            sed_new=f"base-{l}-",
+            sed_new=f"base-{l}-" if l != "en" else "base-",
             cmd="""
             pushd $model_name
 
@@ -457,7 +462,7 @@ def get_models():
             """,
         ) for l in ["en", "zh", "ja", "ko", "vi", "uk", "ar"]],
         *[Model(
-            model_name=f"sherpa-onnx-qnn-SM8850-binary-moonshine-base-{l}-{s}s",
+            model_name=f"sherpa-onnx-qnn-SM8850-binary-moonshine-base-{l}-{s}s" if l != "en" else f"sherpa-onnx-qnn-SM8850-binary-moonshine-base-{s}s",
             idx=9034,
             lang=l if l != "en" else "en",
             short_name=f"SM8850_moonshine_base_{l}_{s}s",
