@@ -163,6 +163,7 @@ object SimulateStreamingAsr {
                     && config.modelConfig.zipformerCtc.qnnConfig.backendLib.isEmpty()
                     && config.modelConfig.paraformer.qnnConfig.backendLib.isEmpty()
                     && config.modelConfig.transducer.qnnConfig.backendLib.isEmpty()
+                    && config.modelConfig.moonshine.qnnConfig.backendLib.isEmpty()
                 ) {
                     Log.e(TAG, "You should provide libQnnHtp.so for qnn")
                     throw IllegalArgumentException("You should provide libQnnHtp.so for qnn")
@@ -250,6 +251,30 @@ object SimulateStreamingAsr {
                     config.modelConfig.transducer.qnnConfig.contextBinary =
                         copyAssetListToInternalStorage(
                             config.modelConfig.transducer.qnnConfig.contextBinary,
+                            context
+                        )
+                } else if (config.modelConfig.moonshine.encoder.isNotEmpty()
+                    || assetListExists(
+                        context.assets,
+                        config.modelConfig.moonshine.qnnConfig.contextBinary
+                    )
+                ) {
+                    if (config.modelConfig.moonshine.encoder.isNotEmpty()) {
+                        config.modelConfig.moonshine.encoder =
+                            copyAssetListToInternalStorage(
+                                config.modelConfig.moonshine.encoder,
+                                context
+                            )
+                        config.modelConfig.moonshine.decoder =
+                            copyAssetListToInternalStorage(
+                                config.modelConfig.moonshine.decoder,
+                                context
+                            )
+                    }
+
+                    config.modelConfig.moonshine.qnnConfig.contextBinary =
+                        copyAssetListToInternalStorage(
+                            config.modelConfig.moonshine.qnnConfig.contextBinary,
                             context
                         )
                 }
