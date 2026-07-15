@@ -126,6 +126,7 @@ data class OfflineMoonshineModelConfig(
     var cachedDecoder: String = "",
     var mergedDecoder: String = "",
     var decoder: String = "",
+    var qnnConfig: QnnConfig = QnnConfig(),
 )
 
 data class OfflineSenseVoiceModelConfig(
