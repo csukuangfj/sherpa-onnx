@@ -148,6 +148,7 @@ def get_models():
         idx=9031,
         lang="en",
         short_name=f"nemotron_speech_streaming_en_0.6b_{nemotron_chunks[0]}s",
+        release_tag="asr-models-qnn-2",
         cmd=cmd,
     ))
     for s in nemotron_chunks[1:]:
@@ -158,6 +159,7 @@ def get_models():
             short_name=f"nemotron_speech_streaming_en_0.6b_{s}s",
             sed_old=f"{nemotron_chunks[0]}s",
             sed_new=f"{s}s",
+            release_tag="asr-models-qnn-2",
             cmd=cmd,
         ))
 
@@ -167,7 +169,7 @@ def get_models():
         idx=9032,
         lang="en",
         short_name=f"SM8850_nemotron_speech_streaming_en_0.6b_{nemotron_chunks[0]}ms",
-        release_tag="asr-models-qnn-binary",
+        release_tag="asr-models-qnn-binary-2",
         cmd=cmd,
     ))
     for s in nemotron_chunks[1:]:
@@ -176,7 +178,7 @@ def get_models():
             idx=9032,
             lang="en",
             short_name=f"SM8850_nemotron_speech_streaming_en_0.6b_{s}ms",
-            release_tag="asr-models-qnn-binary",
+            release_tag="asr-models-qnn-binary-2",
             sed_old=f"{nemotron_chunks[0]}ms",
             sed_new=f"{s}ms",
             cmd=cmd,
@@ -191,6 +193,7 @@ def get_models():
         idx=9033,
         lang="en",
         short_name=f"nemotron_3.5_asr_streaming_0.6b_{nemotron35_chunks[0]}s",
+        release_tag="asr-models-qnn-3",
         cmd=cmd,
     ))
     for s in nemotron35_chunks[1:]:
@@ -201,6 +204,7 @@ def get_models():
             short_name=f"nemotron_3.5_asr_streaming_0.6b_{s}s",
             sed_old=f"{nemotron35_chunks[0]}s",
             sed_new=f"{s}s",
+            release_tag="asr-models-qnn-3",
             cmd=cmd,
         ))
 
@@ -210,7 +214,7 @@ def get_models():
         idx=9034,
         lang="en",
         short_name=f"SM8850_nemotron_3.5_asr_streaming_0.6b_{nemotron35_chunks[0]}ms",
-        release_tag="asr-models-qnn-binary",
+        release_tag="asr-models-qnn-binary-3",
         cmd=cmd,
     ))
     for s in nemotron35_chunks[1:]:
@@ -219,7 +223,7 @@ def get_models():
             idx=9034,
             lang="en",
             short_name=f"SM8850_nemotron_3.5_asr_streaming_0.6b_{s}ms",
-            release_tag="asr-models-qnn-binary",
+            release_tag="asr-models-qnn-binary-3",
             sed_old=f"{nemotron35_chunks[0]}ms",
             sed_new=f"{s}ms",
             cmd=cmd,

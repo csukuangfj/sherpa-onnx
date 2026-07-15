@@ -269,6 +269,7 @@ def get_models():
             idx=9030,
             lang="en",
             short_name="moonshine_tiny_en_5s",
+            release_tag="asr-models-qnn-3",
             cmd="""
             pushd $model_name
 
@@ -372,7 +373,7 @@ def get_models():
             idx=9034,
             lang="en",
             short_name="SM8850_moonshine_tiny_en_5s",
-            release_tag="asr-models-qnn-binary",
+            release_tag="asr-models-qnn-binary-3",
             cmd="""
             pushd $model_name
 
@@ -388,7 +389,7 @@ def get_models():
             idx=9034,
             lang="en",
             short_name=f"SM8850_moonshine_tiny_en_{s}s",
-            release_tag="asr-models-qnn-binary",
+            release_tag="asr-models-qnn-binary-3",
             sed_old="tiny-en-5s",
             sed_new=f"tiny-en-{s}s",
             cmd="""
@@ -406,7 +407,7 @@ def get_models():
             idx=9034,
             lang=l,
             short_name=f"SM8850_moonshine_tiny_{l}_5s",
-            release_tag="asr-models-qnn-binary",
+            release_tag="asr-models-qnn-binary-3",
             sed_old="tiny-en-",
             sed_new=f"tiny-{l}-",
             cmd="""
@@ -424,7 +425,7 @@ def get_models():
             idx=9034,
             lang=l,
             short_name=f"SM8850_moonshine_tiny_{l}_{s}s",
-            release_tag="asr-models-qnn-binary",
+            release_tag="asr-models-qnn-binary-3",
             sed_old="tiny-en-5s",
             sed_new=f"tiny-{l}-{s}s",
             cmd="""
@@ -442,7 +443,7 @@ def get_models():
             idx=9034,
             lang=l if l != "en" else "en",
             short_name=f"SM8850_moonshine_base_{l}_5s",
-            release_tag="asr-models-qnn-binary",
+            release_tag="asr-models-qnn-binary-3",
             sed_old="tiny-en-",
             sed_new=f"base-{l}-",
             cmd="""
@@ -460,7 +461,7 @@ def get_models():
             idx=9034,
             lang=l if l != "en" else "en",
             short_name=f"SM8850_moonshine_base_{l}_{s}s",
-            release_tag="asr-models-qnn-binary",
+            release_tag="asr-models-qnn-binary-3",
             sed_old="tiny-en-5s",
             sed_new=f"base-{l}-{s}s",
             cmd="""
