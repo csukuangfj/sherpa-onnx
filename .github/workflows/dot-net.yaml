@@ -185,6 +185,12 @@ jobs:
 
           ls -lh /tmp/packages
 
+      - name: Upload NuGet packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-packages
+          path: /tmp/packages/*.nupkg
+
       - name: publish .Net packages to nuget.org
         if: github.repository_owner == 'csukuangfj' || github.repository_owner == 'k2-fsa'
         shell: bash

@@ -24,7 +24,7 @@ export src_dir
 mkdir -p $src_dir
 pushd $src_dir
 
-RIDS=(linux-x64 linux-arm64 android-arm64 android-x64 macos-x64 macos-arm64 windows-x64 windows-x86 windows-arm64)
+RIDS=(linux-x64 linux-arm64 android-arm64 android-arm android-x64 android-x86 macos-x64 macos-arm64 windows-x64 windows-x86 windows-arm64)
 
 mkdir -p ${RIDS[@]}
 
@@ -88,7 +88,7 @@ if [ ! -f $src_dir/linux-arm64/libsherpa-onnx-c-api.so ]; then
   cd ..
 fi
 
-if [ ! -f $src_dir/android-arm64/libsherpa-onnx-c-api.so ] || [ ! -f $src_dir/android-x64/libsherpa-onnx-c-api.so ]; then
+if [ ! -f $src_dir/android-arm64/libsherpa-onnx-c-api.so ] || [ ! -f $src_dir/android-arm/libsherpa-onnx-c-api.so ] || [ ! -f $src_dir/android-x64/libsherpa-onnx-c-api.so ] || [ ! -f $src_dir/android-x86/libsherpa-onnx-c-api.so ]; then
   echo "---android---"
   mkdir -p tarball
   cd tarball
@@ -105,10 +105,22 @@ if [ ! -f $src_dir/android-arm64/libsherpa-onnx-c-api.so ] || [ ! -f $src_dir/an
     ls -lh ../android-arm64
   fi
 
+  if [ ! -f $src_dir/android-arm/libsherpa-onnx-c-api.so ]; then
+    echo "---android arm---"
+    cp -v jniLibs/armeabi-v7a/lib{onnxruntime,sherpa-onnx-c-api}.so ../android-arm/
+    ls -lh ../android-arm
+  fi
+
   if [ ! -f $src_dir/android-x64/libsherpa-onnx-c-api.so ]; then
     echo "---android x64---"
     cp -v jniLibs/x86_64/lib{onnxruntime,sherpa-onnx-c-api}.so ../android-x64/
     ls -lh ../android-x64
+  fi
+
+  if [ ! -f $src_dir/android-x86/libsherpa-onnx-c-api.so ]; then
+    echo "---android x86---"
+    cp -v jniLibs/x86/lib{onnxruntime,sherpa-onnx-c-api}.so ../android-x86/
+    ls -lh ../android-x86
   fi
 
   cd ..
