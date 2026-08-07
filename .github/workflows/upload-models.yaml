@@ -1235,7 +1235,7 @@ jobs:
           mv models/* .
 
       - name: NeMo CTC Persian (shenava)
-        if: false
+        if: true
         shell: bash
         run: |
           git lfs install
@@ -1260,6 +1260,7 @@ jobs:
             git clone https://huggingface.co/mah92/$d
             rm -rf $d/.git
             rm -rf $d/.gitattributes
+            ls -lh $d
             tar cjfv $d.tar.bz2 $d
             ls -lh $d.tar.bz2
           done
@@ -1276,7 +1277,7 @@ jobs:
           tag: asr-models
 
       - name: Publish to huggingface
-        if: true
+        if: false
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         uses: nick-fields/retry@v3
