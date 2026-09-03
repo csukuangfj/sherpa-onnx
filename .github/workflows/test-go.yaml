@@ -14,9 +14,9 @@ on:
 
   workflow_dispatch:
 
-concurrency:
-  group: test-go-${{ github.ref }}
-  cancel-in-progress: true
+# concurrency:
+#   group: test-go-${{ github.ref }}
+#   cancel-in-progress: true
 
 jobs:
   test-go:
@@ -99,7 +99,7 @@ jobs:
           path: |
             scripts/go/_internal/lib
             to-upload
-          key: go-libs-${{ matrix.os }}-${{ matrix.arch }}-${{ hashFiles('CMakeLists.txt') }}-v3
+          key: go-libs-${{ matrix.os }}-${{ matrix.arch }}-${{ hashFiles('CMakeLists.txt') }}-v4
 
       - name: Build sherpa-onnx
         if: steps.cache-libs.outputs.cache-hit != 'true'
@@ -117,7 +117,7 @@ jobs:
 
           cmake_extra_args=""
           if [[ "${{ matrix.os }}" == "windows-2022" && "${{ matrix.arch }}" == "x86" ]]; then
-            cmake_extra_args="-A Win32"
+            cmake_extra_args="-DCMAKE_C_COMPILER=i686-w64-mingw32-gcc -DCMAKE_CXX_COMPILER=i686-w64-mingw32-g++"
           fi
 
           cmake \
