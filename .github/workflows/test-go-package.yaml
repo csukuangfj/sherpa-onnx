@@ -99,6 +99,15 @@ jobs:
           go mod tidy
           cat go.mod
           go build
+
+          if [[ "${{ matrix.os }}" == "windows-2022" ]]; then
+            if [[ "${{ matrix.arch }}" == "x86" ]]; then
+              cp -v /C/Users/runneradmin/go/pkg/mod/github.com/k2-fsa/sherpa-onnx-go-windows*/lib/i686-pc-windows-gnu/*.dll .
+            else
+              cp -v /C/Users/runneradmin/go/pkg/mod/github.com/k2-fsa/sherpa-onnx-go-windows*/lib/x86_64-pc-windows-gnu/*.dll .
+            fi
+          fi
+
           ./hello-world
 
       - name: Test source separation (Spleeter & UVR)
