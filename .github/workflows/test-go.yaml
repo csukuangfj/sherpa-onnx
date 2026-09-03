@@ -99,7 +99,7 @@ jobs:
           path: |
             scripts/go/_internal/lib
             to-upload
-          key: go-libs-${{ matrix.os }}-${{ matrix.arch }}-${{ hashFiles('CMakeLists.txt') }}
+ key: go-libs-${{ matrix.os }}-${{ matrix.arch }}-${{ hashFiles('CMakeLists.txt') }}-v2
 
       - name: Build sherpa-onnx
         if: steps.cache-libs.outputs.cache-hit != 'true'
