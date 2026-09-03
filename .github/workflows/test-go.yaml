@@ -20,12 +20,24 @@ concurrency:
 
 jobs:
   test-go:
-    name: ${{ matrix.os }}
+    name: ${{ matrix.os }} ${{ matrix.arch }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest, macos-15-intel, ubuntu-latest, windows-2022, ubuntu-22.04-arm]
+        include:
+          - os: macos-latest
+            arch: arm64
+          - os: macos-15-intel
+            arch: amd64
+          - os: ubuntu-latest
+            arch: amd64
+          - os: ubuntu-22.04-arm
+            arch: arm64
+          - os: windows-2022
+            arch: x64
+          - os: windows-2022
+            arch: x86
 
     steps:
       - uses: actions/checkout@v4
@@ -41,11 +53,31 @@ jobs:
       - name: ccache
         uses: hendrikmuhs/ccache-action@v1.2
         with:
-          key: ${{ matrix.os }}-go
+          key: ${{ matrix.os }}-${{ matrix.arch }}-go
+
+      - name: Set up MinGW for x64
+        if: matrix.os == 'windows-2022' && matrix.arch == 'x64'
+        uses: csukuangfj/setup-mingw@v2.2.1
+        with:
+          platform: ${{ matrix.arch }}
+
+      - name: Set up MinGW for x86
+        if: matrix.os == 'windows-2022' && matrix.arch == 'x86'
+        uses: csukuangfj/setup-mingw@v2.2.1
+        with:
+          platform: ${{ matrix.arch }}
+          version: '12.2.0'
 
       - uses: actions/setup-go@v5
         with:
           go-version: '>=1.17'
+
+      - name: Set GOARCH for x86
+        if: matrix.os == 'windows-2022' && matrix.arch == 'x86'
+        shell: bash
+        run: |
+          go env -w GOARCH=386
+          go env -w CGO_ENABLED=1
 
       - name: Display go version
         shell: bash
@@ -94,42 +126,49 @@ jobs:
             rm -v ./lib/*.a
             ls -h ./lib
           elif [[ ${{ matrix.os }} == windows-2022 ]]; then
-            cp -v ./install/lib/sherpa-onnx-c-api.dll ../scripts/go/_internal/lib/x86_64-pc-windows-gnu/
-            cp -v ./install/lib/onnxruntime.dll ../scripts/go/_internal/lib/x86_64-pc-windows-gnu/
-            ls -lh ../scripts/go/_internal/lib/x86_64-pc-windows-gnu/
+            if [[ ${{ matrix.arch }} == x86 ]]; then
+              win_lib_dir=i686-pc-windows-gnu
+            else
+              win_lib_dir=x86_64-pc-windows-gnu
+            fi
+            cp -v ./install/lib/sherpa-onnx-c-api.dll ../scripts/go/_internal/lib/$win_lib_dir/
+            cp -v ./install/lib/onnxruntime.dll ../scripts/go/_internal/lib/$win_lib_dir/
+            ls -lh ../scripts/go/_internal/lib/$win_lib_dir/
 
-            cp -v ../scripts/go/_internal/lib/x86_64-pc-windows-gnu/*.dll ../scripts/go/_internal/add-punctuation
-            cp -v ../scripts/go/_internal/lib/x86_64-pc-windows-gnu/*.dll ../scripts/go/_internal/add-punctuation-online
-            cp -v ../scripts/go/_internal/lib/x86_64-pc-windows-gnu/*.dll ../scripts/go/_internal/audio-tagging
-            cp -v ../scripts/go/_internal/lib/x86_64-pc-windows-gnu/*.dll ../scripts/go/_internal/keyword-spotting-from-file/
-            cp -v ../scripts/go/_internal/lib/x86_64-pc-windows-gnu/*.dll ../scripts/go/_internal/non-streaming-canary-decode-files/
-            cp -v ../scripts/go/_internal/lib/x86_64-pc-windows-gnu/*.dll ../scripts/go/_internal/non-streaming-cohere-transcribe-decode-files/
-            cp -v ../scripts/go/_internal/lib/x86_64-pc-windows-gnu/*.dll ../scripts/go/_internal/non-streaming-decode-files/
-            cp -v ../scripts/go/_internal/lib/x86_64-pc-windows-gnu/*.dll ../scripts/go/_internal/non-streaming-fire-red-asr-ctc-decode-files
-            cp -v ../scripts/go/_internal/lib/x86_64-pc-windows-gnu/*.dll ../scripts/go/_internal/non-streaming-funasr-nano-decode-files
-            cp -v ../scripts/go/_internal/lib/x86_64-pc-windows-gnu/*.dll ../scripts/go/_internal/non-streaming-medasr-ctc-decode-files
-            cp -v ../scripts/go/_internal/lib/x86_64-pc-windows-gnu/*.dll ../scripts/go/_internal/non-streaming-moonshine-v2-decode-files
-            cp -v ../scripts/go/_internal/lib/x86_64-pc-windows-gnu/*.dll ../scripts/go/_internal/non-streaming-omnilingual-asr-ctc-decode-files
-            cp -v ../scripts/go/_internal/lib/x86_64-pc-windows-gnu/*.dll ../scripts/go/_internal/non-streaming-speaker-diarization/
-            cp -v ../scripts/go/_internal/lib/x86_64-pc-windows-gnu/*.dll ../scripts/go/_internal/non-streaming-tts/
-            cp -v ../scripts/go/_internal/lib/x86_64-pc-windows-gnu/*.dll ../scripts/go/_internal/speaker-identification/
-            cp -v ../scripts/go/_internal/lib/x86_64-pc-windows-gnu/*.dll ../scripts/go/_internal/speech-enhancement-gtcrn
-            cp -v ../scripts/go/_internal/lib/x86_64-pc-windows-gnu/*.dll ../scripts/go/_internal/speech-enhancement-dpdfnet
-            cp -v ../scripts/go/_internal/lib/x86_64-pc-windows-gnu/*.dll ../scripts/go/_internal/streaming-decode-files/
-            cp -v ../scripts/go/_internal/lib/x86_64-pc-windows-gnu/*.dll ../scripts/go/_internal/streaming-speech-enhancement-gtcrn
-            cp -v ../scripts/go/_internal/lib/x86_64-pc-windows-gnu/*.dll ../scripts/go/_internal/streaming-speech-enhancement-dpdfnet
-            cp -v ../scripts/go/_internal/lib/x86_64-pc-windows-gnu/*.dll ../scripts/go/_internal/streaming-hlg-decoding/
-            cp -v ../scripts/go/_internal/lib/x86_64-pc-windows-gnu/*.dll ../scripts/go/_internal/vad
-            cp -v ../scripts/go/_internal/lib/x86_64-pc-windows-gnu/*.dll ../scripts/go/_internal/vad-asr-paraformer
-            cp -v ../scripts/go/_internal/lib/x86_64-pc-windows-gnu/*.dll ../scripts/go/_internal/vad-asr-whisper
-            cp -v ../scripts/go/_internal/lib/x86_64-pc-windows-gnu/*.dll ../scripts/go/_internal/vad-speaker-identification
-            cp -v ../scripts/go/_internal/lib/x86_64-pc-windows-gnu/*.dll ../scripts/go/_internal/vad-spoken-language-identification
-            cp -v ../scripts/go/_internal/lib/x86_64-pc-windows-gnu/*.dll ../scripts/go/_internal/zero-shot-pocket-tts
-            cp -v ../scripts/go/_internal/lib/x86_64-pc-windows-gnu/*.dll ../scripts/go/_internal/source-separation
-            cp -v ../scripts/go/_internal/lib/x86_64-pc-windows-gnu/*.dll ../scripts/go/_internal/supertonic-tts
-            cp -v ../scripts/go/_internal/lib/x86_64-pc-windows-gnu/*.dll ../scripts/go/_internal/version
+            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/add-punctuation
+            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/add-punctuation-online
+            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/audio-tagging
+            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/keyword-spotting-from-file/
+            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/non-streaming-canary-decode-files/
+            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/non-streaming-cohere-transcribe-decode-files/
+            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/non-streaming-decode-files/
+            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/non-streaming-fire-red-asr-ctc-decode-files
+            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/non-streaming-funasr-nano-decode-files
+            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/non-streaming-medasr-ctc-decode-files
+            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/non-streaming-moonshine-v2-decode-files
+            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/non-streaming-omnilingual-asr-ctc-decode-files
+            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/non-streaming-speaker-diarization/
+            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/non-streaming-tts/
+            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/speaker-identification/
+            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/speech-enhancement-gtcrn
+            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/speech-enhancement-dpdfnet
+            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/non-streaming-qwen3-asr-decode-files/
+            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/streaming-decode-files/
+            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/zero-shot-zipvoice-tts/
+            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/streaming-speech-enhancement-gtcrn
+            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/streaming-speech-enhancement-dpdfnet
+            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/streaming-hlg-decoding/
+            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/vad
+            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/vad-asr-paraformer
+            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/vad-asr-whisper
+            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/vad-speaker-identification
+            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/vad-spoken-language-identification
+            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/zero-shot-pocket-tts
+            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/source-separation
+            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/supertonic-tts
+            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/version
 
-            cp -v ../scripts/go/_internal/lib/x86_64-pc-windows-gnu/*.dll $upload_dir
+            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll $upload_dir
           else
             cp -v _deps/onnxruntime-src/lib/libonnxruntime.dylib $upload_dir/
             cp -v lib/*.dylib $upload_dir
@@ -149,7 +188,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.os }}-libs
+          name: ${{ matrix.os }}-${{ matrix.arch }}-libs
           path: to-upload/
 
       - name: Test version
