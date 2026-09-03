@@ -1,1 +1,1 @@
-../../../go-api-examples/hello-world/run.sh
+../../../../go-api-examples/hello-world/run.sh
