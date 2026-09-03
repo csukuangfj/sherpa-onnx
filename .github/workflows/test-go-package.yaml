@@ -59,6 +59,21 @@ jobs:
           go env GOPATH
           go env GOARCH
 
+      - name: Replace sherpa_onnx.go with local version
+        shell: bash
+        run: |
+          # Download the dependency first
+          cd go-api-examples/version
+          go mod download
+          cd ../..
+
+          # Find and replace sherpa_onnx.go in the Go module cache
+          gopath=$(go env GOPATH)
+          for f in $(find "$gopath/pkg/mod/github.com/k2-fsa/" -name "sherpa_onnx.go" -path "*/sherpa-onnx-go*" 2>/dev/null); do
+            echo "Replacing $f"
+            cp -v scripts/go/sherpa_onnx.go "$f"
+          done
+
       - name: Set up MinGW for x64
         if: matrix.os == 'windows-2022' && matrix.arch == 'x64'
         uses: csukuangfj/setup-mingw@v2.2.1
