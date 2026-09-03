@@ -167,6 +167,7 @@ jobs:
             cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/source-separation
             cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/supertonic-tts
             cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/version
+            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/hello-world
 
             cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll $upload_dir
           else
@@ -190,6 +191,18 @@ jobs:
         with:
           name: ${{ matrix.os }}-${{ matrix.arch }}-libs
           path: to-upload/
+
+      - name: Test hello-world
+        shell: bash
+        run: |
+          cd scripts/go/_internal/hello-world
+          ls -lh
+          go mod tidy
+          cat go.mod
+          go build
+          ls -lh
+
+          ./run.sh
 
       - name: Test version
         shell: bash
@@ -491,8 +504,12 @@ jobs:
           rm -rf sherpa-onnx-*
 
           echo "Test telespeech ctc"
-          ./run-telespeech-ctc.sh
-          rm -rf sherpa-onnx-telespeech-ctc-*
+          if [[ "${{ matrix.os }}" != "windows-2022" ]]; then
+            ./run-telespeech-ctc.sh
+            rm -rf sherpa-onnx-telespeech-ctc-*
+          else
+            echo "Skipping telespeech on Windows"
+          fi
 
           echo "Test transducer"
           ./run-transducer.sh

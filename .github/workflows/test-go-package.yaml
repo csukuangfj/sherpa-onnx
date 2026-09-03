@@ -63,7 +63,7 @@ jobs:
         shell: bash
         run: |
           # Download the dependency first
-          cd go-api-examples/version
+          cd go-api-examples/add-punctuation
           go mod download
           cd ../..
 
@@ -91,6 +91,15 @@ jobs:
         if: matrix.os == 'windows-2022'
         run: |
           gcc --version
+
+      - name: Test hello-world
+        shell: bash
+        run: |
+          cd go-api-examples/hello-world
+          go mod tidy
+          cat go.mod
+          go build
+          ./hello-world
 
       - name: Test source separation (Spleeter & UVR)
         if: matrix.os != 'windows-2022'
