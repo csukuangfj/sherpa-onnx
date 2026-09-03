@@ -92,7 +92,17 @@ jobs:
         run: |
           go env
 
+      - name: Cache built libraries
+        id: cache-libs
+        uses: actions/cache@v4
+        with:
+          path: |
+            scripts/go/_internal/lib
+            to-upload
+          key: go-libs-${{ matrix.os }}-${{ matrix.arch }}-${{ hashFiles('CMakeLists.txt') }}
+
       - name: Build sherpa-onnx
+        if: steps.cache-libs.outputs.cache-hit != 'true'
         shell: bash
         run: |
           upload_dir=$PWD/to-upload
@@ -187,6 +197,21 @@ jobs:
           go mod tidy
           go build
 
+      - name: Copy DLLs from cache (Windows, cache hit)
+        if: steps.cache-libs.outputs.cache-hit == 'true' && matrix.os == 'windows-2022'
+        shell: bash
+        run: |
+          if [[ ${{ matrix.arch }} == x86 ]]; then
+            win_lib_dir=i686-pc-windows-gnu
+          else
+            win_lib_dir=x86_64-pc-windows-gnu
+          fi
+          for dir in scripts/go/_internal/*/; do
+            if [ -d "$dir" ] && [ -f "$dir/go.mod" ]; then
+              cp -v scripts/go/_internal/lib/$win_lib_dir/*.dll "$dir" 2>/dev/null || true
+            fi
+          done
+
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.os }}-${{ matrix.arch }}-libs
@@ -202,6 +227,12 @@ jobs:
           go build
           ls -lh
 
+          ./run.sh
+
+      - name: Test speaker identification
+        shell: bash
+        run: |
+          cd scripts/go/_internal/speaker-identification/
           ./run.sh
 
       - name: Test version

@@ -140,18 +140,24 @@ static ModelType GetModelType(char *model_data, size_t model_data_length,
 std::unique_ptr<SpeakerEmbeddingExtractorImpl>
 SpeakerEmbeddingExtractorImpl::Create(
     const SpeakerEmbeddingExtractorConfig &config) {
+  SHERPA_ONNX_LOGE("SpeakerEmbeddingExtractorImpl::Create: begin");
+  SHERPA_ONNX_LOGE("  model=%s", config.model.c_str());
   ModelType model_type = ModelType::kUnknown;
 
   {
+    SHERPA_ONNX_LOGE("  calling GetModelType");
     model_type = GetModelType(config.model, config.debug);
+    SHERPA_ONNX_LOGE("  GetModelType returned %d", static_cast<int>(model_type));
   }
 
   switch (model_type) {
     case ModelType::kWeSpeaker:
       // fall through
     case ModelType::k3dSpeaker:
+      SHERPA_ONNX_LOGE("  creating SpeakerEmbeddingExtractorGeneralImpl");
       return std::make_unique<SpeakerEmbeddingExtractorGeneralImpl>(config);
     case ModelType::kNeMo:
+      SHERPA_ONNX_LOGE("  creating SpeakerEmbeddingExtractorNeMoImpl");
       return std::make_unique<SpeakerEmbeddingExtractorNeMoImpl>(config);
     case ModelType::kUnknown:
       SHERPA_ONNX_LOGE("Unknown model type for speaker embedding extractor!");

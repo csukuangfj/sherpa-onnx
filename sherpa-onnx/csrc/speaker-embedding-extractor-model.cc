@@ -34,9 +34,14 @@ class SpeakerEmbeddingExtractorModel::Impl {
         env_(ORT_LOGGING_LEVEL_ERROR),
         sess_opts_(GetSessionOptions(config)),
         allocator_{} {
+    SHERPA_ONNX_LOGE("SpeakerEmbeddingExtractorModel::Impl: begin");
+    SHERPA_ONNX_LOGE("  model=%s", config.model.c_str());
+    SHERPA_ONNX_LOGE("  creating Ort::Session");
     sess_ = std::make_unique<Ort::Session>(
         env_, SHERPA_ONNX_TO_ORT_PATH(config.model), sess_opts_);
+    SHERPA_ONNX_LOGE("  Ort::Session created");
     Init(nullptr, 0);
+    SHERPA_ONNX_LOGE("  Init done");
   }
 
   template <typename Manager>
@@ -66,7 +71,9 @@ class SpeakerEmbeddingExtractorModel::Impl {
 
  private:
   void Init(void *model_data, size_t model_data_length) {
+    SHERPA_ONNX_LOGE("SpeakerEmbeddingExtractorModel::Impl::Init: begin");
     if (model_data) {
+      SHERPA_ONNX_LOGE("  creating session from model data");
       sess_ = std::make_unique<Ort::Session>(
           env_, model_data, model_data_length, sess_opts_);
     } else if (!sess_) {
@@ -76,8 +83,10 @@ class SpeakerEmbeddingExtractorModel::Impl {
       SHERPA_ONNX_EXIT(-1);
     }
 
+    SHERPA_ONNX_LOGE("  getting input names");
     GetInputNames(sess_.get(), &input_names_, &input_names_ptr_);
 
+    SHERPA_ONNX_LOGE("  getting output names");
     GetOutputNames(sess_.get(), &output_names_, &output_names_ptr_);
 
     // get meta data
