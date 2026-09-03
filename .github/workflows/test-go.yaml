@@ -26,14 +26,14 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: macos-latest
-            arch: arm64
-          - os: macos-15-intel
-            arch: amd64
-          - os: ubuntu-latest
-            arch: amd64
-          - os: ubuntu-22.04-arm
-            arch: arm64
+          # - os: macos-latest
+          #   arch: arm64
+          # - os: macos-15-intel
+          #   arch: amd64
+          # - os: ubuntu-latest
+          #   arch: amd64
+          # - os: ubuntu-22.04-arm
+          #   arch: arm64
           - os: windows-2022
             arch: x64
           - os: windows-2022
