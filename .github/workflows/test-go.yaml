@@ -5,6 +5,7 @@ on:
     branches:
       - master
       - go
+      - fix-go
     paths:
       - '.github/workflows/test-go.yaml'
       - 'cmake/**'
@@ -237,6 +238,19 @@ jobs:
           go build
           ls -lh
 
+          if [[ "${{ matrix.os }}" == "windows-2022" ]]; then
+            echo "=== Checking binary ==="
+            file ./non-streaming-decode-files.exe 2>/dev/null || file ./non-streaming-decode-files 2>/dev/null || echo "binary not found"
+            echo "=== Checking DLLs in directory ==="
+            ls -lh *.dll 2>/dev/null || echo "no DLLs"
+            echo "=== Checking DLL dependencies ==="
+            objdump -p ./non-streaming-decode-files.exe 2>/dev/null | grep "DLL Name" || echo "objdump failed"
+          fi
+
+          echo "Test transducer (first, to debug)"
+          ./run-transducer.sh
+          rm -rf sherpa-onnx-zipformer-en-2023-06-26
+
           echo "Test Wenet CTC"
           ./run-wenet-ctc.sh
           rm -rf sherpa-onnx-wenet*
@@ -269,14 +283,6 @@ jobs:
           else
             echo "Skipping telespeech on Windows"
           fi
-
-          echo "Test transducer"
-          ./run-transducer.sh
-          rm -rf sherpa-onnx-zipformer-en-2023-06-26
-
-          echo "Test transducer"
-          ./run-transducer.sh
-          rm -rf sherpa-onnx-zipformer-en-2023-06-26
 
           echo "Test paraformer"
           ./run-paraformer.sh
