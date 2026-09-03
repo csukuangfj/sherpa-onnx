@@ -227,6 +227,74 @@ jobs:
           name: ${{ matrix.os }}-${{ matrix.arch }}-libs
           path: to-upload/
 
+      - name: Test non-streaming decoding files
+        shell: bash
+        run: |
+          cd scripts/go/_internal/non-streaming-decode-files/
+          ls -lh
+          go mod tidy
+          cat go.mod
+          go build
+          ls -lh
+
+          echo "Test Wenet CTC"
+          ./run-wenet-ctc.sh
+          rm -rf sherpa-onnx-wenet*
+
+          echo "Test Zipformer CTC"
+          ./run-zipformer-ctc.sh
+          rm -rf sherpa-onnx-zipformer-*
+
+          echo "Test SenseVoice ctc"
+          ./run-sense-voice-small-with-hr.sh
+          ./run-sense-voice-small.sh
+          rm -rf sherpa-onnx-sense-*
+
+          echo "Test Dolphin CTC"
+          ./run-dolphin-ctc-base.sh
+          rm -rf sherpa-onnx-dolphin-*
+
+          echo "Test FireRedAsr"
+          ./run-fire-red-asr.sh
+          rm -rf sherpa-onnx-fire-red-asr-*
+
+          echo "Test Moonshine"
+          ./run-moonshine.sh
+          rm -rf sherpa-onnx-*
+
+          echo "Test telespeech ctc"
+          if [[ "${{ matrix.os }}" != "windows-2022" ]]; then
+            ./run-telespeech-ctc.sh
+            rm -rf sherpa-onnx-telespeech-ctc-*
+          else
+            echo "Skipping telespeech on Windows"
+          fi
+
+          echo "Test transducer"
+          ./run-transducer.sh
+          rm -rf sherpa-onnx-zipformer-en-2023-06-26
+
+          echo "Test transducer"
+          ./run-transducer.sh
+          rm -rf sherpa-onnx-zipformer-en-2023-06-26
+
+          echo "Test paraformer"
+          ./run-paraformer.sh
+          ./run-paraformer-itn.sh
+          rm -rf sherpa-onnx-paraformer-zh-2023-09-14
+
+          echo "Test NeMo CTC"
+          ./run-nemo-ctc.sh
+          rm -rf sherpa-onnx-nemo-ctc-en-conformer-medium
+
+          echo "Test Whisper tiny.en"
+          ./run-whisper.sh
+          rm -rf sherpa-onnx-whisper-tiny.en
+
+          echo "Test Tdnn yesno"
+          ./run-tdnn-yesno.sh
+          rm -rf sherpa-onnx-tdnn-yesno
+
       - name: Test hello-world
         shell: bash
         run: |
@@ -508,74 +576,6 @@ jobs:
 
           ./run.sh
           rm -rf sherpa-onnx-nemo-*
-
-      - name: Test non-streaming decoding files
-        shell: bash
-        run: |
-          cd scripts/go/_internal/non-streaming-decode-files/
-          ls -lh
-          go mod tidy
-          cat go.mod
-          go build
-          ls -lh
-
-          echo "Test Wenet CTC"
-          ./run-wenet-ctc.sh
-          rm -rf sherpa-onnx-wenet*
-
-          echo "Test Zipformer CTC"
-          ./run-zipformer-ctc.sh
-          rm -rf sherpa-onnx-zipformer-*
-
-          echo "Test SenseVoice ctc"
-          ./run-sense-voice-small-with-hr.sh
-          ./run-sense-voice-small.sh
-          rm -rf sherpa-onnx-sense-*
-
-          echo "Test Dolphin CTC"
-          ./run-dolphin-ctc-base.sh
-          rm -rf sherpa-onnx-dolphin-*
-
-          echo "Test FireRedAsr"
-          ./run-fire-red-asr.sh
-          rm -rf sherpa-onnx-fire-red-asr-*
-
-          echo "Test Moonshine"
-          ./run-moonshine.sh
-          rm -rf sherpa-onnx-*
-
-          echo "Test telespeech ctc"
-          if [[ "${{ matrix.os }}" != "windows-2022" ]]; then
-            ./run-telespeech-ctc.sh
-            rm -rf sherpa-onnx-telespeech-ctc-*
-          else
-            echo "Skipping telespeech on Windows"
-          fi
-
-          echo "Test transducer"
-          ./run-transducer.sh
-          rm -rf sherpa-onnx-zipformer-en-2023-06-26
-
-          echo "Test transducer"
-          ./run-transducer.sh
-          rm -rf sherpa-onnx-zipformer-en-2023-06-26
-
-          echo "Test paraformer"
-          ./run-paraformer.sh
-          ./run-paraformer-itn.sh
-          rm -rf sherpa-onnx-paraformer-zh-2023-09-14
-
-          echo "Test NeMo CTC"
-          ./run-nemo-ctc.sh
-          rm -rf sherpa-onnx-nemo-ctc-en-conformer-medium
-
-          echo "Test Whisper tiny.en"
-          ./run-whisper.sh
-          rm -rf sherpa-onnx-whisper-tiny.en
-
-          echo "Test Tdnn yesno"
-          ./run-tdnn-yesno.sh
-          rm -rf sherpa-onnx-tdnn-yesno
 
       - name: Test speech enhancement (GTCRN)
         shell: bash
