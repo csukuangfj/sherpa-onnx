@@ -109,9 +109,17 @@ jobs:
           mkdir -p $upload_dir
           echo "upload_dir"
 
-          export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
+          if [[ "${{ matrix.os }}" != "windows-2022" ]]; then
+            export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
+          fi
           mkdir build
           cd build
+
+          cmake_extra_args=""
+          if [[ "${{ matrix.os }}" == "windows-2022" && "${{ matrix.arch }}" == "x86" ]]; then
+            cmake_extra_args="-DCMAKE_C_COMPILER=i686-w64-mingw32-gcc -DCMAKE_CXX_COMPILER=i686-w64-mingw32-g++"
+          fi
+
           cmake \
             -DCMAKE_C_COMPILER_LAUNCHER=ccache \
             -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
@@ -119,6 +127,7 @@ jobs:
             -DSHERPA_ONNX_ENABLE_PORTAUDIO=OFF \
             -DSHERPA_ONNX_ENABLE_WEBSOCKET=OFF \
             -DCMAKE_INSTALL_PREFIX=./install \
+            $cmake_extra_args \
             ..
 
           if [[ ${{ matrix.os }} == windows-2022 ]]; then
