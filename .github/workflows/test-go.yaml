@@ -126,6 +126,7 @@ jobs:
             -DBUILD_SHARED_LIBS=ON \
             -DSHERPA_ONNX_ENABLE_PORTAUDIO=OFF \
             -DSHERPA_ONNX_ENABLE_WEBSOCKET=OFF \
+            -DSHERPA_ONNX_ENABLE_BINARY=OFF \
             -DCMAKE_INSTALL_PREFIX=./install \
             $cmake_extra_args \
             ..
