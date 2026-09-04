@@ -89,20 +89,14 @@ class OfflineRecognizerTransducerImpl : public OfflineRecognizerImpl {
         config_(config),
         symbol_table_(config_.model_config.tokens),
         model_(std::make_unique<OfflineTransducerModel>(config_.model_config)) {
-    SHERPA_ONNX_LOGE("OfflineRecognizerTransducerImpl: begin");
-    SHERPA_ONNX_LOGE("  tokens=%s", config_.model_config.tokens.c_str());
-    SHERPA_ONNX_LOGE("  decoding_method=%s", config_.decoding_method.c_str());
-
     if (symbol_table_.Contains("<unk>")) {
       unk_id_ = symbol_table_["<unk>"];
     }
 
     if (config_.decoding_method == "greedy_search") {
-      SHERPA_ONNX_LOGE("  creating greedy_search decoder");
       decoder_ = std::make_unique<OfflineTransducerGreedySearchDecoder>(
           model_.get(), unk_id_, config_.blank_penalty);
     } else if (config_.decoding_method == "modified_beam_search") {
-      SHERPA_ONNX_LOGE("  creating modified_beam_search decoder");
       if (!config_.lm_config.model.empty()) {
         lm_ = OfflineLM::Create(config.lm_config);
       }
@@ -124,7 +118,6 @@ class OfflineRecognizerTransducerImpl : public OfflineRecognizerImpl {
                        config_.decoding_method.c_str());
       SHERPA_ONNX_EXIT(-1);
     }
-    SHERPA_ONNX_LOGE("OfflineRecognizerTransducerImpl: done");
   }
 
   template <typename Manager>

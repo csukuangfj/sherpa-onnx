@@ -238,16 +238,7 @@ jobs:
           go build
           ls -lh
 
-          if [[ "${{ matrix.os }}" == "windows-2022" ]]; then
-            echo "=== Checking binary ==="
-            file ./non-streaming-decode-files.exe 2>/dev/null || file ./non-streaming-decode-files 2>/dev/null || echo "binary not found"
-            echo "=== Checking DLLs in directory ==="
-            ls -lh *.dll 2>/dev/null || echo "no DLLs"
-            echo "=== Checking DLL dependencies ==="
-            objdump -p ./non-streaming-decode-files.exe 2>/dev/null | grep "DLL Name" || echo "objdump failed"
-          fi
-
-          echo "Test transducer (first, to debug)"
+          echo "Test transducer"
           ./run-transducer.sh
           rm -rf sherpa-onnx-zipformer-en-2023-06-26
 
@@ -274,22 +265,13 @@ jobs:
 
           echo "Test Moonshine"
           ./run-moonshine.sh
-          rm -rf sherpa-onnx-*
+          rm -rf sherpa-onnx-moonshine-*
 
           echo "Test telespeech ctc"
-          if [[ "${{ matrix.os }}" != "windows-2022" ]]; then
-            ./run-telespeech-ctc.sh
-            rm -rf sherpa-onnx-telespeech-ctc-*
-          else
-            echo "Skipping telespeech on Windows"
-          fi
+          ./run-telespeech-ctc.sh
+          rm -rf sherpa-onnx-telespeech-ctc-*
 
           echo "Test paraformer"
-          if [[ "${{ matrix.os }}" == "windows-2022" ]]; then
-            echo "=== Before run-paraformer.sh ==="
-            ls -lh non-streaming-decode-files.exe 2>/dev/null || echo "no exe"
-            ls -lh *.dll 2>/dev/null || echo "no dlls"
-          fi
           ./run-paraformer.sh
           ./run-paraformer-itn.sh
           rm -rf sherpa-onnx-paraformer-zh-2023-09-14
@@ -390,7 +372,7 @@ jobs:
           ls -lh
 
           ./run.sh
-          rm -rf sherpa-onnx-*
+          rm -rf sherpa-onnx-supertonic-*
           ls -lh *.wav
 
       - name: Test non-streaming decoding files with Moonshine v2
@@ -430,7 +412,7 @@ jobs:
           ls -lh
 
           ./run.sh
-          rm -rf sherpa-onnx-*
+          rm -rf sherpa-onnx-pocket-tts-*
           ls -lh *.wav
 
       - name: Test ZeroShot TTS with ZipVoice

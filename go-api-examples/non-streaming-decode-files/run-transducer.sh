@@ -13,11 +13,6 @@ fi
 go mod tidy
 go build
 
-echo "=== run-transducer.sh: checking binary ==="
-ls -lh ./non-streaming-decode-files* 2>/dev/null || echo "no binary"
-ls -lh *.dll 2>/dev/null || echo "no dlls"
-file ./non-streaming-decode-files.exe 2>/dev/null || file ./non-streaming-decode-files 2>/dev/null || echo "binary not found"
-
 ./non-streaming-decode-files \
   --encoder ./sherpa-onnx-zipformer-en-2023-06-26/encoder-epoch-99-avg-1.onnx \
   --decoder ./sherpa-onnx-zipformer-en-2023-06-26/decoder-epoch-99-avg-1.onnx \

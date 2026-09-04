@@ -691,26 +691,18 @@ static sherpa_onnx::OfflineRecognizerConfig GetOfflineRecognizerConfig(
 
 const SherpaOnnxOfflineRecognizer *SherpaOnnxCreateOfflineRecognizer(
     const SherpaOnnxOfflineRecognizerConfig *config) {
-  SHERPA_ONNX_LOGE("SherpaOnnxCreateOfflineRecognizer: begin");
-
   sherpa_onnx::OfflineRecognizerConfig recognizer_config =
       GetOfflineRecognizerConfig(config);
-
-  SHERPA_ONNX_LOGE("  GetOfflineRecognizerConfig done");
 
   if (!recognizer_config.Validate()) {
     SHERPA_ONNX_LOGE("Errors in config");
     return nullptr;
   }
-  SHERPA_ONNX_LOGE("  Validate done");
 
   SherpaOnnxOfflineRecognizer *recognizer = new SherpaOnnxOfflineRecognizer;
-  SHERPA_ONNX_LOGE("  new SherpaOnnxOfflineRecognizer done");
 
-  SHERPA_ONNX_LOGE("  about to create OfflineRecognizer impl");
   recognizer->impl =
       std::make_unique<sherpa_onnx::OfflineRecognizer>(recognizer_config);
-  SHERPA_ONNX_LOGE("  OfflineRecognizer impl created");
 
   return recognizer;
 }
@@ -2259,25 +2251,16 @@ GetSpeakerEmbeddingExtractorConfig(
 const SherpaOnnxSpeakerEmbeddingExtractor *
 SherpaOnnxCreateSpeakerEmbeddingExtractor(
     const SherpaOnnxSpeakerEmbeddingExtractorConfig *config) {
-  SHERPA_ONNX_LOGE("SherpaOnnxCreateSpeakerEmbeddingExtractor: begin");
-  SHERPA_ONNX_LOGE("  config=%p", static_cast<const void *>(config));
-
   auto c = GetSpeakerEmbeddingExtractorConfig(config);
-  SHERPA_ONNX_LOGE("  GetSpeakerEmbeddingExtractorConfig done");
 
   if (!c.Validate()) {
     SHERPA_ONNX_LOGE("Errors in config!");
     return nullptr;
   }
-  SHERPA_ONNX_LOGE("  Validate done");
 
   auto p = new SherpaOnnxSpeakerEmbeddingExtractor;
-  SHERPA_ONNX_LOGE("  new SherpaOnnxSpeakerEmbeddingExtractor done, p=%p",
-                    static_cast<const void *>(p));
 
-  SHERPA_ONNX_LOGE("  about to create SpeakerEmbeddingExtractor impl");
   p->impl = std::make_unique<sherpa_onnx::SpeakerEmbeddingExtractor>(c);
-  SHERPA_ONNX_LOGE("  SpeakerEmbeddingExtractor impl created");
 
   return p;
 }

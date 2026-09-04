@@ -294,12 +294,9 @@ std::unique_ptr<OfflineRecognizerImpl> OfflineRecognizerImpl::Create(
   //  1. transducer and nemo_transducer
   if (!config.model_config.model_type.empty()) {
     const auto &model_type = config.model_config.model_type;
-    SHERPA_ONNX_LOGE("OfflineRecognizerImpl::Create: model_type=%s", model_type.c_str());
     if (model_type == "transducer") {
-      SHERPA_ONNX_LOGE("  creating OfflineRecognizerTransducerImpl");
       return std::make_unique<OfflineRecognizerTransducerImpl>(config);
     } else if (model_type == "nemo_transducer") {
-      SHERPA_ONNX_LOGE("  creating OfflineRecognizerTransducerNeMoImpl");
       return std::make_unique<OfflineRecognizerTransducerNeMoImpl>(config);
     } else if (model_type == "paraformer") {
       return std::make_unique<OfflineRecognizerParaformerImpl>(config);
