@@ -89,13 +89,6 @@ class ThreadPool {
     set(SBPE_COMPILER_SUPPORTS_CXX14 ON CACHE BOOL "" FORCE)
   endif()
 
-  # Skip the C++14 compiler check for MinGW x86 (the compiler supports C++14
-  # but the CMake check_cxx_compiler_flag test may fail).
-  string(FIND "${CMAKE_C_COMPILER}" "i686" _is_mingw_x86)
-  if(_is_mingw_x86 GREATER -1)
-    set(SBPE_COMPILER_SUPPORTS_CXX14 ON CACHE BOOL "" FORCE)
-  endif()
-
   add_subdirectory(${simple-sentencepiece_SOURCE_DIR} ${simple-sentencepiece_BINARY_DIR} EXCLUDE_FROM_ALL)
 
   if(TARGET ssentencepiece_core AND (CMAKE_CXX_COMPILER_ID MATCHES "Clang"))
