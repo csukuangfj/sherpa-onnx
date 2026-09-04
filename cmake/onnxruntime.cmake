@@ -74,8 +74,11 @@ function(download_onnxruntime)
     endif()
   elseif(WIN32)
     message(STATUS "CMAKE_VS_PLATFORM_NAME: ${CMAKE_VS_PLATFORM_NAME}")
+    message(STATUS "CMAKE_C_COMPILER: ${CMAKE_C_COMPILER}")
 
-    if(CMAKE_VS_PLATFORM_NAME STREQUAL Win32 OR CMAKE_VS_PLATFORM_NAME STREQUAL win32)
+    # Detect x86 MinGW builds by checking the compiler target triple
+    string(FIND "${CMAKE_C_COMPILER}" "i686" _is_mingw_x86)
+    if(CMAKE_VS_PLATFORM_NAME STREQUAL Win32 OR CMAKE_VS_PLATFORM_NAME STREQUAL win32 OR _is_mingw_x86 GREATER -1)
       if(BUILD_SHARED_LIBS)
         include(onnxruntime-win-x86)
       else()

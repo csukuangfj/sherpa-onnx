@@ -7,7 +7,9 @@ if(NOT CMAKE_SYSTEM_NAME STREQUAL Windows)
   message(FATAL_ERROR "This file is for Windows only. Given: ${CMAKE_SYSTEM_NAME}")
 endif()
 
-if(NOT (CMAKE_VS_PLATFORM_NAME STREQUAL Win32 OR CMAKE_VS_PLATFORM_NAME STREQUAL win32))
+# Also accept MinGW x86 builds where CMAKE_VS_PLATFORM_NAME is not set
+string(FIND "${CMAKE_C_COMPILER}" "i686" _is_mingw_x86)
+if(NOT (CMAKE_VS_PLATFORM_NAME STREQUAL Win32 OR CMAKE_VS_PLATFORM_NAME STREQUAL win32 OR _is_mingw_x86 GREATER -1))
   message(FATAL_ERROR "This file is for Windows x86 only. Given: ${CMAKE_VS_PLATFORM_NAME}")
 endif()
 
