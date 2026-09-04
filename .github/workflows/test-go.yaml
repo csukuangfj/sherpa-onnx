@@ -95,28 +95,31 @@ jobs:
           mkdir build
           cd build
 
-          cmake_extra_args=""
-          cmake_build_args=""
           if [[ "${{ matrix.os }}" == "windows-2022" && "${{ matrix.arch }}" == "x86" ]]; then
-            cmake_extra_args="-G \"MinGW Makefiles\" -DCMAKE_C_COMPILER=i686-w64-mingw32-gcc -DCMAKE_CXX_COMPILER=i686-w64-mingw32-g++"
-            cmake_build_args="-- -j2"
-          fi
-
-          cmake \
-            -DCMAKE_C_COMPILER_LAUNCHER=ccache \
-            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
-            -DBUILD_SHARED_LIBS=ON \
-            -DSHERPA_ONNX_ENABLE_PORTAUDIO=OFF \
-            -DSHERPA_ONNX_ENABLE_WEBSOCKET=OFF \
-            -DSHERPA_ONNX_ENABLE_BINARY=OFF \
-            -DCMAKE_INSTALL_PREFIX=./install \
-            $cmake_extra_args \
-            ..
-
-          if [[ ${{ matrix.os }} == windows-2022 && "${{ matrix.arch }}" != "x86" ]]; then
-            cmake --build . --target install --config Release -- -m:2
+            cmake \
+              -G "MinGW Makefiles" \
+              -DCMAKE_C_COMPILER=i686-w64-mingw32-gcc \
+              -DCMAKE_CXX_COMPILER=i686-w64-mingw32-g++ \
+              -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+              -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+              -DBUILD_SHARED_LIBS=ON \
+              -DSHERPA_ONNX_ENABLE_PORTAUDIO=OFF \
+              -DSHERPA_ONNX_ENABLE_WEBSOCKET=OFF \
+              -DSHERPA_ONNX_ENABLE_BINARY=OFF \
+              -DCMAKE_INSTALL_PREFIX=./install \
+              ..
+            cmake --build . --target install -- -j2
           else
-            cmake --build . --target install $cmake_build_args
+            cmake \
+              -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+              -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+              -DBUILD_SHARED_LIBS=ON \
+              -DSHERPA_ONNX_ENABLE_PORTAUDIO=OFF \
+              -DSHERPA_ONNX_ENABLE_WEBSOCKET=OFF \
+              -DSHERPA_ONNX_ENABLE_BINARY=OFF \
+              -DCMAKE_INSTALL_PREFIX=./install \
+              ..
+            cmake --build . --target install --config Release -- -m:2
           fi
 
           if [[ ${{ matrix.os }} == ubuntu-latest || ${{ matrix.os }} == ubuntu-22.04-arm ]]; then
