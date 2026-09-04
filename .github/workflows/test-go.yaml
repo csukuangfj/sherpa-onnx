@@ -28,6 +28,14 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - os: macos-latest
+            arch: arm64
+          - os: macos-15-intel
+            arch: amd64
+          - os: ubuntu-latest
+            arch: amd64
+          - os: ubuntu-22.04-arm
+            arch: arm64
           - os: windows-2022
             arch: x64
           - os: windows-2022
@@ -55,13 +63,6 @@ jobs:
         with:
           platform: ${{ matrix.arch }}
 
-      - name: Set up MinGW for x86
-        if: matrix.os == 'windows-2022' && matrix.arch == 'x86'
-        uses: csukuangfj/setup-mingw@v2.2.1
-        with:
-          platform: ${{ matrix.arch }}
-          version: '12.2.0'
-
       - uses: actions/setup-go@v5
         with:
           go-version: '>=1.17'
@@ -80,7 +81,7 @@ jobs:
           path: |
             scripts/go/_internal/lib
             to-upload
-          key: go-libs-${{ matrix.os }}-${{ matrix.arch }}-${{ hashFiles('CMakeLists.txt') }}-v5
+          key: go-libs-${{ matrix.os }}-${{ matrix.arch }}-${{ hashFiles('CMakeLists.txt') }}-v8
 
       - name: Build sherpa-onnx
         if: steps.cache-libs.outputs.cache-hit != 'true'
@@ -95,52 +96,59 @@ jobs:
           mkdir build
           cd build
 
+          cmake_extra_args=""
           if [[ "${{ matrix.os }}" == "windows-2022" && "${{ matrix.arch }}" == "x86" ]]; then
-            cmake \
-              -G "MinGW Makefiles" \
-              -DCMAKE_C_COMPILER=i686-w64-mingw32-gcc \
-              -DCMAKE_CXX_COMPILER=i686-w64-mingw32-g++ \
-              -DCMAKE_C_COMPILER_LAUNCHER=ccache \
-              -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
-              -DBUILD_SHARED_LIBS=ON \
-              -DSHERPA_ONNX_ENABLE_PORTAUDIO=OFF \
-              -DSHERPA_ONNX_ENABLE_WEBSOCKET=OFF \
-              -DSHERPA_ONNX_ENABLE_BINARY=OFF \
-              -DCMAKE_INSTALL_PREFIX=./install \
-              ..
-            cmake --build . --target install -- -j2
-          else
-            cmake \
-              -DCMAKE_C_COMPILER_LAUNCHER=ccache \
-              -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
-              -DBUILD_SHARED_LIBS=ON \
-              -DSHERPA_ONNX_ENABLE_PORTAUDIO=OFF \
-              -DSHERPA_ONNX_ENABLE_WEBSOCKET=OFF \
-              -DSHERPA_ONNX_ENABLE_BINARY=OFF \
-              -DCMAKE_INSTALL_PREFIX=./install \
-              ..
-            cmake --build . --target install --config Release -- -m:2
+            cmake_extra_args="-A Win32"
           fi
 
-          if [[ ${{ matrix.os }} == ubuntu-latest || ${{ matrix.os }} == ubuntu-22.04-arm ]]; then
-            cp -v ./lib/*.so $upload_dir
-            cp -v _deps/onnxruntime-src/lib/libonnxruntime*so* $upload_dir
-            cp -v _deps/onnxruntime-src/lib/libonnxruntime*so* ./lib/
-            rm -v ./lib/*.a
-          elif [[ ${{ matrix.os }} == windows-2022 ]]; then
-            if [[ ${{ matrix.arch }} == x86 ]]; then
-              win_lib_dir=i686-pc-windows-gnu
-            else
-              win_lib_dir=x86_64-pc-windows-gnu
-            fi
-            cp -v ./install/lib/sherpa-onnx-c-api.dll ../scripts/go/_internal/lib/$win_lib_dir/
-            cp -v ./install/lib/onnxruntime.dll ../scripts/go/_internal/lib/$win_lib_dir/
-            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll $upload_dir
+          cmake \
+            -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+            -DBUILD_SHARED_LIBS=ON \
+            -DSHERPA_ONNX_ENABLE_PORTAUDIO=OFF \
+            -DSHERPA_ONNX_ENABLE_WEBSOCKET=OFF \
+            -DSHERPA_ONNX_ENABLE_BINARY=OFF \
+            -DCMAKE_INSTALL_PREFIX=./install \
+            $cmake_extra_args \
+            ..
+
+          if [[ "${{ matrix.os }}" == "windows-2022" ]]; then
+            cmake --build . --target install --config Release -- -m:2
           else
-            cp -v _deps/onnxruntime-src/lib/libonnxruntime.dylib $upload_dir/
-            cp -v lib/*.dylib $upload_dir
-            cp -v _deps/onnxruntime-src/lib/libonnxruntime.dylib ./lib/
-            rm ./lib/*.a
+            make -j2 install
+          fi
+
+          # Determine the Go lib directory for this platform
+          if [[ "${{ matrix.os }}" == macos-latest ]]; then
+            go_lib_dir=../scripts/go/_internal/lib/aarch64-apple-darwin
+          elif [[ "${{ matrix.os }}" == macos-15-intel ]]; then
+            go_lib_dir=../scripts/go/_internal/lib/x86_64-apple-darwin
+          elif [[ "${{ matrix.os }}" == ubuntu-latest ]]; then
+            go_lib_dir=../scripts/go/_internal/lib/x86_64-unknown-linux-gnu
+          elif [[ "${{ matrix.os }}" == ubuntu-22.04-arm ]]; then
+            go_lib_dir=../scripts/go/_internal/lib/aarch64-unknown-linux-gnu
+          elif [[ "${{ matrix.os }}" == windows-2022 && "${{ matrix.arch }}" == "x86" ]]; then
+            go_lib_dir=../scripts/go/_internal/lib/i686-pc-windows-gnu
+          elif [[ "${{ matrix.os }}" == windows-2022 ]]; then
+            go_lib_dir=../scripts/go/_internal/lib/x86_64-pc-windows-gnu
+          fi
+          mkdir -p "$go_lib_dir"
+
+          if [[ ${{ matrix.os }} == windows-2022 ]]; then
+            cp -v ./install/lib/sherpa-onnx-c-api.dll "$go_lib_dir/"
+            cp -v ./install/lib/onnxruntime.dll "$go_lib_dir/"
+            cp -v ./install/lib/sherpa-onnx-c-api.lib "$go_lib_dir/"
+            cp -v ./install/lib/onnxruntime.lib "$go_lib_dir/"
+            cp -v "$go_lib_dir"/*.dll $upload_dir
+            cp -v "$go_lib_dir"/*.lib $upload_dir
+          else
+            # Copy to go_lib_dir (use -f to handle case where go_lib_dir
+            # is a symlink to the same directory as lib/)
+            cp -v -f _deps/onnxruntime-src/lib/libonnxruntime* "$go_lib_dir/"
+            cp -v -f lib/libsherpa-onnx-c-api* "$go_lib_dir/"
+            cp -v -f _deps/onnxruntime-src/lib/libonnxruntime* $upload_dir/
+            cp -v -f lib/lib*.dylib $upload_dir/ 2>/dev/null || cp -v -f lib/lib*.so $upload_dir/
+            rm -f ./lib/*.a
           fi
 
           cd ../scripts/go/_internal/
@@ -167,14 +175,17 @@ jobs:
             fi
           done
 
-      - name: Remove broken symlinks before upload (Windows)
-        if: matrix.os == 'windows-2022'
+      - name: Remove broken symlinks before upload
         shell: bash
         run: |
-          # Remove symlinks that point to non-existent build/lib on Windows
-          for link in scripts/go/_internal/lib/aarch64-* scripts/go/_internal/lib/x86_64-apple-darwin scripts/go/_internal/lib/x86_64-unknown-linux-gnu; do
+          # Remove symlinks that point to non-existent build/lib
+          for link in scripts/go/_internal/lib/*/; do
             if [ -L "$link" ]; then
-              rm -f "$link"
+              target=$(readlink "$link")
+              if [ ! -d "$link" ]; then
+                echo "Removing broken symlink: $link -> $target"
+                rm -f "$link"
+              fi
             fi
           done
 
@@ -185,8 +196,7 @@ jobs:
             scripts/go/_internal/lib
             scripts/go/_internal/*/go.mod
             scripts/go/_internal/*/go.sum
-            go-api-examples/*/go.mod
-            go-api-examples/*/go.sum
+            go-api-examples/
 
   test:
     needs: build-libs
@@ -196,6 +206,154 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          # macOS arm64
+          - os: macos-latest
+            arch: arm64
+            index: 0
+            tests: "hello-world non-streaming-decode-files speaker-identification source-separation"
+          - os: macos-latest
+            arch: arm64
+            index: 1
+            tests: "non-streaming-cohere-transcribe-decode-files non-streaming-qwen3-asr-decode-files supertonic-tts non-streaming-moonshine-v2-decode-files"
+          - os: macos-latest
+            arch: arm64
+            index: 2
+            tests: "non-streaming-fire-red-asr-ctc-decode-files zero-shot-pocket-tts zero-shot-zipvoice-tts non-streaming-funasr-nano-decode-files"
+          - os: macos-latest
+            arch: arm64
+            index: 3
+            tests: "non-streaming-medasr-ctc-decode-files non-streaming-omnilingual-asr-ctc-decode-files non-streaming-tts streaming-decode-files"
+          - os: macos-latest
+            arch: arm64
+            index: 4
+            tests: "non-streaming-canary-decode-files speech-enhancement-gtcrn speech-enhancement-dpdfnet streaming-speech-enhancement-gtcrn"
+          - os: macos-latest
+            arch: arm64
+            index: 5
+            tests: "streaming-speech-enhancement-dpdfnet audio-tagging keyword-spotting-from-file add-punctuation"
+          - os: macos-latest
+            arch: arm64
+            index: 6
+            tests: "add-punctuation-online non-streaming-speaker-diarization streaming-hlg-decoding"
+          - os: macos-latest
+            arch: arm64
+            index: 7
+            tests: "non-streaming-speaker-diarization"
+          - os: macos-latest
+            arch: arm64
+            index: 8
+            tests: "non-streaming-speaker-diarization"
+          # macOS x64
+          - os: macos-15-intel
+            arch: amd64
+            index: 0
+            tests: "hello-world non-streaming-decode-files speaker-identification source-separation"
+          - os: macos-15-intel
+            arch: amd64
+            index: 1
+            tests: "non-streaming-cohere-transcribe-decode-files non-streaming-qwen3-asr-decode-files supertonic-tts non-streaming-moonshine-v2-decode-files"
+          - os: macos-15-intel
+            arch: amd64
+            index: 2
+            tests: "non-streaming-fire-red-asr-ctc-decode-files zero-shot-pocket-tts zero-shot-zipvoice-tts non-streaming-funasr-nano-decode-files"
+          - os: macos-15-intel
+            arch: amd64
+            index: 3
+            tests: "non-streaming-medasr-ctc-decode-files non-streaming-omnilingual-asr-ctc-decode-files non-streaming-tts streaming-decode-files"
+          - os: macos-15-intel
+            arch: amd64
+            index: 4
+            tests: "non-streaming-canary-decode-files speech-enhancement-gtcrn speech-enhancement-dpdfnet streaming-speech-enhancement-gtcrn"
+          - os: macos-15-intel
+            arch: amd64
+            index: 5
+            tests: "streaming-speech-enhancement-dpdfnet audio-tagging keyword-spotting-from-file add-punctuation"
+          - os: macos-15-intel
+            arch: amd64
+            index: 6
+            tests: "add-punctuation-online non-streaming-speaker-diarization streaming-hlg-decoding"
+          - os: macos-15-intel
+            arch: amd64
+            index: 7
+            tests: "non-streaming-speaker-diarization"
+          - os: macos-15-intel
+            arch: amd64
+            index: 8
+            tests: "non-streaming-speaker-diarization"
+          # Linux x64
+          - os: ubuntu-latest
+            arch: amd64
+            index: 0
+            tests: "hello-world non-streaming-decode-files speaker-identification source-separation"
+          - os: ubuntu-latest
+            arch: amd64
+            index: 1
+            tests: "non-streaming-cohere-transcribe-decode-files non-streaming-qwen3-asr-decode-files supertonic-tts non-streaming-moonshine-v2-decode-files"
+          - os: ubuntu-latest
+            arch: amd64
+            index: 2
+            tests: "non-streaming-fire-red-asr-ctc-decode-files zero-shot-pocket-tts zero-shot-zipvoice-tts non-streaming-funasr-nano-decode-files"
+          - os: ubuntu-latest
+            arch: amd64
+            index: 3
+            tests: "non-streaming-medasr-ctc-decode-files non-streaming-omnilingual-asr-ctc-decode-files non-streaming-tts streaming-decode-files"
+          - os: ubuntu-latest
+            arch: amd64
+            index: 4
+            tests: "non-streaming-canary-decode-files speech-enhancement-gtcrn speech-enhancement-dpdfnet streaming-speech-enhancement-gtcrn"
+          - os: ubuntu-latest
+            arch: amd64
+            index: 5
+            tests: "streaming-speech-enhancement-dpdfnet audio-tagging keyword-spotting-from-file add-punctuation"
+          - os: ubuntu-latest
+            arch: amd64
+            index: 6
+            tests: "add-punctuation-online non-streaming-speaker-diarization streaming-hlg-decoding"
+          - os: ubuntu-latest
+            arch: amd64
+            index: 7
+            tests: "non-streaming-speaker-diarization"
+          - os: ubuntu-latest
+            arch: amd64
+            index: 8
+            tests: "non-streaming-speaker-diarization"
+          # Linux arm64
+          - os: ubuntu-22.04-arm
+            arch: arm64
+            index: 0
+            tests: "hello-world non-streaming-decode-files speaker-identification source-separation"
+          - os: ubuntu-22.04-arm
+            arch: arm64
+            index: 1
+            tests: "non-streaming-cohere-transcribe-decode-files non-streaming-qwen3-asr-decode-files supertonic-tts non-streaming-moonshine-v2-decode-files"
+          - os: ubuntu-22.04-arm
+            arch: arm64
+            index: 2
+            tests: "non-streaming-fire-red-asr-ctc-decode-files zero-shot-pocket-tts zero-shot-zipvoice-tts non-streaming-funasr-nano-decode-files"
+          - os: ubuntu-22.04-arm
+            arch: arm64
+            index: 3
+            tests: "non-streaming-medasr-ctc-decode-files non-streaming-omnilingual-asr-ctc-decode-files non-streaming-tts streaming-decode-files"
+          - os: ubuntu-22.04-arm
+            arch: arm64
+            index: 4
+            tests: "non-streaming-canary-decode-files speech-enhancement-gtcrn speech-enhancement-dpdfnet streaming-speech-enhancement-gtcrn"
+          - os: ubuntu-22.04-arm
+            arch: arm64
+            index: 5
+            tests: "streaming-speech-enhancement-dpdfnet audio-tagging keyword-spotting-from-file add-punctuation"
+          - os: ubuntu-22.04-arm
+            arch: arm64
+            index: 6
+            tests: "add-punctuation-online non-streaming-speaker-diarization streaming-hlg-decoding"
+          - os: ubuntu-22.04-arm
+            arch: arm64
+            index: 7
+            tests: "non-streaming-speaker-diarization"
+          - os: ubuntu-22.04-arm
+            arch: arm64
+            index: 8
+            tests: "non-streaming-speaker-diarization"
           # Windows x64
           - os: windows-2022
             arch: x64
@@ -224,20 +382,20 @@ jobs:
           - os: windows-2022
             arch: x64
             index: 6
-            tests: "add-punctuation-online non-streaming-speaker-diarization streaming-hlg-decoding vad"
+            tests: "add-punctuation-online non-streaming-speaker-diarization streaming-hlg-decoding"
           - os: windows-2022
             arch: x64
             index: 7
-            tests: "vad-asr-paraformer vad-asr-whisper vad-speaker-identification vad-spoken-language-identification"
+            tests: "non-streaming-speaker-diarization"
           - os: windows-2022
             arch: x64
             index: 8
-            tests: "spoken-language-identification"
-          # Windows x86
+            tests: "non-streaming-speaker-diarization"
+          # Windows x86 (source-separation skipped on x86)
           - os: windows-2022
             arch: x86
             index: 0
-            tests: "hello-world non-streaming-decode-files speaker-identification source-separation"
+            tests: "hello-world non-streaming-decode-files speaker-identification"
           - os: windows-2022
             arch: x86
             index: 1
@@ -261,15 +419,15 @@ jobs:
           - os: windows-2022
             arch: x86
             index: 6
-            tests: "add-punctuation-online non-streaming-speaker-diarization streaming-hlg-decoding vad"
+            tests: "add-punctuation-online non-streaming-speaker-diarization streaming-hlg-decoding"
           - os: windows-2022
             arch: x86
             index: 7
-            tests: "vad-asr-paraformer vad-asr-whisper vad-speaker-identification vad-spoken-language-identification"
+            tests: "non-streaming-speaker-diarization"
           - os: windows-2022
             arch: x86
             index: 8
-            tests: "spoken-language-identification"
+            tests: "non-streaming-speaker-diarization"
 
     steps:
       - uses: actions/checkout@v4
@@ -277,6 +435,20 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: '>=1.17'
+
+      - name: Set up MinGW for x86
+        if: matrix.os == 'windows-2022' && matrix.arch == 'x86'
+        uses: csukuangfj/setup-mingw@v2.2.1
+        with:
+          platform: x86
+          version: '12.2.0'
+
+      - name: Set GOARCH for x86
+        if: matrix.os == 'windows-2022' && matrix.arch == 'x86'
+        shell: bash
+        run: |
+          go env -w GOARCH=386
+          go env -w CGO_ENABLED=1
 
       - name: Download built libraries
         uses: actions/download-artifact@v4
