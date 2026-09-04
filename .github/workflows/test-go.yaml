@@ -285,6 +285,11 @@ jobs:
           fi
 
           echo "Test paraformer"
+          if [[ "${{ matrix.os }}" == "windows-2022" ]]; then
+            echo "=== Before run-paraformer.sh ==="
+            ls -lh non-streaming-decode-files.exe 2>/dev/null || echo "no exe"
+            ls -lh *.dll 2>/dev/null || echo "no dlls"
+          fi
           ./run-paraformer.sh
           ./run-paraformer-itn.sh
           rm -rf sherpa-onnx-paraformer-zh-2023-09-14
