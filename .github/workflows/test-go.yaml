@@ -8,6 +8,7 @@ on:
       - fix-go
     paths:
       - '.github/workflows/test-go.yaml'
+      - '.github/scripts/go/**'
       - 'cmake/**'
       - 'sherpa-onnx/csrc/*'
       - 'go-api-examples/**'
@@ -15,26 +16,18 @@ on:
 
   workflow_dispatch:
 
-# concurrency:
-#   group: test-go-${{ github.ref }}
-#   cancel-in-progress: true
+concurrency:
+  group: test-go-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  test-go:
-    name: ${{ matrix.os }} ${{ matrix.arch }}
+  build-libs:
+    name: Build ${{ matrix.os }} ${{ matrix.arch }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         include:
-          # - os: macos-latest
-          #   arch: arm64
-          # - os: macos-15-intel
-          #   arch: amd64
-          # - os: ubuntu-latest
-          #   arch: amd64
-          # - os: ubuntu-22.04-arm
-          #   arch: arm64
           - os: windows-2022
             arch: x64
           - os: windows-2022
@@ -80,19 +73,6 @@ jobs:
           go env -w GOARCH=386
           go env -w CGO_ENABLED=1
 
-      - name: Display go version
-        shell: bash
-        run: |
-          go version
-          go env GOPATH
-          go env GOARCH
-          go env CGO_ENABLED
-
-      - name: Display go env
-        shell: bash
-        run: |
-          go env
-
       - name: Cache built libraries
         id: cache-libs
         uses: actions/cache@v4
@@ -100,7 +80,7 @@ jobs:
           path: |
             scripts/go/_internal/lib
             to-upload
-          key: go-libs-${{ matrix.os }}-${{ matrix.arch }}-${{ hashFiles('CMakeLists.txt') }}-v4
+          key: go-libs-${{ matrix.os }}-${{ matrix.arch }}-${{ hashFiles('CMakeLists.txt') }}-v5
 
       - name: Build sherpa-onnx
         if: steps.cache-libs.outputs.cache-hit != 'true'
@@ -108,7 +88,6 @@ jobs:
         run: |
           upload_dir=$PWD/to-upload
           mkdir -p $upload_dir
-          echo "upload_dir"
 
           if [[ "${{ matrix.os }}" != "windows-2022" ]]; then
             export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
@@ -117,8 +96,10 @@ jobs:
           cd build
 
           cmake_extra_args=""
+          cmake_build_args=""
           if [[ "${{ matrix.os }}" == "windows-2022" && "${{ matrix.arch }}" == "x86" ]]; then
-            cmake_extra_args="-DCMAKE_C_COMPILER=i686-w64-mingw32-gcc -DCMAKE_CXX_COMPILER=i686-w64-mingw32-g++"
+            cmake_extra_args="-G \"MinGW Makefiles\" -DCMAKE_C_COMPILER=i686-w64-mingw32-gcc -DCMAKE_CXX_COMPILER=i686-w64-mingw32-g++"
+            cmake_build_args="-- -j2"
           fi
 
           cmake \
@@ -132,20 +113,17 @@ jobs:
             $cmake_extra_args \
             ..
 
-          if [[ ${{ matrix.os }} == windows-2022 ]]; then
+          if [[ ${{ matrix.os }} == windows-2022 && "${{ matrix.arch }}" != "x86" ]]; then
             cmake --build . --target install --config Release -- -m:2
           else
-            make -j2 install
+            cmake --build . --target install $cmake_build_args
           fi
 
           if [[ ${{ matrix.os }} == ubuntu-latest || ${{ matrix.os }} == ubuntu-22.04-arm ]]; then
             cp -v ./lib/*.so $upload_dir
             cp -v _deps/onnxruntime-src/lib/libonnxruntime*so* $upload_dir
-
             cp -v _deps/onnxruntime-src/lib/libonnxruntime*so* ./lib/
-
             rm -v ./lib/*.a
-            ls -h ./lib
           elif [[ ${{ matrix.os }} == windows-2022 ]]; then
             if [[ ${{ matrix.arch }} == x86 ]]; then
               win_lib_dir=i686-pc-windows-gnu
@@ -154,62 +132,20 @@ jobs:
             fi
             cp -v ./install/lib/sherpa-onnx-c-api.dll ../scripts/go/_internal/lib/$win_lib_dir/
             cp -v ./install/lib/onnxruntime.dll ../scripts/go/_internal/lib/$win_lib_dir/
-            ls -lh ../scripts/go/_internal/lib/$win_lib_dir/
-
-            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/add-punctuation
-            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/add-punctuation-online
-            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/audio-tagging
-            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/keyword-spotting-from-file/
-            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/non-streaming-canary-decode-files/
-            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/non-streaming-cohere-transcribe-decode-files/
-            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/non-streaming-decode-files/
-            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/non-streaming-fire-red-asr-ctc-decode-files
-            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/non-streaming-funasr-nano-decode-files
-            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/non-streaming-medasr-ctc-decode-files
-            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/non-streaming-moonshine-v2-decode-files
-            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/non-streaming-omnilingual-asr-ctc-decode-files
-            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/non-streaming-speaker-diarization/
-            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/non-streaming-tts/
-            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/speaker-identification/
-            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/speech-enhancement-gtcrn
-            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/speech-enhancement-dpdfnet
-            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/non-streaming-qwen3-asr-decode-files/
-            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/streaming-decode-files/
-            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/zero-shot-zipvoice-tts/
-            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/streaming-speech-enhancement-gtcrn
-            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/streaming-speech-enhancement-dpdfnet
-            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/streaming-hlg-decoding/
-            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/vad
-            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/vad-asr-paraformer
-            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/vad-asr-whisper
-            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/vad-speaker-identification
-            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/vad-spoken-language-identification
-            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/zero-shot-pocket-tts
-            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/source-separation
-            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/supertonic-tts
-            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/version
-            cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll ../scripts/go/_internal/hello-world
-
             cp -v ../scripts/go/_internal/lib/$win_lib_dir/*.dll $upload_dir
           else
             cp -v _deps/onnxruntime-src/lib/libonnxruntime.dylib $upload_dir/
             cp -v lib/*.dylib $upload_dir
-
             cp -v _deps/onnxruntime-src/lib/libonnxruntime.dylib ./lib/
             rm ./lib/*.a
           fi
 
           cd ../scripts/go/_internal/
-          ls -lh lib
-          echo "-----"
-          ls -lh lib/*/
-          echo "-----"
-
           go mod tidy
           go build
 
-      - name: Copy DLLs from cache (Windows, cache hit)
-        if: steps.cache-libs.outputs.cache-hit == 'true' && matrix.os == 'windows-2022'
+      - name: Copy DLLs to example directories (Windows)
+        if: matrix.os == 'windows-2022'
         shell: bash
         run: |
           if [[ ${{ matrix.arch }} == x86 ]]; then
@@ -222,434 +158,134 @@ jobs:
               cp -v scripts/go/_internal/lib/$win_lib_dir/*.dll "$dir" 2>/dev/null || true
             fi
           done
+          for dir in go-api-examples/*/; do
+            if [ -d "$dir" ] && [ -f "$dir/go.mod" ]; then
+              cp -v scripts/go/_internal/lib/$win_lib_dir/*.dll "$dir" 2>/dev/null || true
+            fi
+          done
 
       - uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.os }}-${{ matrix.arch }}-libs
-          path: to-upload/
+          name: go-libs-${{ matrix.os }}-${{ matrix.arch }}
+          path: |
+            scripts/go/_internal/lib
+            scripts/go/_internal/*/go.mod
+            scripts/go/_internal/*/go.sum
+            go-api-examples/*/go.mod
+            go-api-examples/*/go.sum
 
-      - name: Test non-streaming decoding files
-        shell: bash
-        run: |
-          cd scripts/go/_internal/non-streaming-decode-files/
-          ls -lh
-          go mod tidy
-          cat go.mod
-          go build
-          ls -lh
+  test:
+    needs: build-libs
+    name: "Test group ${{ matrix.index }} (${{ matrix.os }} ${{ matrix.arch }})"
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Windows x64
+          - os: windows-2022
+            arch: x64
+            index: 0
+            tests: "hello-world non-streaming-decode-files speaker-identification source-separation"
+          - os: windows-2022
+            arch: x64
+            index: 1
+            tests: "non-streaming-cohere-transcribe-decode-files non-streaming-qwen3-asr-decode-files supertonic-tts non-streaming-moonshine-v2-decode-files"
+          - os: windows-2022
+            arch: x64
+            index: 2
+            tests: "non-streaming-fire-red-asr-ctc-decode-files zero-shot-pocket-tts zero-shot-zipvoice-tts non-streaming-funasr-nano-decode-files"
+          - os: windows-2022
+            arch: x64
+            index: 3
+            tests: "non-streaming-medasr-ctc-decode-files non-streaming-omnilingual-asr-ctc-decode-files non-streaming-tts streaming-decode-files"
+          - os: windows-2022
+            arch: x64
+            index: 4
+            tests: "non-streaming-canary-decode-files speech-enhancement-gtcrn speech-enhancement-dpdfnet streaming-speech-enhancement-gtcrn"
+          - os: windows-2022
+            arch: x64
+            index: 5
+            tests: "streaming-speech-enhancement-dpdfnet audio-tagging keyword-spotting-from-file add-punctuation"
+          - os: windows-2022
+            arch: x64
+            index: 6
+            tests: "add-punctuation-online non-streaming-speaker-diarization streaming-hlg-decoding vad"
+          - os: windows-2022
+            arch: x64
+            index: 7
+            tests: "vad-asr-paraformer vad-asr-whisper vad-speaker-identification vad-spoken-language-identification"
+          - os: windows-2022
+            arch: x64
+            index: 8
+            tests: "spoken-language-identification"
+          # Windows x86
+          - os: windows-2022
+            arch: x86
+            index: 0
+            tests: "hello-world non-streaming-decode-files speaker-identification source-separation"
+          - os: windows-2022
+            arch: x86
+            index: 1
+            tests: "non-streaming-cohere-transcribe-decode-files non-streaming-qwen3-asr-decode-files supertonic-tts non-streaming-moonshine-v2-decode-files"
+          - os: windows-2022
+            arch: x86
+            index: 2
+            tests: "non-streaming-fire-red-asr-ctc-decode-files zero-shot-pocket-tts zero-shot-zipvoice-tts non-streaming-funasr-nano-decode-files"
+          - os: windows-2022
+            arch: x86
+            index: 3
+            tests: "non-streaming-medasr-ctc-decode-files non-streaming-omnilingual-asr-ctc-decode-files non-streaming-tts streaming-decode-files"
+          - os: windows-2022
+            arch: x86
+            index: 4
+            tests: "non-streaming-canary-decode-files speech-enhancement-gtcrn speech-enhancement-dpdfnet streaming-speech-enhancement-gtcrn"
+          - os: windows-2022
+            arch: x86
+            index: 5
+            tests: "streaming-speech-enhancement-dpdfnet audio-tagging keyword-spotting-from-file add-punctuation"
+          - os: windows-2022
+            arch: x86
+            index: 6
+            tests: "add-punctuation-online non-streaming-speaker-diarization streaming-hlg-decoding vad"
+          - os: windows-2022
+            arch: x86
+            index: 7
+            tests: "vad-asr-paraformer vad-asr-whisper vad-speaker-identification vad-spoken-language-identification"
+          - os: windows-2022
+            arch: x86
+            index: 8
+            tests: "spoken-language-identification"
 
-          echo "Test transducer"
-          ./run-transducer.sh
-          rm -rf sherpa-onnx-zipformer-en-2023-06-26
+    steps:
+      - uses: actions/checkout@v4
 
-          echo "Test Wenet CTC"
-          ./run-wenet-ctc.sh
-          rm -rf sherpa-onnx-wenet*
-
-          echo "Test Zipformer CTC"
-          ./run-zipformer-ctc.sh
-          rm -rf sherpa-onnx-zipformer-*
-
-          echo "Test SenseVoice ctc"
-          ./run-sense-voice-small-with-hr.sh
-          ./run-sense-voice-small.sh
-          rm -rf sherpa-onnx-sense-*
-
-          echo "Test Dolphin CTC"
-          ./run-dolphin-ctc-base.sh
-          rm -rf sherpa-onnx-dolphin-*
-
-          echo "Test FireRedAsr"
-          ./run-fire-red-asr.sh
-          rm -rf sherpa-onnx-fire-red-asr-*
-
-          echo "Test Moonshine"
-          ./run-moonshine.sh
-          rm -rf sherpa-onnx-moonshine-*
-
-          echo "Test telespeech ctc"
-          ./run-telespeech-ctc.sh
-          rm -rf sherpa-onnx-telespeech-ctc-*
-
-          echo "Test paraformer"
-          ./run-paraformer.sh
-          ./run-paraformer-itn.sh
-          rm -rf sherpa-onnx-paraformer-zh-2023-09-14
-
-          echo "Test NeMo CTC"
-          ./run-nemo-ctc.sh
-          rm -rf sherpa-onnx-nemo-ctc-en-conformer-medium
-
-          echo "Test Whisper tiny.en"
-          ./run-whisper.sh
-          rm -rf sherpa-onnx-whisper-tiny.en
-
-          echo "Test Tdnn yesno"
-          ./run-tdnn-yesno.sh
-          rm -rf sherpa-onnx-tdnn-yesno
-
-      - name: Test hello-world
-        shell: bash
-        run: |
-          cd scripts/go/_internal/hello-world
-          ls -lh
-          go mod tidy
-          cat go.mod
-          go build
-          ls -lh
-
-          ./run.sh
-
-      - name: Test speaker identification
-        shell: bash
-        run: |
-          cd scripts/go/_internal/speaker-identification/
-          ./run.sh
-
-      - name: Test version
-        shell: bash
-        run: |
-          cd scripts/go/_internal/version
-          ls -lh
-          go mod tidy
-          cat go.mod
-          go build
-          ls -lh
-
-          ./run.sh
-
-      - name: Test source separation (Spleeter & UVR)
-        shell: bash
-        run: |
-          cd scripts/go/_internal/source-separation
-          ls -lh
-          go mod tidy
-          cat go.mod
-          go build
-          ls -lh
-
-          ./run-spleeter.sh
-          rm -rf sherpa-onnx-spleeter-*
-
-          ./run-uvr.sh
-          rm -rf UVR-MDX-NET-*
-
-      - name: Test non-streaming decoding files with Cohere Transcribe
-        shell: bash
-        run: |
-          cd scripts/go/_internal/non-streaming-cohere-transcribe-decode-files
-          ls -lh
-          go mod tidy
-          cat go.mod
-          go build
-          ls -lh
-
-          ./run.sh
-          rm -rf sherpa-onnx-cohere-transcribe-*
-
-      - name: Test non-streaming decoding files with Qwen3 ASR
-        if: matrix.os != 'ubuntu-latest'
-        shell: bash
-        run: |
-          cd scripts/go/_internal/non-streaming-qwen3-asr-decode-files
-          ls -lh
-          go mod tidy
-          cat go.mod
-          go build
-          ls -lh
-
-          ./run.sh
-          rm -rf sherpa-onnx-qwen3-*
-
-      - name: Test SupertonicTTS
-        shell: bash
-        run: |
-          cd scripts/go/_internal/supertonic-tts
-          ls -lh
-          go mod tidy
-          cat go.mod
-          go build
-          ls -lh
-
-          ./run.sh
-          rm -rf sherpa-onnx-supertonic-*
-          ls -lh *.wav
-
-      - name: Test non-streaming decoding files with Moonshine v2
-        shell: bash
-        run: |
-          cd scripts/go/_internal/non-streaming-moonshine-v2-decode-files
-          ls -lh
-          go mod tidy
-          cat go.mod
-          go build
-          ls -lh
-
-          ./run.sh
-          rm -rf sherpa-onnx-moonshine-*
-
-      - name: Test non-streaming decoding files with FireRedAsrCtc
-        shell: bash
-        run: |
-          cd scripts/go/_internal/non-streaming-fire-red-asr-ctc-decode-files
-          ls -lh
-          go mod tidy
-          cat go.mod
-          go build
-          ls -lh
-
-          ./run.sh
-          rm -rf sherpa-onnx-fire-red-*
-
-      - name: Test ZeroShot TTS with PocketTTS
-        shell: bash
-        run: |
-          cd scripts/go/_internal/zero-shot-pocket-tts
-          ls -lh
-          go mod tidy
-          cat go.mod
-          go build
-          ls -lh
-
-          ./run.sh
-          rm -rf sherpa-onnx-pocket-tts-*
-          ls -lh *.wav
-
-      - name: Test ZeroShot TTS with ZipVoice
-        shell: bash
-        run: |
-          cd scripts/go/_internal/zero-shot-zipvoice-tts
-          ls -lh
-          go mod tidy
-          cat go.mod
-          go build
-          ls -lh
-
-          ./run.sh
-          rm -rf sherpa-onnx-zipvoice-distill-int8-zh-en-emilia
-          rm -f vocos_24khz.onnx
-          ls -lh *.wav
-
-      - name: Test non-streaming decoding files with FunASR Nano
-        shell: bash
-        run: |
-          cd scripts/go/_internal/non-streaming-funasr-nano-decode-files
-          ls -lh
-          go mod tidy
-          cat go.mod
-          go build
-          ls -lh
-
-          ./run.sh
-          rm -rf sherpa-onnx-funasr-*
-
-      - name: Test non-streaming decoding files with MedASR
-        shell: bash
-        run: |
-          cd scripts/go/_internal/non-streaming-medasr-ctc-decode-files
-          ls -lh
-          go mod tidy
-          cat go.mod
-          go build
-          ls -lh
-
-          ./run.sh
-          rm -rf sherpa-onnx-medasr-*
-
-      - name: Test non-streaming decoding files with Omnilingual ASR
-        shell: bash
-        run: |
-          cd scripts/go/_internal/non-streaming-omnilingual-asr-ctc-decode-files
-          ls -lh
-          go mod tidy
-          cat go.mod
-          go build
-          ls -lh
-
-          ./run.sh
-          rm -rf sherpa-onnx-omnilingual-*
-
-      - name: Test non-streaming TTS
-        shell: bash
-        run: |
-          mkdir tts-waves
-
-          cd scripts/go/_internal/non-streaming-tts/
-          ls -lh
-          go mod tidy
-          cat go.mod
-          go build
-          ls -lh
-
-          echo "Test kitten en"
-          ./run-kitten-en.sh
-          rm -rf kitten-*
-          ls -lh
-
-          echo "Test kokoro zh+en"
-          ./run-kokoro-zh-en.sh
-          rm -rf kokoro-multi-*
-          ls -lh
-
-          echo "Test kokoro en"
-          ./run-kokoro-en.sh
-          rm -rf kokoro-en-*
-          ls -lh
-
-          echo "Test matcha zh"
-          ./run-matcha-zh.sh
-          rm -rf matcha-icefall-*
-
-          echo "Test matcha en"
-          ./run-matcha-en.sh
-          rm -rf matcha-icefall-*
-          ls -lh *.wav
-
-          echo "Test vits-ljs"
-          ./run-vits-ljs.sh
-          rm -rf vits-ljs
-
-          echo "Test vits-vctk"
-          ./run-vits-vctk.sh
-          rm -rf vits-vctk
-
-          echo "Test vits-zh-aishell3"
-          ./run-vits-zh-aishell3.sh
-          rm -rf vits-icefall-zh-aishell3
-
-          echo "Test vits-piper-en_US-lessac-medium"
-          ./run-vits-piper-en_US-lessac-medium.sh
-          rm -rf vits-piper-en_US-lessac-medium
-
-          cp *.wav ../../../../tts-waves/
-
-      - uses: actions/upload-artifact@v4
+      - uses: actions/setup-go@v5
         with:
-          name: tts-waves-${{ matrix.os }}
-          path: tts-waves
+          go-version: '>=1.17'
 
-      - name: Test streaming decoding files
+      - name: Download built libraries
+        uses: actions/download-artifact@v4
+        with:
+          name: go-libs-${{ matrix.os }}-${{ matrix.arch }}
+          path: .
+
+      - name: Setup local sherpa-onnx Go package
         shell: bash
         run: |
-          cd scripts/go/_internal/streaming-decode-files
-          ls -lh
-          go mod tidy
-          cat go.mod
-          go build
-          ls -lh
+          # Add replace directives so go-api-examples use the local package
+          for dir in go-api-examples/*/; do
+            if [ -f "$dir/go.mod" ]; then
+              echo 'replace github.com/k2-fsa/sherpa-onnx-go/sherpa_onnx => ../../scripts/go/_internal' >> "$dir/go.mod"
+            fi
+          done
 
-          echo "Test T-one CTC"
-          ./run-t-one-ctc.sh
-
-          echo "Test zipformer2 CTC"
-          ./run-zipformer2-ctc-with-hr.sh
-          ./run-zipformer2-ctc.sh
-          rm -rf sherpa-onnx-streaming-zipformer-ctc-multi-zh-hans-2023-12-13
-
-          echo "Test transducer"
-          ./run-transducer.sh
-          rm -rf sherpa-onnx-streaming-zipformer-en-2023-06-26
-
-          ./run-transducer-itn.sh
-          rm -rf sherpa-onnx-streaming-*
-
-          echo "Test paraformer"
-          ./run-paraformer.sh
-          rm -rf sherpa-onnx-streaming-paraformer-bilingual-zh-en
-
-      - name: Test non-streaming decoding files with NeMo Canary
+      - name: Run tests
         shell: bash
         run: |
-          cd scripts/go/_internal/non-streaming-canary-decode-files/
-          ls -lh
-          go mod tidy
-          cat go.mod
-          go build
-          ls -lh
-
-          ./run.sh
-          rm -rf sherpa-onnx-nemo-*
-
-      - name: Test speech enhancement (GTCRN)
-        shell: bash
-        run: |
-          cd scripts/go/_internal/speech-enhancement-gtcrn/
-
-          ./run.sh
-
-          ls -lh
-
-      - name: Test speech enhancement (DPDFNet)
-        shell: bash
-        run: |
-          cd scripts/go/_internal/speech-enhancement-dpdfnet/
-
-          ./run.sh
-
-          ls -lh
-
-      - name: Test streaming speech enhancement (GTCRN)
-        shell: bash
-        run: |
-          cd scripts/go/_internal/streaming-speech-enhancement-gtcrn/
-
-          ./run.sh
-
-          ls -lh
-
-      - name: Test streaming speech enhancement (DPDFNet)
-        shell: bash
-        run: |
-          cd scripts/go/_internal/streaming-speech-enhancement-dpdfnet/
-
-          ./run.sh
-
-          ls -lh
-
-      - name: Test audio tagging
-        shell: bash
-        run: |
-          cd scripts/go/_internal/audio-tagging/
-
-          ./run.sh
-
-          ls -lh
-
-      - name: Test Keyword spotting
-        shell: bash
-        run: |
-          cd scripts/go/_internal/keyword-spotting-from-file/
-
-          ./run.sh
-
-          ls -lh
-
-      - name: Test adding punctuation
-        shell: bash
-        run: |
-          cd scripts/go/_internal/add-punctuation/
-          ./run.sh
-
-      - name: Test adding online punctuation
-        shell: bash
-        run: |
-          cd scripts/go/_internal/add-punctuation-online/
-          ./run.sh
-
-      - name: Test non-streaming speaker diarization
-        shell: bash
-        run: |
-          cd scripts/go/_internal/non-streaming-speaker-diarization/
-          ./run.sh
-
-      - name: Test speaker identification
-        shell: bash
-        run: |
-          cd scripts/go/_internal/speaker-identification/
-          ./run.sh
-
-      - name: Test streaming HLG decoding
-        shell: bash
-        run: |
-          cd scripts/go/_internal/streaming-hlg-decoding/
-          ./run.sh
+          for test in ${{ matrix.tests }}; do
+            echo "=== Running ${test} ==="
+            chmod +x .github/scripts/go/${test}.sh
+            .github/scripts/go/${test}.sh
+            echo "=== ${test} passed ==="
+          done
