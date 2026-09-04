@@ -167,6 +167,17 @@ jobs:
             fi
           done
 
+      - name: Remove broken symlinks before upload (Windows)
+        if: matrix.os == 'windows-2022'
+        shell: bash
+        run: |
+          # Remove symlinks that point to non-existent build/lib on Windows
+          for link in scripts/go/_internal/lib/aarch64-* scripts/go/_internal/lib/x86_64-apple-darwin scripts/go/_internal/lib/x86_64-unknown-linux-gnu; do
+            if [ -L "$link" ]; then
+              rm -f "$link"
+            fi
+          done
+
       - uses: actions/upload-artifact@v4
         with:
           name: go-libs-${{ matrix.os }}-${{ matrix.arch }}
