@@ -80,7 +80,7 @@ void CallPhonemizeEspeak(const std::string &text,
   }
 }
 
-static std::unordered_map<char32_t, int32_t> ReadTokens(std::istream &is) {
+std::unordered_map<char32_t, int32_t> ReadPiperTokens(std::istream &is) {
   std::unordered_map<char32_t, int32_t> token2id;
 
   std::string line;
@@ -134,7 +134,7 @@ static std::unordered_map<char32_t, int32_t> ReadTokens(std::istream &is) {
 
 // see the function "phonemes_to_ids" from
 // https://github.com/rhasspy/piper/blob/master/notebooks/piper_inference_(ONNX).ipynb
-static std::vector<int64_t> PiperPhonemesToIdsVits(
+std::vector<int64_t> PiperPhonemesToIdsVits(
     const std::unordered_map<char32_t, int32_t> &token2id,
     const std::vector<piper::Phoneme> &phonemes, bool is_inflect) {
   // see
@@ -313,7 +313,7 @@ static std::vector<std::vector<int64_t>> PiperPhonemesToIdsKitten(
   return ans;
 }
 
-static std::vector<int64_t> CoquiPhonemesToIds(
+std::vector<int64_t> CoquiPhonemesToIds(
     const std::unordered_map<char32_t, int32_t> &token2id,
     const std::vector<piper::Phoneme> &phonemes,
     const OfflineTtsVitsModelMetaData &vits_meta_data) {
@@ -416,7 +416,7 @@ PiperPhonemizeLexicon::PiperPhonemizeLexicon(
     : vits_meta_data_(vits_meta_data) {
   {
     auto is = OpenInputFile(tokens);
-    token2id_ = ReadTokens(is);
+    token2id_ = ReadPiperTokens(is);
   }
 
   InitEspeak(data_dir);
@@ -430,7 +430,7 @@ PiperPhonemizeLexicon::PiperPhonemizeLexicon(
   {
     auto buf = ReadFile(mgr, tokens);
     std::istringstream is(std::string(buf.data(), buf.size()));
-    token2id_ = ReadTokens(is);
+    token2id_ = ReadPiperTokens(is);
   }
 
   // We should copy the directory of espeak-ng-data from the asset to
@@ -445,7 +445,7 @@ PiperPhonemizeLexicon::PiperPhonemizeLexicon(
     : matcha_meta_data_(matcha_meta_data), is_matcha_(true) {
   {
     auto is = OpenInputFile(tokens);
-    token2id_ = ReadTokens(is);
+    token2id_ = ReadPiperTokens(is);
   }
 
   InitEspeak(data_dir);
@@ -457,7 +457,7 @@ PiperPhonemizeLexicon::PiperPhonemizeLexicon(
     : kokoro_meta_data_(kokoro_meta_data), is_kokoro_(true) {
   {
     auto is = OpenInputFile(tokens);
-    token2id_ = ReadTokens(is);
+    token2id_ = ReadPiperTokens(is);
   }
 
   InitEspeak(data_dir);
@@ -469,7 +469,7 @@ PiperPhonemizeLexicon::PiperPhonemizeLexicon(
     : kitten_meta_data_(kitten_meta_data), is_kitten_(true) {
   {
     auto is = OpenInputFile(tokens);
-    token2id_ = ReadTokens(is);
+    token2id_ = ReadPiperTokens(is);
   }
 
   InitEspeak(data_dir);
@@ -483,7 +483,7 @@ PiperPhonemizeLexicon::PiperPhonemizeLexicon(
   {
     auto buf = ReadFile(mgr, tokens);
     std::istringstream is(std::string(buf.data(), buf.size()));
-    token2id_ = ReadTokens(is);
+    token2id_ = ReadPiperTokens(is);
   }
 
   // We should copy the directory of espeak-ng-data from the asset to
@@ -500,7 +500,7 @@ PiperPhonemizeLexicon::PiperPhonemizeLexicon(
   {
     auto buf = ReadFile(mgr, tokens);
     std::istringstream is(std::string(buf.data(), buf.size()));
-    token2id_ = ReadTokens(is);
+    token2id_ = ReadPiperTokens(is);
   }
 
   // We should copy the directory of espeak-ng-data from the asset to
@@ -517,7 +517,7 @@ PiperPhonemizeLexicon::PiperPhonemizeLexicon(
   {
     auto buf = ReadFile(mgr, tokens);
     std::istringstream is(std::string(buf.data(), buf.size()));
-    token2id_ = ReadTokens(is);
+    token2id_ = ReadPiperTokens(is);
   }
 
   // We should copy the directory of espeak-ng-data from the asset to

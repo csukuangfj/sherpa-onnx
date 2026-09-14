@@ -80,6 +80,8 @@ struct GenerationConfig {
   // e.g., in ./offline-tts-pocket-impl.h
   std::unordered_map<std::string, std::string> extra;
 
+  std::vector<std::vector<int32_t>> phoneme_codepoints;
+
   std::string GetExtraString(const std::string &key,
                              const std::string &def = "") const;
 

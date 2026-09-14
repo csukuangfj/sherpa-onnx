@@ -315,6 +315,7 @@ if(SHERPA_ONNX_ENABLE_TTS)
     offline-tts.cc
     piper-phonemize-lexicon.cc
     sentence-piece-tokenizer.cc
+    tts-text-normalizer.cc
     vocoder.cc
     vocos-vocoder.cc
   )

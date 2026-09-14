@@ -5,6 +5,7 @@
 #ifndef SHERPA_ONNX_CSRC_PIPER_PHONEMIZE_LEXICON_H_
 #define SHERPA_ONNX_CSRC_PIPER_PHONEMIZE_LEXICON_H_
 
+#include <cstdint>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -16,6 +17,17 @@
 #include "sherpa-onnx/csrc/offline-tts-vits-model-meta-data.h"
 
 namespace sherpa_onnx {
+
+std::unordered_map<char32_t, int32_t> ReadPiperTokens(std::istream &is);
+
+std::vector<int64_t> PiperPhonemesToIdsVits(
+    const std::unordered_map<char32_t, int32_t> &token2id,
+    const std::vector<char32_t> &phonemes, bool is_inflect);
+
+std::vector<int64_t> CoquiPhonemesToIds(
+    const std::unordered_map<char32_t, int32_t> &token2id,
+    const std::vector<char32_t> &phonemes,
+    const OfflineTtsVitsModelMetaData &vits_meta_data);
 
 class PiperPhonemizeLexicon : public OfflineTtsFrontend {
  public:
