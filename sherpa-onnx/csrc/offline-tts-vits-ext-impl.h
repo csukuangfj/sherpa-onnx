@@ -104,7 +104,8 @@ class OfflineTtsVitsExtImpl : public OfflineTtsImpl {
       text = NormalizeText(text, debug);
     }
 
-    std::vector<TokenIDs> token_ids = Tokenize(gen_config, text, meta_data, debug);
+    std::vector<TokenIDs> token_ids =
+        Tokenize(gen_config, text, meta_data, debug);
     if (token_ids.empty() ||
         (token_ids.size() == 1 && token_ids[0].tokens.empty())) {
       SHERPA_ONNX_LOGE("Failed to convert '%s' to token IDs", text.c_str());
@@ -126,13 +127,30 @@ class OfflineTtsVitsExtImpl : public OfflineTtsImpl {
       }
     }
 
-    if (gen_config.phoneme_codepoints.empty() &&
-        meta_data.add_blank && meta_data.frontend != "characters") {
+    if (gen_config.phoneme_codepoints.empty() && meta_data.add_blank &&
+        meta_data.frontend != "characters") {
       for (auto &k : x) {
         k = AddBlank(k);
       }
       for (auto &k : tones) {
         k = AddBlank(k);
+      }
+    }
+
+    if (debug) {
+      for (int32_t i = 0; i < static_cast<int32_t>(x.size()); ++i) {
+        std::ostringstream os;
+        os << "sentence " << i << ": " << x[i].size() << " token IDs: [";
+        for (int32_t j = 0; j < static_cast<int32_t>(x[i].size()); ++j) {
+          if (j > 0) os << ", ";
+          os << x[i][j];
+        }
+        os << "]";
+#if __OHOS__
+        SHERPA_ONNX_LOGE("%{public}s", os.str().c_str());
+#else
+        SHERPA_ONNX_LOGE("%s", os.str().c_str());
+#endif
       }
     }
 
@@ -201,21 +219,18 @@ class OfflineTtsVitsExtImpl : public OfflineTtsImpl {
       emotion_id = 0;
     }
 
-    if (num_emotions != 0 &&
-        (emotion_id >= num_emotions || emotion_id < 0)) {
+    if (num_emotions != 0 && (emotion_id >= num_emotions || emotion_id < 0)) {
 #if __OHOS__
       SHERPA_ONNX_LOGE(
           "This model contains only %{public}d emotions. emotion_id should be "
           "in the range [%{public}d, %{public}d]. Given: %{public}d. Use "
           "emotion_id=0",
-          num_emotions, 0, num_emotions - 1,
-          static_cast<int32_t>(emotion_id));
+          num_emotions, 0, num_emotions - 1, static_cast<int32_t>(emotion_id));
 #else
       SHERPA_ONNX_LOGE(
           "This model contains only %d emotions. emotion_id should be in the "
           "range [%d, %d]. Given: %d. Use emotion_id=0",
-          num_emotions, 0, num_emotions - 1,
-          static_cast<int32_t>(emotion_id));
+          num_emotions, 0, num_emotions - 1, static_cast<int32_t>(emotion_id));
 #endif
       emotion_id = 0;
     }
@@ -250,9 +265,10 @@ class OfflineTtsVitsExtImpl : public OfflineTtsImpl {
     return result;
   }
 
-  std::vector<TokenIDs> Tokenize(
-      const GenerationConfig &gen_config, const std::string &text,
-      const OfflineTtsVitsModelMetaData &meta_data, bool debug) const {
+  std::vector<TokenIDs> Tokenize(const GenerationConfig &gen_config,
+                                 const std::string &text,
+                                 const OfflineTtsVitsModelMetaData &meta_data,
+                                 bool debug) const {
     if (!gen_config.phoneme_codepoints.empty()) {
       return TokenizeFromCodepoints(gen_config.phoneme_codepoints);
     }
@@ -273,15 +289,15 @@ class OfflineTtsVitsExtImpl : public OfflineTtsImpl {
     return {};
   }
 
-  GeneratedAudio GenerateInBatches(
-      std::vector<std::vector<int64_t>> &x,
-      std::vector<std::vector<int64_t>> &tones, int64_t sid, float speed,
-      float silence_scale, int64_t emotion_id, bool debug,
-      GeneratedAudioCallback callback) const {
+  GeneratedAudio GenerateInBatches(std::vector<std::vector<int64_t>> &x,
+                                   std::vector<std::vector<int64_t>> &tones,
+                                   int64_t sid, float speed,
+                                   float silence_scale, int64_t emotion_id,
+                                   bool debug,
+                                   GeneratedAudioCallback callback) const {
     int32_t x_size = static_cast<int32_t>(x.size());
 
-    if (config_.max_num_sentences <= 0 ||
-        x_size <= config_.max_num_sentences) {
+    if (config_.max_num_sentences <= 0 || x_size <= config_.max_num_sentences) {
       auto ans = Process(x, tones, sid, speed, silence_scale, emotion_id);
       if (callback) {
         callback(ans.samples.data(), ans.samples.size(), 1.0);
@@ -369,16 +385,16 @@ class OfflineTtsVitsExtImpl : public OfflineTtsImpl {
     for (const auto &phonemes : codepoints) {
       std::vector<char32_t> phonemes_c32(phonemes.begin(), phonemes.end());
 
-      if (meta_data.is_piper || meta_data.is_icefall ||
-          meta_data.is_inflect) {
+      if (meta_data.is_piper || meta_data.is_icefall || meta_data.is_inflect) {
         auto ids = PiperPhonemesToIdsVits(token2id_, phonemes_c32,
-                                           meta_data.is_inflect);
+                                          meta_data.is_inflect);
         result.emplace_back(std::move(ids));
       } else if (meta_data.is_coqui) {
         auto ids = CoquiPhonemesToIds(token2id_, phonemes_c32, meta_data);
         result.emplace_back(std::move(ids));
       } else {
-        SHERPA_ONNX_LOGE("phoneme_codepoints not supported for this model type");
+        SHERPA_ONNX_LOGE(
+            "phoneme_codepoints not supported for this model type");
         return {};
       }
     }
@@ -561,8 +577,10 @@ class OfflineTtsVitsExtImpl : public OfflineTtsImpl {
       std::string phones_str = Trim(line.substr(pos + 2));
 
       if (words_str.empty() || phones_str.empty()) {
-        SHERPA_ONNX_LOGE("WARNING: skipping lexicon line with empty word or "
-                         "phonemes: '%s'", line.c_str());
+        SHERPA_ONNX_LOGE(
+            "WARNING: skipping lexicon line with empty word or "
+            "phonemes: '%s'",
+            line.c_str());
         continue;
       }
 
@@ -600,8 +618,8 @@ class OfflineTtsVitsExtImpl : public OfflineTtsImpl {
     }
   }
 
-  std::vector<std::vector<int32_t>> TokenizeFromLexicon(
-      const std::string &text, bool debug) const {
+  std::vector<std::vector<int32_t>> TokenizeFromLexicon(const std::string &text,
+                                                        bool debug) const {
     std::vector<std::vector<int32_t>> result;
 
     // split text into sentences by .!?
@@ -628,8 +646,8 @@ class OfflineTtsVitsExtImpl : public OfflineTtsImpl {
             words.push_back(word);
             word.clear();
           }
-        } else if (c == ',' || c == ';' || c == ':' || c == '.' ||
-                   c == '!' || c == '?') {
+        } else if (c == ',' || c == ';' || c == ':' || c == '.' || c == '!' ||
+                   c == '?') {
           if (!word.empty()) {
             words.push_back(word);
             word.clear();
@@ -655,8 +673,8 @@ class OfflineTtsVitsExtImpl : public OfflineTtsImpl {
         // punctuation: pass through as literal codepoints
         if (words[i].size() == 1) {
           char c = words[i][0];
-          if (c == ',' || c == '.' || c == '!' || c == '?' ||
-              c == ';' || c == ':') {
+          if (c == ',' || c == '.' || c == '!' || c == '?' || c == ';' ||
+              c == ':') {
             sentence_codepoints.push_back(static_cast<int32_t>(c));
             ++i;
             continue;
@@ -680,15 +698,14 @@ class OfflineTtsVitsExtImpl : public OfflineTtsImpl {
               for (int32_t cp : it->second) {
                 phonemes_str += Utf32ToUtf8(static_cast<char32_t>(cp));
               }
-              SHERPA_ONNX_LOGE("Lexicon matched: '%s' -> '%s'",
-                               phrase.c_str(), phonemes_str.c_str());
+              SHERPA_ONNX_LOGE("Lexicon matched: '%s' -> '%s'", phrase.c_str(),
+                               phonemes_str.c_str());
             }
             // add space between words (like espeak does)
             if (!sentence_codepoints.empty()) {
               int32_t last = sentence_codepoints.back();
-              if (last != ',' && last != '.' && last != '!' &&
-                  last != '?' && last != ';' && last != ':' &&
-                  last != ' ') {
+              if (last != ',' && last != '.' && last != '!' && last != '?' &&
+                  last != ';' && last != ':' && last != ' ') {
                 sentence_codepoints.push_back(static_cast<int32_t>(' '));
               }
             }
@@ -714,8 +731,7 @@ class OfflineTtsVitsExtImpl : public OfflineTtsImpl {
           }
           SHERPA_ONNX_LOGE(
               "Sentence %d: text='%s', %d codepoints, phonemes='%s'",
-              static_cast<int32_t>(result.size()),
-              Trim(sentence).c_str(),
+              static_cast<int32_t>(result.size()), Trim(sentence).c_str(),
               static_cast<int32_t>(sentence_codepoints.size()),
               phonemes_str.c_str());
         }
