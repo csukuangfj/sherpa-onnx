@@ -29,6 +29,13 @@ std::vector<int64_t> CoquiPhonemesToIds(
     const std::vector<char32_t> &phonemes,
     const OfflineTtsVitsModelMetaData &vits_meta_data);
 
+// Convert phoneme codepoints to token IDs for Matcha TTS models.
+// Returns multiple sub-sequences if the input exceeds max_token_len.
+std::vector<std::vector<int64_t>> PiperPhonemesToIdsMatcha(
+    const std::unordered_map<char32_t, int32_t> &token2id,
+    const std::vector<char32_t> &phonemes, bool use_eos_bos,
+    int32_t max_token_len = 400);
+
 class PiperPhonemizeLexicon : public OfflineTtsFrontend {
  public:
   PiperPhonemizeLexicon(const std::string &tokens, const std::string &data_dir,

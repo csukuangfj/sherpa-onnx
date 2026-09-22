@@ -178,6 +178,10 @@ std::string GenerationConfig::ToString() const {
     os << ", phoneme_codepoints=[" << phoneme_codepoints.size() << " sentences]";
   }
 
+  if (!tokens.empty()) {
+    os << ", tokens=[" << tokens.size() << " sentences]";
+  }
+
   os << ")";
   return os.str();
 }

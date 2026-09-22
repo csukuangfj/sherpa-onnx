@@ -219,11 +219,26 @@ void LengthsToMask(const std::vector<int64_t> &lengths,
 // TTS text chunking helpers.
 std::vector<std::string> SplitByBlankLines(const std::string &text);
 std::vector<std::string> SplitByPunctuation(const std::string &text);
+// Split text at all punctuation boundaries: sentence-ending (.!?) and
+// mid-sentence (,;: and their Chinese equivalents).
+std::vector<std::string> SplitByAllPunctuation(const std::string &text);
 std::vector<std::string> MergeShortSentences(
     const std::vector<std::string> &sentences, size_t min_chars);
 std::vector<std::string> SplitLongSentence(const std::string &sentence,
                                            size_t max_chars);
 std::vector<std::string> ChunkText(const std::string &text, size_t max_len);
+
+// Count words in text. Each CJK character counts as one word.
+// English words are sequences of non-CJK, non-space, non-punctuation chars.
+int32_t CountWords(const std::string &text);
+
+// Word-based versions of MergeShortSentences and SplitLongSentence.
+// min_words/max_words are word counts (not codepoint counts).
+// Each CJK character is one word; English words are space-separated.
+std::vector<std::string> MergeShortSentencesByWords(
+    const std::vector<std::string> &sentences, size_t min_words);
+std::vector<std::string> SplitLongSentenceByWords(const std::string &sentence,
+                                                  size_t max_words);
 
 }  // namespace sherpa_onnx
 

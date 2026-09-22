@@ -40,6 +40,7 @@ static void PybindGenerationConfig(py::module *m) {
       .def_readwrite("num_steps", &PyClass::num_steps)
       .def_readwrite("extra", &PyClass::extra)
       .def_readwrite("phoneme_codepoints", &PyClass::phoneme_codepoints)
+      .def_readwrite("tokens", &PyClass::tokens)
       .def("__str__", &PyClass::ToString);
 }
 

@@ -1305,8 +1305,12 @@ bool NeedSpaceBetween(const std::string &left, const std::string &right) {
     return false;
   }
 
-  if (IsCJK(last) || IsCJK(first) || IsChunkBoundary(last) ||
-      IsChunkBoundary(first)) {
+  // Add space between punctuation and a following letter (e.g., "world")
+  if (IsChunkBoundary(last) && !IsChunkBoundary(first) && !IsSpace(first)) {
+    return true;
+  }
+
+  if (IsCJK(last) || IsCJK(first)) {
     return false;
   }
 
@@ -1326,6 +1330,24 @@ std::vector<std::string> SplitByPunctuation(const std::string &text) {
   for (char32_t c : Utf8ToUtf32(text)) {
     cur.push_back(c);
     if (IsSentenceBoundary(c)) {
+      flush();
+    }
+  }
+  flush();
+  return sentences;
+}
+
+std::vector<std::string> SplitByAllPunctuation(const std::string &text) {
+  std::vector<std::string> sentences;
+  std::u32string cur;
+  auto flush = [&]() {
+    std::string s = Trim(Utf32ToUtf8(cur));
+    if (!s.empty()) sentences.emplace_back(std::move(s));
+    cur.clear();
+  };
+  for (char32_t c : Utf8ToUtf32(text)) {
+    cur.push_back(c);
+    if (IsChunkBoundary(c)) {
       flush();
     }
   }
@@ -1462,6 +1484,132 @@ std::vector<std::string> ChunkText(const std::string &text, size_t max_len) {
 
   flush();
   if (chunks.empty()) chunks.emplace_back(std::move(text_single));
+  return chunks;
+}
+
+int32_t CountWords(const std::string &text) {
+  std::u32string u32 = Utf8ToUtf32(text);
+  int32_t count = 0;
+  bool in_word = false;
+
+  for (char32_t c : u32) {
+    if (IsCJK(c) || IsSentenceBoundary(c)) {
+      // Each CJK character or sentence-ending punctuation is a word
+      count++;
+      in_word = false;
+    } else if (IsSpace(c) || c == U',' || c == U';' || c == U':' ||
+               c == U'，' || c == U'；' || c == U'：') {
+      // Word boundary
+      in_word = false;
+    } else {
+      if (!in_word) {
+        count++;
+        in_word = true;
+      }
+    }
+  }
+
+  return count;
+}
+
+std::vector<std::string> MergeShortSentencesByWords(
+    const std::vector<std::string> &sentences, size_t min_words) {
+  std::vector<std::string> merged;
+  std::string buffer;
+
+  for (const auto &s : sentences) {
+    std::string piece = Trim(s);
+    if (piece.empty()) continue;
+
+    // Don't add space between pieces — preserve original spacing.
+    // SplitByAllPunctuation strips trailing space from each piece,
+    // so punctuation runs directly into the next text (correct for CJK).
+    buffer += piece;
+
+    if (static_cast<size_t>(CountWords(buffer)) >= min_words) {
+      merged.push_back(Trim(buffer));
+      buffer.clear();
+    }
+  }
+
+  if (!buffer.empty()) {
+    merged.push_back(Trim(buffer));
+  }
+
+  return merged;
+}
+
+std::vector<std::string> SplitLongSentenceByWords(const std::string &sentence,
+                                                  size_t max_words) {
+  std::vector<std::string> chunks;
+  if (max_words == 0) return chunks;
+  std::string s = Trim(sentence);
+  if (s.empty()) return chunks;
+
+  std::u32string u32 = Utf8ToUtf32(s);
+  size_t start = 0;
+  const size_t len = u32.size();
+
+  while (start < len) {
+    // Count words from start
+    int32_t word_count = 0;
+    bool in_word = false;
+    size_t end = start;
+
+    for (size_t i = start; i < len; ++i) {
+      char32_t c = u32[i];
+      if (IsCJK(c) || IsSentenceBoundary(c)) {
+        word_count++;
+        in_word = false;
+      } else if (IsSpace(c) || c == U',' || c == U';' || c == U':' ||
+                 c == U'，' || c == U'；' || c == U'：') {
+        in_word = false;
+      } else {
+        if (!in_word) {
+          word_count++;
+          in_word = true;
+        }
+      }
+
+      if (static_cast<size_t>(word_count) > max_words) {
+        break;
+      }
+      end = i + 1;
+    }
+
+    if (end >= len) {
+      std::string piece = Trim(Utf32ToUtf8(u32.substr(start)));
+      if (!piece.empty()) chunks.emplace_back(std::move(piece));
+      break;
+    }
+
+    // Try to split at punctuation or space boundary
+    size_t split_pos = end;
+    bool found = false;
+    for (size_t i = end; i > start; --i) {
+      char32_t c = u32[i - 1];
+      if (IsSpace(c)) {
+        split_pos = i - 1;
+        found = true;
+        break;
+      }
+      if (IsChunkBoundary(c)) {
+        split_pos = i;
+        found = true;
+        break;
+      }
+    }
+
+    if (!found) {
+      // Force split at end
+      split_pos = end;
+    }
+
+    std::string piece = Trim(Utf32ToUtf8(u32.substr(start, split_pos - start)));
+    if (!piece.empty()) chunks.emplace_back(std::move(piece));
+    start = split_pos;
+  }
+
   return chunks;
 }
 

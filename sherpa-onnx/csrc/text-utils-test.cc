@@ -135,4 +135,111 @@ TEST(RemoveInvalidUtf8Sequences, DebugSpaceFollowedByInvalidByte) {
   EXPECT_EQ(output, " ");  // Expect `0xc4` to be removed, leaving only space
 }
 
+TEST(SplitByAllPunctuation, English) {
+  auto result = SplitByAllPunctuation("Hello, world. How are you?");
+  ASSERT_EQ(result.size(), 3u);
+  EXPECT_EQ(result[0], "Hello,");
+  EXPECT_EQ(result[1], "world.");
+  EXPECT_EQ(result[2], "How are you?");
+}
+
+TEST(SplitByAllPunctuation, Chinese) {
+  auto result = SplitByAllPunctuation("你好，世界。你好吗？");
+  ASSERT_EQ(result.size(), 3u);
+  EXPECT_EQ(result[0], "你好，");
+  EXPECT_EQ(result[1], "世界。");
+  EXPECT_EQ(result[2], "你好吗？");
+}
+
+TEST(SplitByAllPunctuation, MixedPunctuation) {
+  auto result = SplitByAllPunctuation("a;b:c,d");
+  ASSERT_EQ(result.size(), 4u);
+  EXPECT_EQ(result[0], "a;");
+  EXPECT_EQ(result[1], "b:");
+  EXPECT_EQ(result[2], "c,");
+  EXPECT_EQ(result[3], "d");
+}
+
+TEST(SplitByAllPunctuation, NoPunctuation) {
+  auto result = SplitByAllPunctuation("hello world");
+  ASSERT_EQ(result.size(), 1u);
+  EXPECT_EQ(result[0], "hello world");
+}
+
+TEST(SplitByAllPunctuation, Empty) {
+  auto result = SplitByAllPunctuation("");
+  EXPECT_EQ(result.size(), 0u);
+}
+
+TEST(CountWords, English) {
+  EXPECT_EQ(CountWords("hello world"), 2);
+  EXPECT_EQ(CountWords("one two three four five"), 5);
+  EXPECT_EQ(CountWords(""), 0);
+}
+
+TEST(CountWords, Chinese) {
+  // Each CJK character is one word
+  EXPECT_EQ(CountWords("你好世界"), 4);
+  EXPECT_EQ(CountWords("当夜幕降临"), 5);
+}
+
+TEST(CountWords, Mixed) {
+  // Each CJK char = 1 word, each English word = 1 word
+  // "hello"(1) "你"(2) "好"(3) "world"(4) = 4
+  EXPECT_EQ(CountWords("hello 你好 world"), 4);
+}
+
+TEST(CountWords, Punctuation) {
+  // Sentence-ending punctuation counts as a word
+  EXPECT_EQ(CountWords("hello."), 2);
+  // Commas/semicolons are word boundaries, not words
+  EXPECT_EQ(CountWords("a,b,c"), 3);
+}
+
+TEST(MergeShortSentencesByWords, Basic) {
+  std::vector<std::string> sentences = {"hello", "world"};
+  auto result = MergeShortSentencesByWords(sentences, 5);
+  // "hello" has 1 word < 5, merged with "world" → "helloworld"
+  ASSERT_EQ(result.size(), 1u);
+  EXPECT_EQ(result[0], "helloworld");
+}
+
+TEST(MergeShortSentencesByWords, LongEnough) {
+  std::vector<std::string> sentences = {"one two three four five",
+                                        "six seven eight nine ten"};
+  auto result = MergeShortSentencesByWords(sentences, 5);
+  // Both have >= 5 words, not merged
+  ASSERT_EQ(result.size(), 2u);
+  EXPECT_EQ(result[0], "one two three four five");
+  EXPECT_EQ(result[1], "six seven eight nine ten");
+}
+
+TEST(MergeShortSentencesByWords, PunctuationOnlyMerged) {
+  std::vector<std::string> sentences = {"hello world", "."};
+  auto result = MergeShortSentencesByWords(sentences, 5);
+  // "." is all punctuation, merged into previous
+  ASSERT_EQ(result.size(), 1u);
+  EXPECT_EQ(result[0], "hello world.");
+}
+
+TEST(SplitLongSentenceByWords, Short) {
+  auto result = SplitLongSentenceByWords("hello world", 20);
+  ASSERT_EQ(result.size(), 1u);
+  EXPECT_EQ(result[0], "hello world");
+}
+
+TEST(SplitLongSentenceByWords, SplitAtSpace) {
+  // "a b c d e" has 5 words, max=3 → split at space boundary
+  auto result = SplitLongSentenceByWords("a b c d e", 3);
+  ASSERT_EQ(result.size(), 2u);
+  // The space at the split boundary is consumed
+  EXPECT_EQ(result[0], "a b c");
+  EXPECT_EQ(result[1], "d e");
+}
+
+TEST(SplitLongSentenceByWords, Empty) {
+  auto result = SplitLongSentenceByWords("", 20);
+  EXPECT_EQ(result.size(), 0u);
+}
+
 }  // namespace sherpa_onnx

@@ -180,19 +180,20 @@ std::vector<int64_t> PiperPhonemesToIdsVits(
   return ans;
 }
 
-static std::vector<std::vector<int64_t>> PiperPhonemesToIdsMatcha(
+std::vector<std::vector<int64_t>> PiperPhonemesToIdsMatcha(
     const std::unordered_map<char32_t, int32_t> &token2id,
-    const std::vector<piper::Phoneme> &phonemes, bool use_eos_bos,
-    int32_t max_token_len = 400) {
+    const std::vector<char32_t> &phonemes, bool use_eos_bos,
+    int32_t max_token_len /*= 400*/) {
   // We set max_token_len to 400 here to fix
   // https://github.com/k2-fsa/sherpa-onnx/issues/2666
   std::vector<std::vector<int64_t>> ans;
   std::vector<int64_t> current;
 
-  int32_t bos = token2id.at(U'^');
-  int32_t eos = token2id.at(U'$');
-
-  if (use_eos_bos) {
+  int32_t bos = -1;
+  int32_t eos = -1;
+  if (use_eos_bos && token2id.count(U'^') && token2id.count(U'$')) {
+    bos = token2id.at(U'^');
+    eos = token2id.at(U'$');
     current.push_back(bos);
   }
 
@@ -211,19 +212,16 @@ static std::vector<std::vector<int64_t>> PiperPhonemesToIdsMatcha(
 
       ans.push_back(std::move(current));
 
-      if (use_eos_bos) {
+      if (bos >= 0) {
         current.push_back(bos);
       }
     }
   }  // for (auto p : phonemes)
 
   if (!current.empty()) {
-    if (use_eos_bos) {
-      if (current.size() > 1) {
-        current.push_back(eos);
-
-        ans.push_back(std::move(current));
-      }
+    if (eos >= 0 && current.size() > 1) {
+      current.push_back(eos);
+      ans.push_back(std::move(current));
     } else {
       ans.push_back(std::move(current));
     }

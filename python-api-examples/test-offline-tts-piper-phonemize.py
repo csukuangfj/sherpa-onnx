@@ -10,6 +10,8 @@ Download model:
   tar xf vits-piper-en_US-amy-low.tar.bz2
 """
 
+import time
+
 import sherpa_onnx
 import soundfile as sf
 
@@ -41,13 +43,21 @@ gen_config.sid = 0
 gen_config.speed = 1.0
 gen_config.phoneme_codepoints = phoneme_codepoints
 
+start = time.time()
 audio = tts.generate("", gen_config)
+end = time.time()
 
 assert len(audio.samples) > 0, "No audio generated!"
 assert audio.sample_rate > 0, "Invalid sample rate!"
 
-sf.write("test-piper-phonemize.wav", audio.samples, samplerate=audio.sample_rate)
-print(
-    f"OK piper (phonemize): {len(audio.samples)} samples, {audio.sample_rate}Hz, "
-    f"{len(audio.samples)/audio.sample_rate:.2f}s"
-)
+filename = "test-piper-phonemize.wav"
+sf.write(filename, audio.samples, samplerate=audio.sample_rate)
+
+elapsed_seconds = end - start
+audio_duration = len(audio.samples) / audio.sample_rate
+rtf = elapsed_seconds / audio_duration
+
+print(f"Saved to {filename}")
+print(f"Elapsed seconds: {elapsed_seconds:.3f}")
+print(f"Audio duration in seconds: {audio_duration:.3f}")
+print(f"RTF: {elapsed_seconds:.3f}/{audio_duration:.3f} = {rtf:.3f}")
