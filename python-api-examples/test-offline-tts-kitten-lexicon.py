@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
 """
-Test OfflineTtsVitsExtImpl with an inflect model using lexicon-based phonemization.
+Test a Kitten English TTS model using lexicon-based phonemization
+(no espeak-ng data, no external phonemizer needed).
+
+If you don't want to use a lexicon, please see
+test-offline-tts-kitten-phonemize.py which uses piper_phonemize instead.
 
 Download model and lexicon:
-  wget https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/vits-inflect-en-nano-v2.tar.bz2
-  tar xf vits-inflect-en-nano-v2.tar.bz2
+  wget https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/kitten-micro-en-v0_8.tar.bz2
+  tar xf kitten-micro-en-v0_8.tar.bz2
 
   wget https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/lexicon-en-us.txt
 """
@@ -16,9 +20,10 @@ import soundfile as sf
 
 tts_config = sherpa_onnx.OfflineTtsConfig(
     model=sherpa_onnx.OfflineTtsModelConfig(
-        vits=sherpa_onnx.OfflineTtsVitsModelConfig(
-            model="./vits-inflect-en-nano-v2/model.onnx",
-            tokens="./vits-inflect-en-nano-v2/tokens.txt",
+        kitten=sherpa_onnx.OfflineTtsKittenModelConfig(
+            model="./kitten-micro-en-v0_8/model.onnx",
+            voices="./kitten-micro-en-v0_8/voices.bin",
+            tokens="./kitten-micro-en-v0_8/tokens.txt",
             lexicon="./lexicon-en-us.txt",
         ),
         debug=True,
@@ -26,7 +31,7 @@ tts_config = sherpa_onnx.OfflineTtsConfig(
 )
 tts = sherpa_onnx.OfflineTts(tts_config)
 
-text = "Friends fell out often because life was changing so fast."
+text = "Today as always, men fall into two groups: slaves and free men."
 
 gen_config = sherpa_onnx.GenerationConfig()
 gen_config.sid = 0
@@ -39,7 +44,7 @@ end = time.time()
 assert len(audio.samples) > 0, "No audio generated!"
 assert audio.sample_rate > 0, "Invalid sample rate!"
 
-filename = "test-inflect-lexicon.wav"
+filename = "test-kitten-lexicon.wav"
 sf.write(filename, audio.samples, samplerate=audio.sample_rate)
 
 elapsed_seconds = end - start

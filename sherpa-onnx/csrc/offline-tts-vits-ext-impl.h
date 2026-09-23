@@ -559,58 +559,17 @@ class OfflineTtsVitsExtImpl : public OfflineTtsImpl {
   }
 
   void LoadLexicon(std::istream &is, bool debug) {
-    std::string line;
-    while (std::getline(is, line)) {
-      // skip empty lines and comments
-      if (line.empty() || line[0] == '#') {
-        continue;
-      }
-
-      auto pos = line.find("||");
-      if (pos == std::string::npos) {
-        SHERPA_ONNX_LOGE("WARNING: skipping invalid lexicon line: '%s'",
-                         line.c_str());
-        continue;
-      }
-
-      std::string words_str = Trim(line.substr(0, pos));
-      std::string phones_str = Trim(line.substr(pos + 2));
-
-      if (words_str.empty() || phones_str.empty()) {
-        SHERPA_ONNX_LOGE(
-            "WARNING: skipping lexicon line with empty word or "
-            "phonemes: '%s'",
-            line.c_str());
-        continue;
-      }
-
-      std::string key = ToLowerCase(words_str);
-
-      // count words in this entry
-      int32_t word_count = 1;
-      for (char c : key) {
-        if (c == ' ') {
-          ++word_count;
-        }
-      }
-      if (word_count > max_lexicon_phrase_len_) {
-        max_lexicon_phrase_len_ = word_count;
-      }
-
-      // parse phonemes: space-separated tokens, each expanded to codepoints
+    auto entries = ParseLexiconFile(is, &max_lexicon_phrase_len_);
+    for (auto &e : entries) {
       std::vector<int32_t> codepoints;
-      std::istringstream pss(phones_str);
-      std::string phoneme;
-      while (pss >> phoneme) {
-        std::u32string u32 = Utf8ToUtf32(phoneme);
+      for (const auto &p : e.phonemes) {
+        std::u32string u32 = Utf8ToUtf32(p);
         for (char32_t cp : u32) {
           codepoints.push_back(static_cast<int32_t>(cp));
         }
       }
-
-      lexicon_[key] = std::move(codepoints);
+      lexicon_[e.key] = std::move(codepoints);
     }
-
     if (debug) {
       SHERPA_ONNX_LOGE("Loaded lexicon with %d entries, max phrase len %d",
                        static_cast<int32_t>(lexicon_.size()),

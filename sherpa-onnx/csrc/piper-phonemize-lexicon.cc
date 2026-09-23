@@ -5,9 +5,6 @@
 #include "sherpa-onnx/csrc/piper-phonemize-lexicon.h"
 
 #include <exception>
-#include <fstream>
-#include <locale>
-#include <map>
 #include <mutex>
 #include <sstream>
 #include <string>
@@ -266,7 +263,7 @@ static std::vector<std::vector<int64_t>> PiperPhonemesToIdsKokoroOrKitten(
   return ans;
 }
 
-static std::vector<std::vector<int64_t>> PiperPhonemesToIdsKitten(
+std::vector<std::vector<int64_t>> PiperPhonemesToIdsKitten(
     const std::unordered_map<char32_t, int32_t> &token2id,
     const std::vector<piper::Phoneme> &phonemes,
     const OfflineTtsKittenModelMetaData &meta_data) {

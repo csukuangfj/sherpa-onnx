@@ -7,7 +7,6 @@
 #include <cstdio>
 #include <cstring>
 #include <iostream>
-#include <regex>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -240,6 +239,120 @@ TEST(SplitLongSentenceByWords, SplitAtSpace) {
 TEST(SplitLongSentenceByWords, Empty) {
   auto result = SplitLongSentenceByWords("", 20);
   EXPECT_EQ(result.size(), 0u);
+}
+
+TEST(ParseLexiconFile, NewFormat) {
+  std::istringstream is(
+      "# comment\n"
+      "hello || h ə l oʊ\n"
+      "world || w ɜː l d\n");
+  int32_t max_len = 0;
+  auto entries = ParseLexiconFile(is, &max_len);
+  ASSERT_EQ(entries.size(), 2u);
+  EXPECT_EQ(entries[0].key, "hello");
+  // "oʊ" ends with ʊ (not digit) → split into "o" + "ʊ"
+  ASSERT_EQ(entries[0].phonemes.size(), 5u);
+  EXPECT_EQ(entries[0].phonemes[0], "h");
+  EXPECT_EQ(entries[0].phonemes[1], "ə");
+  EXPECT_EQ(entries[0].phonemes[2], "l");
+  EXPECT_EQ(entries[0].phonemes[3], "o");
+  EXPECT_EQ(entries[0].phonemes[4], "ʊ");
+  EXPECT_EQ(entries[1].key, "world");
+  EXPECT_EQ(max_len, 5);
+}
+
+TEST(ParseLexiconFile, OldFormat) {
+  std::istringstream is(
+      "# comment\n"
+      "zhong1 z h o ng 1\n"
+      "guo2 g u o 2\n");
+  int32_t max_len = 0;
+  auto entries = ParseLexiconFile(is, &max_len);
+  ASSERT_EQ(entries.size(), 2u);
+  EXPECT_EQ(entries[0].key, "zhong1");
+  // "ng" ends with 'g' (letter) → kept whole
+  ASSERT_EQ(entries[0].phonemes.size(), 5u);
+  EXPECT_EQ(entries[0].phonemes[0], "z");
+  EXPECT_EQ(entries[0].phonemes[1], "h");
+  EXPECT_EQ(entries[0].phonemes[2], "o");
+  EXPECT_EQ(entries[0].phonemes[3], "ng");
+  EXPECT_EQ(entries[0].phonemes[4], "1");
+  EXPECT_EQ(entries[1].key, "guo2");
+  EXPECT_EQ(max_len, 6);
+}
+
+TEST(ParseLexiconFile, MultiWord) {
+  std::istringstream is("New York || n j uː ˈ j ɔː k\n");
+  int32_t max_len = 0;
+  auto entries = ParseLexiconFile(is, &max_len);
+  ASSERT_EQ(entries.size(), 1u);
+  EXPECT_EQ(entries[0].key, "new york");
+  // "uː" ends with ː (not digit) → split into "u" + "ː"
+  ASSERT_EQ(entries[0].phonemes.size(), 9u);
+  EXPECT_EQ(entries[0].phonemes[0], "n");
+  EXPECT_EQ(entries[0].phonemes[1], "j");
+  EXPECT_EQ(entries[0].phonemes[2], "u");
+  EXPECT_EQ(entries[0].phonemes[3], "ː");
+  EXPECT_EQ(max_len, 8);
+}
+
+TEST(ParseLexiconFile, PinyinKeptWhole) {
+  // Pinyin tokens like "ao3" end with a digit → NOT split
+  std::istringstream is("好 h ao3\n");
+  int32_t max_len = 0;
+  auto entries = ParseLexiconFile(is, &max_len);
+  ASSERT_EQ(entries.size(), 1u);
+  EXPECT_EQ(entries[0].key, "好");
+  ASSERT_EQ(entries[0].phonemes.size(), 2u);
+  EXPECT_EQ(entries[0].phonemes[0], "h");
+  EXPECT_EQ(entries[0].phonemes[1], "ao3");  // kept whole
+}
+
+TEST(ParseLexiconFile, MultiByteLastCodepoint) {
+  // "ɑː" is ɑ (U+0251, 2 bytes) + ː (U+02D0, 2 bytes)
+  // Last codepoint ː is not alphanumeric → split into ɑ + ː
+  // Verify we check the codepoint, not the byte.
+  std::istringstream is("foo || ɑː l\n");
+  int32_t max_len = 0;
+  auto entries = ParseLexiconFile(is, &max_len);
+  ASSERT_EQ(entries.size(), 1u);
+  EXPECT_EQ(entries[0].key, "foo");
+  ASSERT_EQ(entries[0].phonemes.size(), 3u);
+  EXPECT_EQ(entries[0].phonemes[0], "ɑ");
+  EXPECT_EQ(entries[0].phonemes[1], "ː");
+  EXPECT_EQ(entries[0].phonemes[2], "l");
+}
+
+TEST(ParseLexiconFile, EmptyAndComments) {
+  std::istringstream is("# comment\n\n  \n# another\n");
+  int32_t max_len = 0;
+  auto entries = ParseLexiconFile(is, &max_len);
+  EXPECT_EQ(entries.size(), 0u);
+  EXPECT_EQ(max_len, 0);
+}
+
+TEST(ParseLexiconFile, NullMaxLen) {
+  std::istringstream is("hello || h ə l oʊ\n");
+  auto entries = ParseLexiconFile(is, nullptr);
+  ASSERT_EQ(entries.size(), 1u);
+  EXPECT_EQ(entries[0].key, "hello");
+}
+
+TEST(ParseLexiconFile, MultiCodepointPhonemes) {
+  // "dˈ" ends with ˈ (not digit) → split into "d" + "ˈ"
+  // "ao3" ends with 3 (digit) → kept as "ao3"
+  std::istringstream is("today || t ə dˈ ao3 ɪ\n");
+  int32_t max_len = 0;
+  auto entries = ParseLexiconFile(is, &max_len);
+  ASSERT_EQ(entries.size(), 1u);
+  EXPECT_EQ(entries[0].key, "today");
+  ASSERT_EQ(entries[0].phonemes.size(), 6u);
+  EXPECT_EQ(entries[0].phonemes[0], "t");
+  EXPECT_EQ(entries[0].phonemes[1], "ə");
+  EXPECT_EQ(entries[0].phonemes[2], "d");
+  EXPECT_EQ(entries[0].phonemes[3], "ˈ");
+  EXPECT_EQ(entries[0].phonemes[4], "ao3");  // ends with digit, kept whole
+  EXPECT_EQ(entries[0].phonemes[5], "ɪ");
 }
 
 }  // namespace sherpa_onnx

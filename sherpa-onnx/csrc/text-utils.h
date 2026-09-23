@@ -240,6 +240,19 @@ std::vector<std::string> MergeShortSentencesByWords(
 std::vector<std::string> SplitLongSentenceByWords(const std::string &sentence,
                                                   size_t max_words);
 
+// A single lexicon entry: word (lowercased) and its phonemes as strings.
+struct LexiconEntry {
+  std::string key;                    // lowercased word/phrase
+  std::vector<std::string> phonemes;  // phoneme strings (IPA or token names)
+};
+
+// Parse a lexicon file. Supports both formats:
+//   - New-format (||): word1 word2 || phone1 phone2 phone3 ...
+//   - Old-format (space): word phone1 phone2 ...
+// Returns all entries and the max phrase length (in words/tokens).
+std::vector<LexiconEntry> ParseLexiconFile(std::istream &is,
+                                           int32_t *max_phrase_len_out);
+
 }  // namespace sherpa_onnx
 
 #endif  // SHERPA_ONNX_CSRC_TEXT_UTILS_H_

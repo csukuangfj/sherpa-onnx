@@ -20,17 +20,21 @@ struct OfflineTtsKittenModelConfig {
   // speed = 1 / length_scale
   float length_scale = 1.0;
 
+  std::string lexicon;
+
   OfflineTtsKittenModelConfig() = default;
 
   OfflineTtsKittenModelConfig(const std::string &model,
                               const std::string &voices,
                               const std::string &tokens,
-                              const std::string &data_dir, float length_scale)
+                              const std::string &data_dir, float length_scale,
+                              const std::string &lexicon)
       : model(model),
         voices(voices),
         tokens(tokens),
         data_dir(data_dir),
-        length_scale(length_scale) {}
+        length_scale(length_scale),
+        lexicon(lexicon) {}
 
   void Register(ParseOptions *po);
   bool Validate() const;

@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 """
-Test a piper tts model using piper_phonemize.
+Test a Kitten English TTS model using piper_phonemize (no espeak-ng data).
+
+If you want to use a lexicon instead, please see
+test-offline-tts-kitten-lexicon.py.
 
 Install piper_phonemize:
   pip install piper_phonemize -f https://k2-fsa.github.io/icefall/piper_phonemize.html
 
 Download model:
-  wget https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/vits-piper-en_US-amy-low.tar.bz2
-  tar xf vits-piper-en_US-amy-low.tar.bz2
+  wget https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/kitten-micro-en-v0_8.tar.bz2
+  tar xf kitten-micro-en-v0_8.tar.bz2
 """
 
 import time
@@ -25,9 +28,10 @@ except Exception as ex:
 
 tts_config = sherpa_onnx.OfflineTtsConfig(
     model=sherpa_onnx.OfflineTtsModelConfig(
-        vits=sherpa_onnx.OfflineTtsVitsModelConfig(
-            model="./vits-piper-en_US-amy-low/en_US-amy-low.onnx",
-            tokens="./vits-piper-en_US-amy-low/tokens.txt",
+        kitten=sherpa_onnx.OfflineTtsKittenModelConfig(
+            model="./kitten-micro-en-v0_8/model.onnx",
+            voices="./kitten-micro-en-v0_8/voices.bin",
+            tokens="./kitten-micro-en-v0_8/tokens.txt",
         ),
         debug=True,
     ),
@@ -50,7 +54,7 @@ end = time.time()
 assert len(audio.samples) > 0, "No audio generated!"
 assert audio.sample_rate > 0, "Invalid sample rate!"
 
-filename = "test-piper-phonemize.wav"
+filename = "test-kitten-phonemize.wav"
 sf.write(filename, audio.samples, samplerate=audio.sample_rate)
 
 elapsed_seconds = end - start

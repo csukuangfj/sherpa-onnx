@@ -1114,91 +1114,34 @@ class OfflineTtsMatchaImpl : public OfflineTtsImpl {
   }
 
   void LoadLexicon(std::istream &is, bool debug) {
-    // Detect format per-file: || for new-format (IPA codepoints → lexicon_),
-    // space for old-format (token strings → lexicon_str_).
-    // Peek at the first non-comment line to determine the file's format.
-    std::string first_line;
-    bool is_new_format = false;
-    {
-      std::string line;
-      while (std::getline(is, line)) {
-        if (line.empty() || line[0] == '#') continue;
-        first_line = line;
-        is_new_format = (line.find("||") != std::string::npos);
-        break;
+    auto entries = ParseLexiconFile(is, &max_lexicon_phrase_len_);
+    for (auto &e : entries) {
+      // Detect format: if phonemes contain multi-byte IPA chars or multi-char
+      // strings, store as token strings. Otherwise store as IPA codepoints.
+      bool has_multi_char = false;
+      for (const auto &p : e.phonemes) {
+        std::u32string u32 = Utf8ToUtf32(p);
+        if (u32.size() != 1) {
+          has_multi_char = true;
+          break;
+        }
       }
-    }
 
-    auto ProcessLine = [&](const std::string &line) {
-      if (line.empty() || line[0] == '#') return;
-
-      if (is_new_format) {
-        // New-format: word || phoneme1 phoneme2 ... → IPA codepoints
-        auto pos = line.find("||");
-        if (pos == std::string::npos) return;
-
-        std::string words_str = Trim(line.substr(0, pos));
-        std::string phones_str = Trim(line.substr(pos + 2));
-
-        if (words_str.empty() || phones_str.empty()) return;
-
-        std::string key = ToLowerCase(words_str);
-
-        int32_t word_count = 1;
-        for (char c : key) {
-          if (c == ' ') ++word_count;
-        }
-        if (word_count > max_lexicon_phrase_len_) {
-          max_lexicon_phrase_len_ = word_count;
-        }
-
+      if (has_multi_char) {
+        // Token strings (e.g., pinyin: "zhong1", "guo2")
+        lexicon_str_[e.key] = std::move(e.phonemes);
+      } else {
+        // IPA codepoints
         std::vector<int32_t> codepoints;
-        std::istringstream pss(phones_str);
-        std::string phoneme;
-        while (pss >> phoneme) {
-          std::u32string u32 = Utf8ToUtf32(phoneme);
+        for (const auto &p : e.phonemes) {
+          std::u32string u32 = Utf8ToUtf32(p);
           for (char32_t cp : u32) {
             codepoints.push_back(static_cast<int32_t>(cp));
           }
         }
-
-        lexicon_[key] = std::move(codepoints);
-      } else {
-        // Old-format: word token1 token2 ... → token string IDs
-        std::istringstream iss(line);
-        std::string word;
-        iss >> word;
-        if (word.empty()) return;
-
-        std::string key = ToLowerCase(word);
-
-        // Count UTF-32 codepoints (each CJK char = 1, each English word = 1)
-        int32_t word_count = static_cast<int32_t>(Utf8ToUtf32(key).size());
-        if (word_count > max_lexicon_phrase_len_) {
-          max_lexicon_phrase_len_ = word_count;
-        }
-
-        std::vector<std::string> phones;
-        std::string phone;
-        while (iss >> phone) {
-          phones.push_back(std::move(phone));
-        }
-
-        if (phones.empty()) return;
-
-        lexicon_str_[key] = std::move(phones);
+        lexicon_[e.key] = std::move(codepoints);
       }
-    };
-
-    if (!first_line.empty()) {
-      ProcessLine(first_line);
     }
-
-    std::string line;
-    while (std::getline(is, line)) {
-      ProcessLine(line);
-    }
-
     if (debug) {
       SHERPA_ONNX_LOGE(
           "Loaded lexicon: %d new-format (IPA) entries, "

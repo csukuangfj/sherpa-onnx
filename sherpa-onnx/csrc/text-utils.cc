@@ -9,13 +9,10 @@
 #include <cassert>
 #include <cctype>
 #include <charconv>
-#include <cinttypes>
-#include <climits>
 #include <cstdint>
 #include <cstdlib>
 #include <cwctype>
 #include <limits>
-#include <locale>
 #include <sstream>
 #include <string>
 #include <unordered_map>
@@ -1214,7 +1211,8 @@ void LengthsToMask(const std::vector<int64_t> &lengths,
   const int bsz = static_cast<int>(lengths.size());
   const int64_t max_len = *std::max_element(lengths.begin(), lengths.end());
   if (max_len < 0) {
-    SHERPA_ONNX_LOGE("LengthsToMask: max_len (%" PRId64 ") < 0", max_len);
+    SHERPA_ONNX_LOGE("LengthsToMask: max_len (%d) < 0",
+                     static_cast<int32_t>(max_len));
     SHERPA_ONNX_EXIT(-1);
   }
 
@@ -1611,6 +1609,80 @@ std::vector<std::string> SplitLongSentenceByWords(const std::string &sentence,
   }
 
   return chunks;
+}
+
+std::vector<LexiconEntry> ParseLexiconFile(std::istream &is,
+                                           int32_t *max_phrase_len_out) {
+  std::vector<LexiconEntry> entries;
+  int32_t max_phrase_len = 0;
+
+  std::string line;
+  while (std::getline(is, line)) {
+    if (line.empty() || line[0] == '#') continue;
+
+    std::string key;
+    std::vector<std::string> phonemes;
+
+    auto pos = line.find("||");
+    if (pos != std::string::npos) {
+      // New-format: word || phone1 phone2 ...
+      key = ToLowerCase(Trim(line.substr(0, pos)));
+      std::istringstream pss(Trim(line.substr(pos + 2)));
+      std::string phone;
+      while (pss >> phone) {
+        phonemes.push_back(std::move(phone));
+      }
+    } else {
+      // Old-format: word phone1 phone2 ...
+      std::istringstream iss(line);
+      std::string word;
+      iss >> word;
+      if (word.empty()) continue;
+      key = ToLowerCase(word);
+      std::string phone;
+      while (iss >> phone) {
+        phonemes.push_back(std::move(phone));
+      }
+    }
+
+    if (key.empty() || phonemes.empty()) continue;
+
+    int32_t word_count = static_cast<int32_t>(Utf8ToUtf32(key).size());
+    if (word_count > max_phrase_len) {
+      max_phrase_len = word_count;
+    }
+
+    // Split multi-codepoint phonemes into individual characters,
+    // but only if the last codepoint is NOT a digit (0-9) or letter (a-z).
+    // Pinyin tokens like "ao3", "zhong1", "de" end with digit/letter → keep.
+    // IPA phonemes like "dˈ", "oʊ", "ɑː" end with non-alphanumeric → split.
+    std::vector<std::string> split_phonemes;
+    for (const auto &p : phonemes) {
+      std::u32string u32 = Utf8ToUtf32(p);
+      bool keep = u32.size() <= 1;
+      if (!keep) {
+        char32_t last = u32.back();
+        keep = (last >= U'0' && last <= U'9') ||
+               (last >= U'a' && last <= U'z') ||
+               (last >= U'A' && last <= U'Z');
+      }
+      if (keep) {
+        split_phonemes.push_back(p);
+      } else {
+        for (char32_t cp : u32) {
+          split_phonemes.push_back(Utf32ToUtf8(std::u32string(1, cp)));
+        }
+      }
+    }
+
+    entries.push_back({std::move(key), std::move(split_phonemes)});
+  }
+
+  if (max_phrase_len_out) {
+    *max_phrase_len_out = max_phrase_len;
+  }
+
+  return entries;
 }
 
 }  // namespace sherpa_onnx
