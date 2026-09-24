@@ -87,12 +87,15 @@ download_and_extract https://github.com/k2-fsa/sherpa-onnx/releases/download/tts
 
 download https://github.com/k2-fsa/sherpa-onnx/releases/download/vocoder-models/vocos_24khz.onnx
 
+download https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/lexicon-en-us.txt
+
 python3 ./python-api-examples/zipvoice-tts.py
 
 cp generated-zipvoice-zh-en-python.wav tts/
 
 rm -rf sherpa-onnx-zipvoice-distill-int8-zh-en-emilia
 rm -f vocos_24khz.onnx
+rm -f lexicon-en-us.txt
 
 log "test Google MedASR"
 download_and_extract https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-medasr-ctc-en-int8-2025-12-25.tar.bz2

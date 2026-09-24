@@ -111,6 +111,7 @@ type
     Tokens: AnsiString;
     DataDir: AnsiString;
     LengthScale: Single;
+    Lexicon: AnsiString;
 
     function ToString: AnsiString;
     class operator Initialize({$IFDEF FPC}var{$ELSE}out{$ENDIF} Dest: TSherpaOnnxOfflineTtsKittenModelConfig);
@@ -1155,6 +1156,12 @@ type
     ReferenceText: PAnsiChar;
     NumSteps: cint32;
     Extra: PAnsiChar;
+    PhonemeCodepoints: pcint32;
+    PhonemeCodepointsLens: pcint32;
+    PhonemeCodepointsNumSentences: cint32;
+    Tokens: PPAnsiChar;
+    TokensLens: pcint32;
+    TokensNumSentences: cint32;
   end;
 
   SherpaOnnxOfflineTtsMatchaModelConfig = record
@@ -1185,6 +1192,7 @@ type
     Tokens: PAnsiChar;
     DataDir: PAnsiChar;
     LengthScale: cfloat;
+    Lexicon: PAnsiChar;
   end;
 
   SherpaOnnxOfflineTtsZipVoiceModelConfig = record
@@ -2854,9 +2862,11 @@ begin
     'Voices := %s, ' +
     'Tokens := %s, ' +
     'DataDir := %s, ' +
-    'LengthScale := %.2f' +
+    'LengthScale := %.2f, ' +
+    'Lexicon := %s' +
     ')',
-    [Self.Model, Self.Voices, Self.Tokens, Self.DataDir, Self.LengthScale]);
+    [Self.Model, Self.Voices, Self.Tokens, Self.DataDir, Self.LengthScale,
+     Self.Lexicon]);
 end;
 
 class operator TSherpaOnnxOfflineTtsKittenModelConfig.Initialize({$IFDEF FPC}var{$ELSE}out{$ENDIF} Dest: TSherpaOnnxOfflineTtsKittenModelConfig);
@@ -3009,6 +3019,7 @@ begin
   C.Model.Kitten.Tokens := PAnsiChar(Config.Model.Kitten.Tokens);
   C.Model.Kitten.DataDir := PAnsiChar(Config.Model.Kitten.DataDir);
   C.Model.Kitten.LengthScale := Config.Model.Kitten.LengthScale;
+  C.Model.Kitten.Lexicon := PAnsiChar(Config.Model.Kitten.Lexicon);
 
   C.Model.ZipVoice.Tokens := PAnsiChar(Config.Model.ZipVoice.Tokens);
   C.Model.ZipVoice.Encoder := PAnsiChar(Config.Model.ZipVoice.Encoder);
@@ -3048,6 +3059,8 @@ begin
   C.SilenceScale := Config.SilenceScale;
 
   Self.Handle := SherpaOnnxCreateOfflineTts(@C);
+  if Self.Handle = nil then
+    raise Exception.Create('SherpaOnnxCreateOfflineTts failed. Please check your config');
 
   Self.SampleRate := SherpaOnnxOfflineTtsSampleRate(Self.Handle);
   Self.NumSpeakers := SherpaOnnxOfflineTtsNumSpeakers(Self.Handle);
@@ -3159,6 +3172,14 @@ begin
   ReferenceText := GenerationConfig.ReferenceText;
   C.ReferenceText := PAnsiChar(ReferenceText);
   C.NumSteps := GenerationConfig.NumSteps;
+  // Not exposed by the Pascal wrapper yet; keep them zeroed so the C side
+  // never reads uninitialized memory past the fields we do set.
+  C.PhonemeCodepoints := nil;
+  C.PhonemeCodepointsLens := nil;
+  C.PhonemeCodepointsNumSentences := 0;
+  C.Tokens := nil;
+  C.TokensLens := nil;
+  C.TokensNumSentences := 0;
   Extra := GenerationConfig.Extra;
   C.Extra := PAnsiChar(Extra);
 

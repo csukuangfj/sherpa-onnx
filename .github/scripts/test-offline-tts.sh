@@ -66,25 +66,31 @@ done
 rm -rf kokoro-en-v0_19
 rm -f lexicon-en-us.txt
 
-log "------------------------------------------------------------"
-log "matcha-tts-fa_en-musa"
-log "------------------------------------------------------------"
-download_and_extract https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/matcha-tts-fa_en-musa.tar.bz2
+# Disabled: matcha-tts-fa_en-musa ships only espeak-ng-data, no lexicon.txt.
+# espeak-ng support was removed in v2.0.0, so --matcha-data-dir is now ignored
+# and this model has no usable text frontend. Re-enable it once a Persian
+# lexicon is published, or once the CLI can accept phoneme_codepoints.
+#
+# log "------------------------------------------------------------"
+# log "matcha-tts-fa_en-musa"
+# log "------------------------------------------------------------"
+# download_and_extract https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/matcha-tts-fa_en-musa.tar.bz2
+#
+# download https://github.com/k2-fsa/sherpa-onnx/releases/download/vocoder-models/vocos-22khz-univ.onnx
+#
+#
+# $EXE \
+#   --matcha-acoustic-model=./matcha-tts-fa_en-musa/model.onnx \
+#   --matcha-vocoder=./vocos-22khz-univ.onnx \
+#   --matcha-tokens=./matcha-tts-fa_en-musa/tokens.txt \
+#   --matcha-data-dir=./matcha-tts-fa_en-musa/espeak-ng-data \
+#   --output-filename=./tts/test-matcha-fa-en-musa.wav \
+#   --num-threads=2 \
+#   "How are you doing today?  این یک نمونه ی تست فارسی است. This is a test."
+#
+# rm -rf matcha-tts-fa_en-musa
+# rm vocos-22khz-univ.onnx
 
-download https://github.com/k2-fsa/sherpa-onnx/releases/download/vocoder-models/vocos-22khz-univ.onnx
-
-
-$EXE \
-  --matcha-acoustic-model=./matcha-tts-fa_en-musa/model.onnx \
-  --matcha-vocoder=./vocos-22khz-univ.onnx \
-  --matcha-tokens=./matcha-tts-fa_en-musa/tokens.txt \
-  --matcha-data-dir=./matcha-tts-fa_en-musa/espeak-ng-data \
-  --output-filename=./tts/test-matcha-fa-en-musa.wav \
-  --num-threads=2 \
-  "How are you doing today?  این یک نمونه ی تست فارسی است. This is a test."
-
-rm -rf matcha-tts-fa_en-musa
-rm vocos-22khz-univ.onnx
 ls -lh tts/*.wav
 
 log "------------------------------------------------------------"
