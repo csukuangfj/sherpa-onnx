@@ -985,7 +985,7 @@ type OfflineTtsVitsModelConfig struct {
 	Model       string  // Path to the VITS onnx model
 	Lexicon     string  // Path to lexicon.txt
 	Tokens      string  // Path to tokens.txt
-	DataDir     string  // Path to espeak-ng-data directory
+	DataDir     string  // Deprecated. Ignored. Use Lexicon or phoneme_codepoints instead.
 	NoiseScale  float32 // noise scale for vits models. Please use 0.667 in general
 	NoiseScaleW float32 // noise scale for vits models. Please use 0.8 in general
 	LengthScale float32 // Please use 1.0 in general. Smaller -> Faster speech speed. Larger -> Slower speech speed
@@ -1007,7 +1007,7 @@ type OfflineTtsKokoroModelConfig struct {
 	Model       string  // Path to the model for kokoro
 	Voices      string  // Path to the voices.bin for kokoro
 	Tokens      string  // Path to tokens.txt
-	DataDir     string  // Path to espeak-ng-data directory
+	DataDir     string  // Deprecated. Ignored. Use Lexicon or phoneme_codepoints instead.
 	DictDir     string  // unused
 	Lexicon     string  // Path to lexicon files
 	Lang        string  // Example: es for Spanish, fr-fr for French. Can be empty
@@ -1018,7 +1018,7 @@ type OfflineTtsKittenModelConfig struct {
 	Model       string  // Path to the model for kitten
 	Voices      string  // Path to the voices.bin for kitten
 	Tokens      string  // Path to tokens.txt
-	DataDir     string  // Path to espeak-ng-data directory
+	DataDir     string  // Deprecated. Ignored. Use Lexicon or phoneme_codepoints instead.
 	LengthScale float32 // Please use 1.0 in general. Smaller -> Faster speech speed. Larger -> Slower speech speed
 }
 

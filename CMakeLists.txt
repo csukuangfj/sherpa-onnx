@@ -566,13 +566,6 @@ endif()
 
 include(json)
 
-if(SHERPA_ONNX_ENABLE_TTS)
-  include(espeak-ng-for-piper)
-  set(ESPEAK_NG_DIR ${espeak_ng_SOURCE_DIR})
-  message(STATUS "ESPEAK_NG_DIR: ${ESPEAK_NG_DIR}")
-  include(piper-phonemize)
-endif()
-
 if(SHERPA_ONNX_ENABLE_SPEAKER_DIARIZATION)
   include(hclust-cpp)
 endif()
