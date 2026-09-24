@@ -164,11 +164,7 @@ jobs:
           cp -a build/install/bin $dst/
           cp -a build/install/lib $dst/
           cp -a build/install/include $dst/
-
-          rm -fv $dst/lib/cargs.h
-          rm -fv $dst/lib/libcargs.so
           rm -fv $dst/lib/libonnxruntime4j_jni.so
-          rm -fv $dst/include/cargs.h
 
           echo "strip"
           strip $dst/bin/*
@@ -603,11 +599,7 @@ jobs:
           cp -a build/install/bin $dst/
           cp -a build/install/lib $dst/
           cp -a build/install/include $dst/
-
-          rm -fv $dst/lib/cargs.h
-          rm -fv $dst/lib/libcargs.so
           rm -fv $dst/lib/libonnxruntime4j_jni.so
-          rm -fv $dst/include/cargs.h
 
           echo "strip"
           strip $dst/bin/*
@@ -1052,11 +1044,7 @@ jobs:
           cp -a build/install/bin $dst/
           cp -a build/install/lib $dst/
           cp -a build/install/include $dst/
-
-          rm -fv $dst/lib/cargs.h
-          rm -fv $dst/lib/libcargs.so
           rm -fv $dst/lib/libonnxruntime4j_jni.so
-          rm -fv $dst/include/cargs.h
 
           echo "strip"
           strip $dst/bin/*
@@ -1294,11 +1282,7 @@ jobs:
           cp -a build/install/bin $dst/
           cp -a build/install/lib $dst/
           cp -a build/install/include $dst/
-
-          rm -fv $dst/lib/cargs.h
-          rm -fv $dst/lib/libcargs.so
           rm -fv $dst/lib/libonnxruntime4j_jni.so
-          rm -fv $dst/include/cargs.h
 
           echo "strip"
           strip $dst/bin/*

@@ -105,7 +105,6 @@ jobs:
               ls -lh install/lib
 
               rm -rf install/lib/pkgconfig
-              rm -fv install/lib/cargs.h
             '
 
       - name: Copy files
@@ -131,7 +130,6 @@ jobs:
           lib_dst=${dst}-lib
           mkdir -p ${lib_dst}/lib
           cp -av build/install/lib/lib*.a ${lib_dst}/lib/
-          rm -f ${lib_dst}/lib/libcargs.a
           tree ${lib_dst}
           tar cjvf ${lib_dst}.tar.bz2 ${lib_dst}
 
