@@ -631,6 +631,41 @@ GeneratedAudio OfflineTts::Generate(const std::string &text,
   std::string s = j.dump();
   c.extra = s.c_str();
 
+  // Flatten phoneme_codepoints; the C API takes a flat array + per-sentence
+  // lengths.
+  std::vector<int32_t> flat_codepoints;
+  std::vector<int32_t> codepoint_lens;
+  codepoint_lens.reserve(config.phoneme_codepoints.size());
+  for (const auto &sentence : config.phoneme_codepoints) {
+    flat_codepoints.insert(flat_codepoints.end(), sentence.begin(),
+                           sentence.end());
+    codepoint_lens.push_back(static_cast<int32_t>(sentence.size()));
+  }
+
+  if (!codepoint_lens.empty()) {
+    c.phoneme_codepoints = flat_codepoints.data();
+    c.phoneme_codepoints_lens = codepoint_lens.data();
+    c.phoneme_codepoints_num_sentences =
+        static_cast<int32_t>(codepoint_lens.size());
+  }
+
+  // Flatten tokens; the C API takes a flat array + per-sentence lengths.
+  std::vector<const char *> flat_tokens;
+  std::vector<int32_t> token_lens;
+  token_lens.reserve(config.tokens.size());
+  for (const auto &sentence : config.tokens) {
+    token_lens.push_back(static_cast<int32_t>(sentence.size()));
+    for (const auto &tok : sentence) {
+      flat_tokens.push_back(tok.c_str());
+    }
+  }
+
+  if (!token_lens.empty()) {
+    c.tokens = flat_tokens.data();
+    c.tokens_lens = token_lens.data();
+    c.tokens_num_sentences = static_cast<int32_t>(token_lens.size());
+  }
+
   const SherpaOnnxGeneratedAudio *audio =
       SherpaOnnxOfflineTtsGenerateWithConfig(p_, text.c_str(), &c, callback,
                                              arg);

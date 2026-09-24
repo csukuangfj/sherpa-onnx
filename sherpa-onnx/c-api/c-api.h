@@ -2257,11 +2257,16 @@ SHERPA_ONNX_API void SherpaOnnxVoiceActivityDetectorFlush(
 typedef struct SherpaOnnxOfflineTtsVitsModelConfig {
   /** Path to the VITS ONNX model, for example `./vits-ljs.onnx`. */
   const char *model;
-  /** Path to the lexicon file. Ignored if @c data_dir is provided. */
+  /** Path to the lexicon file. */
   const char *lexicon;
   /** Path to the tokens file. */
   const char *tokens;
-  /** Optional path to espeak-ng-data. */
+  /**
+   * Path to espeak-ng-data.
+   *
+   * @deprecated Ignored since v2.0.0. Pass pre-phonemized input via
+   * SherpaOnnxGenerationConfig.phoneme_codepoints (or .tokens) instead.
+   */
   const char *data_dir;
   /** VITS noise scale. */
   float noise_scale;
@@ -2283,7 +2288,12 @@ typedef struct SherpaOnnxOfflineTtsMatchaModelConfig {
   const char *lexicon;
   /** Path to the tokens file. */
   const char *tokens;
-  /** Optional path to espeak-ng-data. */
+  /**
+   * Path to espeak-ng-data.
+   *
+   * @deprecated Ignored since v2.0.0. Pass pre-phonemized input via
+   * SherpaOnnxGenerationConfig.phoneme_codepoints (or .tokens) instead.
+   */
   const char *data_dir;
   /** Matcha noise scale. */
   float noise_scale;
@@ -2301,7 +2311,12 @@ typedef struct SherpaOnnxOfflineTtsKokoroModelConfig {
   const char *voices;
   /** Path to the tokens file. */
   const char *tokens;
-  /** Optional path to espeak-ng-data. */
+  /**
+   * Path to espeak-ng-data.
+   *
+   * @deprecated Ignored since v2.0.0. Pass pre-phonemized input via
+   * SherpaOnnxGenerationConfig.phoneme_codepoints (or .tokens) instead.
+   */
   const char *data_dir;
   /** Speech rate scale. Values < 1 are slower; values > 1 are faster. */
   float length_scale;
@@ -2321,7 +2336,12 @@ typedef struct SherpaOnnxOfflineTtsKittenModelConfig {
   const char *voices;
   /** Path to the tokens file. */
   const char *tokens;
-  /** Optional path to espeak-ng-data. */
+  /**
+   * Path to espeak-ng-data.
+   *
+   * @deprecated Ignored since v2.0.0. Pass pre-phonemized input via
+   * SherpaOnnxGenerationConfig.phoneme_codepoints (or .tokens) instead.
+   */
   const char *data_dir;
   /** Speech rate scale. Values < 1 are slower; values > 1 are faster. */
   float length_scale;
@@ -2337,7 +2357,12 @@ typedef struct SherpaOnnxOfflineTtsZipvoiceModelConfig {
   const char *decoder;
   /** Path to the vocoder model. */
   const char *vocoder;
-  /** Optional path to espeak-ng-data. */
+  /**
+   * Path to espeak-ng-data.
+   *
+   * @deprecated Ignored since v2.0.0. Pass pre-phonemized input via
+   * SherpaOnnxGenerationConfig.phoneme_codepoints (or .tokens) instead.
+   */
   const char *data_dir;
   /** Path to the lexicon file. */
   const char *lexicon;
@@ -2439,7 +2464,9 @@ typedef struct SherpaOnnxOfflineTtsModelConfig {
  * config.model.kokoro.model = "./kokoro-en-v0_19/model.onnx";
  * config.model.kokoro.voices = "./kokoro-en-v0_19/voices.bin";
  * config.model.kokoro.tokens = "./kokoro-en-v0_19/tokens.txt";
- * config.model.kokoro.data_dir = "./kokoro-en-v0_19/espeak-ng-data";
+ * // Download it from
+ * // https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/lexicon-en-us.txt
+ * config.model.kokoro.lexicon = "./lexicon-en-us.txt";
  * config.model.num_threads = 2;
  * config.model.provider = "cpu";
  * config.model.debug = 0;
@@ -2529,7 +2556,9 @@ typedef struct SherpaOnnxOfflineTts SherpaOnnxOfflineTts;
  * config.model.kokoro.model = "./kokoro-en-v0_19/model.onnx";
  * config.model.kokoro.voices = "./kokoro-en-v0_19/voices.bin";
  * config.model.kokoro.tokens = "./kokoro-en-v0_19/tokens.txt";
- * config.model.kokoro.data_dir = "./kokoro-en-v0_19/espeak-ng-data";
+ * // Download it from
+ * // https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/lexicon-en-us.txt
+ * config.model.kokoro.lexicon = "./lexicon-en-us.txt";
  * config.model.num_threads = 2;
  *
  * const SherpaOnnxOfflineTts *tts = SherpaOnnxCreateOfflineTts(&config);
@@ -2743,6 +2772,45 @@ typedef struct SherpaOnnxGenerationConfig {
   int32_t num_steps;
   /** Optional model-specific JSON string with extra key/value pairs. */
   const char *extra;
+
+  /**
+   * Pre-phonemized input as Unicode codepoints.
+   *
+   * Phonemize the text yourself (for instance with piper_phonemize) and pass
+   * the resulting codepoints here. When set, it is used in place of @c text.
+   *
+   * Exactly one of @c phoneme_codepoints and @c tokens must be given.
+   *
+   * Each sentence is one sub-array. All codepoints of all sentences are stored
+   * flattened in this array; see @c phoneme_codepoints_lens for the boundaries.
+   */
+  const int32_t *phoneme_codepoints;
+
+  /** Number of codepoints in each sentence. It has
+   *  @c phoneme_codepoints_num_sentences entries. If not NULL, every entry
+   *  must be > 0. */
+  const int32_t *phoneme_codepoints_lens;
+
+  /** Number of sentences in @c phoneme_codepoints_lens. */
+  int32_t phoneme_codepoints_num_sentences;
+
+  /**
+   * Pre-tokenized input, e.g. Chinese pinyin like "zhong1".
+   *
+   * Each sentence is one sub-array. All token strings of all sentences are
+   * stored flattened in this array; see @c tokens_lens for the boundaries.
+   *
+   * Exactly one of @c phoneme_codepoints and @c tokens must be given. If both
+   * are set, a warning is printed and generation fails.
+   */
+  const char *const *tokens;
+
+  /** Number of tokens in each sentence. It has @c tokens_num_sentences
+   *  entries. If not NULL, every entry must be > 0. */
+  const int32_t *tokens_lens;
+
+  /** Number of sentences in @c tokens_lens. */
+  int32_t tokens_num_sentences;
 } SherpaOnnxGenerationConfig;
 
 /**
