@@ -288,7 +288,6 @@ if(SHERPA_ONNX_ENABLE_TTS)
   list(APPEND sources
     character-lexicon.cc
     hifigan-vocoder.cc
-    kokoro-multi-lang-lexicon.cc
     lexicon.cc
     matcha-tts-lexicon.cc
     melo-tts-lexicon.cc
