@@ -129,7 +129,6 @@ jobs:
             -DBUILD_SHARED_LIBS=ON \
             -DSHERPA_ONNX_ENABLE_PORTAUDIO=OFF \
             -DSHERPA_ONNX_ENABLE_BINARY=OFF \
-            -DBUILD_ESPEAK_NG_EXE=OFF \
             -DSHERPA_ONNX_ENABLE_JNI=ON \
             -DCMAKE_INSTALL_PREFIX=./install \
             ..

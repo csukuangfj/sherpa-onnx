@@ -68,7 +68,6 @@ jobs:
             -D SHERPA_ONNX_ENABLE_PORTAUDIO=OFF \
             -D BUILD_SHARED_LIBS=${{ matrix.shared_lib }} \
             -D CMAKE_INSTALL_PREFIX=./install \
-            -D BUILD_ESPEAK_NG_EXE=OFF \
             ..
 
       - name: Check 1
