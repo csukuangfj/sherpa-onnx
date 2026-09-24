@@ -2345,6 +2345,8 @@ typedef struct SherpaOnnxOfflineTtsKittenModelConfig {
   const char *data_dir;
   /** Speech rate scale. Values < 1 are slower; values > 1 are faster. */
   float length_scale;
+  /** Path to the lexicon file. */
+  const char *lexicon;
 } SherpaOnnxOfflineTtsKittenModelConfig;
 
 /** @brief Configuration for a ZipVoice TTS model. */
@@ -2778,8 +2780,7 @@ typedef struct SherpaOnnxGenerationConfig {
    *
    * Phonemize the text yourself (for instance with piper_phonemize) and pass
    * the resulting codepoints here. When set, it is used in place of @c text.
-   *
-   * Exactly one of @c phoneme_codepoints and @c tokens must be given.
+   * Leave as NULL to use @c text with a lexicon.
    *
    * Each sentence is one sub-array. All codepoints of all sentences are stored
    * flattened in this array; see @c phoneme_codepoints_lens for the boundaries.
@@ -2800,8 +2801,8 @@ typedef struct SherpaOnnxGenerationConfig {
    * Each sentence is one sub-array. All token strings of all sentences are
    * stored flattened in this array; see @c tokens_lens for the boundaries.
    *
-   * Exactly one of @c phoneme_codepoints and @c tokens must be given. If both
-   * are set, a warning is printed and generation fails.
+   * Mutually exclusive with @c phoneme_codepoints: if both are set, a warning
+   * is printed and generation fails.
    */
   const char *const *tokens;
 

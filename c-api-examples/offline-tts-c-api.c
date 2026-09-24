@@ -82,12 +82,6 @@ static struct cag_option options[] = {
                     "If you set it to -1, then we process all sentences in a "
                     "single batch."},
 
-    {.access_name = "vits-data-dir",
-     .value_name = "/path/to/espeak-ng-data",
-     .identifier = 'd',
-     .description =
-         "Path to espeak-ng-data. If it is given, --vits-lexicon is ignored"},
-
 };
 
 static void ShowUsage() {
@@ -192,9 +186,6 @@ int32_t main(int32_t argc, char *argv[]) {
       case 'c':
         config.max_num_sentences = atoi(value);
         break;
-      case 'd':
-        config.model.vits.data_dir = value;
-        break;
       case '?':
         fprintf(stderr, "Unknown option\n");
         // fall through
@@ -216,8 +207,8 @@ int32_t main(int32_t argc, char *argv[]) {
     ShowUsage();
   }
 
-  if (!config.model.vits.data_dir && !config.model.vits.lexicon) {
-    fprintf(stderr, "Please provide --vits-data-dir or --vits-lexicon\n");
+  if (!config.model.vits.lexicon) {
+    fprintf(stderr, "Please provide --vits-lexicon\n");
     ShowUsage();
   }
 

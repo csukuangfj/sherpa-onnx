@@ -1532,6 +1532,8 @@ static sherpa_onnx::OfflineTtsConfig GetOfflineTtsConfig(
       SHERPA_ONNX_OR(config->model.kitten.data_dir, "");
   tts_config.model.kitten.length_scale =
       SHERPA_ONNX_OR(config->model.kitten.length_scale, 1.0);
+  tts_config.model.kitten.lexicon =
+      SHERPA_ONNX_OR(config->model.kitten.lexicon, "");
 
   // zipvoice
   tts_config.model.zipvoice.tokens =
@@ -1688,8 +1690,9 @@ static const SherpaOnnxGeneratedAudio *SherpaOnnxOfflineTtsGenerateInternal(
     const SherpaOnnxOfflineTts *tts, const char *text,
     const SherpaOnnxGenerationConfig *config,
     std::function<int32_t(const float *, int32_t, float)> callback) {
-  // phoneme_codepoints and tokens are mutually exclusive and at least one of
-  // them is required. Validate them before doing any work.
+  // phoneme_codepoints and tokens are mutually exclusive. Validate them
+  // before doing any work. Neither being set is fine: the caller may rely on
+  // text plus a lexicon.
   bool has_phoneme_codepoints = config->phoneme_codepoints &&
                                 config->phoneme_codepoints_lens &&
                                 config->phoneme_codepoints_num_sentences > 0;
@@ -1699,13 +1702,6 @@ static const SherpaOnnxGeneratedAudio *SherpaOnnxOfflineTtsGenerateInternal(
   if (has_phoneme_codepoints && has_tokens) {
     SHERPA_ONNX_LOGE(
         "Both phoneme_codepoints and tokens are given. Please set only one of "
-        "them.");
-    return nullptr;
-  }
-
-  if (!has_phoneme_codepoints && !has_tokens) {
-    SHERPA_ONNX_LOGE(
-        "Neither phoneme_codepoints nor tokens is given. Please set one of "
         "them.");
     return nullptr;
   }

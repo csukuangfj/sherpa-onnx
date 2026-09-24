@@ -937,6 +937,9 @@ struct OfflineTtsKittenModelConfig {
 
   /** Length scale. Values < 1 are faster; values > 1 are slower. */
   float length_scale = 1.0;
+
+  /** Lexicon file. */
+  std::string lexicon;
 };
 
 /** @brief ZipVoice model configuration. */
@@ -1063,9 +1066,7 @@ struct GenerationConfig {
    *
    * Phonemize the text yourself (for instance with piper_phonemize) and pass
    * the resulting codepoints here. When set, it is used in place of the `text`
-   * argument.
-   *
-   * Exactly one of `phoneme_codepoints` and `tokens` must be given.
+   * argument. Leave empty to use `text` with a lexicon.
    *
    * Each inner vector is one sentence.
    */
@@ -1076,8 +1077,8 @@ struct GenerationConfig {
    *
    * Each inner vector is one sentence.
    *
-   * Exactly one of `phoneme_codepoints` and `tokens` must be given. If both
-   * are set, a warning is printed and generation fails.
+   * Mutually exclusive with `phoneme_codepoints`: if both are set, a warning
+   * is printed and generation fails.
    */
   std::vector<std::vector<std::string>> tokens;
 };

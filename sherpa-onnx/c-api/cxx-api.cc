@@ -518,6 +518,7 @@ OfflineTts OfflineTts::Create(const OfflineTtsConfig &config) {
   c.model.kitten.tokens = config.model.kitten.tokens.c_str();
   c.model.kitten.data_dir = config.model.kitten.data_dir.c_str();
   c.model.kitten.length_scale = config.model.kitten.length_scale;
+  c.model.kitten.lexicon = config.model.kitten.lexicon.c_str();
 
   c.model.zipvoice.tokens = config.model.zipvoice.tokens.c_str();
   c.model.zipvoice.encoder = config.model.zipvoice.encoder.c_str();
