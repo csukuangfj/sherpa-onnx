@@ -9,8 +9,8 @@ test-offline-tts-matcha-zh-lexicon.py.
 Uses pypinyin to convert Chinese text to pinyin tokens, then passes them
 via GenerationConfig.tokens.
 
-Install pypinyin:
-  pip install pypinyin
+Install dependencies:
+  pip install pypinyin kaldifst
 
 Download model and vocoder:
   wget https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/matcha-icefall-zh-baker.tar.bz2
@@ -28,7 +28,7 @@ import soundfile as sf
 try:
     from pypinyin import lazy_pinyin, Style
 except Exception as ex:
-    raise RuntimeError(f"{ex}\nPlease run\npip install pypinyin")
+    raise RuntimeError(f"{ex}\nPlease run\npip install pypinyin kaldifst")
 
 text = (
     "某某银行的副行长和一些行政领导表示，他们去过长江和长白山; 经济不断增长。"

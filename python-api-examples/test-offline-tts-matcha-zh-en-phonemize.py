@@ -19,7 +19,7 @@ Supported extra parameters in gen_config.extra (all optional):
   - debug, int, default from model config.
 
 Install dependencies:
-  pip install pypinyin
+  pip install pypinyin kaldifst
   pip install piper_phonemize -f https://k2-fsa.github.io/icefall/piper_phonemize.html
 
 Download model and vocoder:
@@ -40,7 +40,7 @@ import kaldifst
 try:
     from pypinyin import lazy_pinyin, Style
 except Exception as ex:
-    raise RuntimeError(f"{ex}\nPlease run\npip install pypinyin")
+    raise RuntimeError(f"{ex}\nPlease run\npip install pypinyin kaldifst")
 
 try:
     from piper_phonemize import phonemize_espeak

@@ -7,7 +7,7 @@ Chinese text uses misaki.zh.ZHG2P for IPA phonemization.
 English text uses piper_phonemize (espeak-ng) for IPA phonemization.
 
 Install dependencies:
-  pip install misaki ordered-set
+  pip install 'misaki[zh]' kaldifst
   pip install piper_phonemize -f https://k2-fsa.github.io/icefall/piper_phonemize.html
 
 Download model:
@@ -25,7 +25,7 @@ import soundfile as sf
 try:
     from misaki import zh
 except Exception as ex:
-    raise RuntimeError(f"{ex}\nPlease run\npip install misaki ordered-set")
+    raise RuntimeError(f"{ex}\nPlease run\npip install 'misaki[zh]' kaldifst")
 
 try:
     from piper_phonemize import phonemize_espeak
