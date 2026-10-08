@@ -165,7 +165,7 @@ jobs:
           # External phonemizers used by the test-offline-tts-*-phonemize.py
           # examples. piper_phonemize ships espeak-ng inside the wheel; it is
           # a pip dependency, not a build dependency of sherpa-onnx.
-          python3 -m pip install --upgrade misaki ordered-set
+          python3 -m pip install --upgrade misaki ordered-set kaldifst
           python3 -m pip install --upgrade piper_phonemize -f https://k2-fsa.github.io/icefall/piper_phonemize.html
 
       - name: Install librosa (Linux/macOS)
