@@ -20,6 +20,10 @@ uses
 
 type
   TSherpaOnnxSamplesArray = array of Single;
+  TSherpaOnnxInt32Array = array of Integer;
+  TSherpaOnnxInt32ArrayArray = array of TSherpaOnnxInt32Array;
+  TSherpaOnnxStringArray = array of AnsiString;
+  TSherpaOnnxStringArrayArray = array of TSherpaOnnxStringArray;
 
   TSherpaOnnxLinearResampler = class
   private
@@ -54,11 +58,11 @@ type
     Model: AnsiString;
     Lexicon: AnsiString;
     Tokens: AnsiString;
-    DataDir: AnsiString;
+    DataDir: AnsiString; { Deprecated. Ignored since v2.0.0. }
     NoiseScale: Single;
     NoiseScaleW: Single;
     LengthScale: Single;
-    DictDir: AnsiString;
+    DictDir: AnsiString; { Unused legacy field kept for ABI compatibility. }
 
     function ToString: AnsiString;
     class operator Initialize({$IFDEF FPC}var{$ELSE}out{$ENDIF} Dest: TSherpaOnnxOfflineTtsVitsModelConfig);
@@ -74,6 +78,15 @@ type
     ReferenceText: AnsiString;
     NumSteps: Integer;
     Extra: AnsiString;
+    { Pre-phonemized input as Unicode codepoints. Each inner array is one
+      sentence. When set, it is used in place of the Text argument; leave
+      empty to use Text with a lexicon.
+      Mutually exclusive with Tokens. }
+    PhonemeCodepoints: TSherpaOnnxInt32ArrayArray;
+    { Pre-tokenized input, e.g. Chinese pinyin like "zhong1". Each inner
+      array is one sentence.
+      Mutually exclusive with PhonemeCodepoints. }
+    Tokens: TSherpaOnnxStringArrayArray;
     class operator Initialize({$IFDEF FPC}var{$ELSE}out{$ENDIF} Dest: TSherpaOnnxGenerationConfig);
   end;
 
@@ -82,10 +95,10 @@ type
     Vocoder: AnsiString;
     Lexicon: AnsiString;
     Tokens: AnsiString;
-    DataDir: AnsiString;
+    DataDir: AnsiString; { Deprecated. Ignored since v2.0.0. }
     NoiseScale: Single;
     LengthScale: Single;
-    DictDir: AnsiString;
+    DictDir: AnsiString; { Unused legacy field kept for ABI compatibility. }
 
     function ToString: AnsiString;
     class operator Initialize({$IFDEF FPC}var{$ELSE}out{$ENDIF} Dest: TSherpaOnnxOfflineTtsMatchaModelConfig);
@@ -95,9 +108,9 @@ type
     Model: AnsiString;
     Voices: AnsiString;
     Tokens: AnsiString;
-    DataDir: AnsiString;
+    DataDir: AnsiString; { Deprecated. Ignored since v2.0.0. }
     LengthScale: Single;
-    DictDir: AnsiString;
+    DictDir: AnsiString; { Unused legacy field kept for ABI compatibility. }
     Lexicon: AnsiString;
     Lang: AnsiString;
 
@@ -109,7 +122,7 @@ type
     Model: AnsiString;
     Voices: AnsiString;
     Tokens: AnsiString;
-    DataDir: AnsiString;
+    DataDir: AnsiString; { Deprecated. Ignored since v2.0.0. }
     LengthScale: Single;
     Lexicon: AnsiString;
 
@@ -122,7 +135,7 @@ type
     Encoder: AnsiString;
     Decoder: AnsiString;
     Vocoder: AnsiString;
-    DataDir: AnsiString;
+    DataDir: AnsiString; { Deprecated. Ignored since v2.0.0. }
     Lexicon: AnsiString;
     FeatScale: Single;
     Tshift: Single;
@@ -288,7 +301,7 @@ type
   end;
 
   TSherpaOnnxHomophoneReplacerConfig = record
-    DictDir: AnsiString;
+    DictDir: AnsiString; { Unused legacy field kept for ABI compatibility. }
     Lexicon: AnsiString;
     RuleFsts: AnsiString;
     function ToString: AnsiString;
@@ -3153,6 +3166,17 @@ var
   CReferenceAudio: pcfloat;
   ReferenceText: AnsiString;
   Extra: AnsiString;
+  PhonemeCodepoints: TSherpaOnnxInt32ArrayArray;
+  FlatCodepoints: TSherpaOnnxInt32Array;
+  CodepointLens: TSherpaOnnxInt32Array;
+  Tokens: TSherpaOnnxStringArrayArray;
+  FlatTokens: array of PAnsiChar;
+  TokenLens: TSherpaOnnxInt32Array;
+  NumCodepoints: Integer;
+  NumTokens: Integer;
+  I: Integer;
+  J: Integer;
+  K: Integer;
 begin
   C := Default(SherpaOnnxGenerationConfig);
   C.SilenceScale := GenerationConfig.SilenceScale;
@@ -3172,16 +3196,58 @@ begin
   ReferenceText := GenerationConfig.ReferenceText;
   C.ReferenceText := PAnsiChar(ReferenceText);
   C.NumSteps := GenerationConfig.NumSteps;
-  // Not exposed by the Pascal wrapper yet; keep them zeroed so the C side
-  // never reads uninitialized memory past the fields we do set.
-  C.PhonemeCodepoints := nil;
-  C.PhonemeCodepointsLens := nil;
-  C.PhonemeCodepointsNumSentences := 0;
-  C.Tokens := nil;
-  C.TokensLens := nil;
-  C.TokensNumSentences := 0;
   Extra := GenerationConfig.Extra;
   C.Extra := PAnsiChar(Extra);
+
+  { Flatten PhonemeCodepoints; the C API takes a flat array plus the
+    length of each sentence. The local copies keep the arrays alive
+    during the call. }
+  PhonemeCodepoints := GenerationConfig.PhonemeCodepoints;
+  NumCodepoints := 0;
+  for I := 0 to High(PhonemeCodepoints) do
+    Inc(NumCodepoints, Length(PhonemeCodepoints[I]));
+  if (Length(PhonemeCodepoints) > 0) and (NumCodepoints > 0) then
+    begin
+      SetLength(FlatCodepoints, NumCodepoints);
+      SetLength(CodepointLens, Length(PhonemeCodepoints));
+      K := 0;
+      for I := 0 to High(PhonemeCodepoints) do
+        begin
+          CodepointLens[I] := Length(PhonemeCodepoints[I]);
+          for J := 0 to High(PhonemeCodepoints[I]) do
+            begin
+              FlatCodepoints[K] := PhonemeCodepoints[I][J];
+              Inc(K);
+            end;
+        end;
+      C.PhonemeCodepoints := pcint32(@FlatCodepoints[0]);
+      C.PhonemeCodepointsLens := pcint32(@CodepointLens[0]);
+      C.PhonemeCodepointsNumSentences := Length(CodepointLens);
+    end;
+
+  { Flatten Tokens the same way. }
+  Tokens := GenerationConfig.Tokens;
+  NumTokens := 0;
+  for I := 0 to High(Tokens) do
+    Inc(NumTokens, Length(Tokens[I]));
+  if (Length(Tokens) > 0) and (NumTokens > 0) then
+    begin
+      SetLength(FlatTokens, NumTokens);
+      SetLength(TokenLens, Length(Tokens));
+      K := 0;
+      for I := 0 to High(Tokens) do
+        begin
+          TokenLens[I] := Length(Tokens[I]);
+          for J := 0 to High(Tokens[I]) do
+            begin
+              FlatTokens[K] := PAnsiChar(Tokens[I][J]);
+              Inc(K);
+            end;
+        end;
+      C.Tokens := PPAnsiChar(@FlatTokens[0]);
+      C.TokensLens := pcint32(@TokenLens[0]);
+      C.TokensNumSentences := Length(TokenLens);
+    end;
 
   Audio := nil;
   try
