@@ -1622,6 +1622,14 @@ const SherpaOnnxOfflineTts *SherpaOnnxCreateOfflineTts(
     const SherpaOnnxOfflineTtsConfig *config) {
   auto tts_config = GetOfflineTtsConfig(config);
 
+  if (tts_config.model.debug) {
+#if __OHOS__
+    SHERPA_ONNX_LOGE("%{public}s\n", tts_config.ToString().c_str());
+#else
+    SHERPA_ONNX_LOGE("%s\n", tts_config.ToString().c_str());
+#endif
+  }
+
   if (!tts_config.Validate()) {
     SHERPA_ONNX_LOGE("Errors in config");
     return nullptr;

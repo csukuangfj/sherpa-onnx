@@ -58,7 +58,7 @@ use crate::utils::to_c_ptr;
 use sherpa_onnx_sys as sys;
 use std::collections::HashMap;
 use std::ffi::CString;
-use std::os::raw::c_void;
+use std::os::raw::{c_char, c_void};
 use std::ptr;
 use std::slice;
 
@@ -73,6 +73,8 @@ pub struct OfflineTtsVitsModelConfig {
     pub model: Option<String>,
     pub lexicon: Option<String>,
     pub tokens: Option<String>,
+    /// Deprecated. Ignored since v2.0.0. Use `lexicon` or
+    /// [`GenerationConfig::phoneme_codepoints`] instead.
     pub data_dir: Option<String>,
     pub noise_scale: f32,
     pub noise_scale_w: f32,
@@ -117,6 +119,8 @@ pub struct OfflineTtsMatchaModelConfig {
     pub vocoder: Option<String>,
     pub lexicon: Option<String>,
     pub tokens: Option<String>,
+    /// Deprecated. Ignored since v2.0.0. Use `lexicon` or
+    /// [`GenerationConfig::phoneme_codepoints`] instead.
     pub data_dir: Option<String>,
     pub noise_scale: f32,
     pub length_scale: f32,
@@ -159,6 +163,8 @@ pub struct OfflineTtsKokoroModelConfig {
     pub model: Option<String>,
     pub voices: Option<String>,
     pub tokens: Option<String>,
+    /// Deprecated. Ignored since v2.0.0. Use `lexicon` or
+    /// [`GenerationConfig::phoneme_codepoints`] instead.
     pub data_dir: Option<String>,
     pub length_scale: f32,
     pub dict_dir: Option<String>,
@@ -202,8 +208,11 @@ pub struct OfflineTtsKittenModelConfig {
     pub model: Option<String>,
     pub voices: Option<String>,
     pub tokens: Option<String>,
+    /// Deprecated. Ignored since v2.0.0. Use `lexicon` or
+    /// [`GenerationConfig::phoneme_codepoints`] instead.
     pub data_dir: Option<String>,
     pub length_scale: f32,
+    pub lexicon: Option<String>,
 }
 
 impl Default for OfflineTtsKittenModelConfig {
@@ -214,6 +223,7 @@ impl Default for OfflineTtsKittenModelConfig {
             tokens: None,
             data_dir: None,
             length_scale: 1.0,
+            lexicon: None,
         }
     }
 }
@@ -226,6 +236,7 @@ impl OfflineTtsKittenModelConfig {
             tokens: to_c_ptr(&self.tokens, cstrings),
             data_dir: to_c_ptr(&self.data_dir, cstrings),
             length_scale: self.length_scale,
+            lexicon: to_c_ptr(&self.lexicon, cstrings),
         }
     }
 }
@@ -237,6 +248,8 @@ pub struct OfflineTtsZipvoiceModelConfig {
     pub encoder: Option<String>,
     pub decoder: Option<String>,
     pub vocoder: Option<String>,
+    /// Deprecated. Ignored since v2.0.0. Use `lexicon` or
+    /// [`GenerationConfig::phoneme_codepoints`] instead.
     pub data_dir: Option<String>,
     pub lexicon: Option<String>,
     pub feat_scale: f32,
@@ -354,32 +367,37 @@ pub struct OfflineTtsModelConfig {
 
 impl OfflineTtsModelConfig {
     fn to_sys(&self, cstrings: &mut Vec<CString>) -> sys::OfflineTtsModelConfig {
-        sys::OfflineTtsModelConfig {
-            vits: self
-                .vits
-                .to_sys(cstrings),
+        eprintln!("[dbg] to_sys: entering OfflineTtsModelConfig::to_sys");
+        let vits = self.vits.to_sys(cstrings);
+        eprintln!("[dbg] to_sys: vits done");
+        let provider = to_c_ptr(&self.provider, cstrings);
+        eprintln!("[dbg] to_sys: provider done");
+        let matcha = self.matcha.to_sys(cstrings);
+        eprintln!("[dbg] to_sys: matcha done");
+        let kokoro = self.kokoro.to_sys(cstrings);
+        eprintln!("[dbg] to_sys: kokoro done");
+        let kitten = self.kitten.to_sys(cstrings);
+        eprintln!("[dbg] to_sys: kitten done");
+        let zipvoice = self.zipvoice.to_sys(cstrings);
+        eprintln!("[dbg] to_sys: zipvoice done");
+        let pocket = self.pocket.to_sys(cstrings);
+        eprintln!("[dbg] to_sys: pocket done");
+        let supertonic = self.supertonic.to_sys(cstrings);
+        eprintln!("[dbg] to_sys: supertonic done");
+        let out = sys::OfflineTtsModelConfig {
+            vits,
             num_threads: self.num_threads,
             debug: self.debug as i32,
-            provider: to_c_ptr(&self.provider, cstrings),
-            matcha: self
-                .matcha
-                .to_sys(cstrings),
-            kokoro: self
-                .kokoro
-                .to_sys(cstrings),
-            kitten: self
-                .kitten
-                .to_sys(cstrings),
-            zipvoice: self
-                .zipvoice
-                .to_sys(cstrings),
-            pocket: self
-                .pocket
-                .to_sys(cstrings),
-            supertonic: self
-                .supertonic
-                .to_sys(cstrings),
-        }
+            provider,
+            matcha,
+            kokoro,
+            kitten,
+            zipvoice,
+            pocket,
+            supertonic,
+        };
+        eprintln!("[dbg] to_sys: OfflineTtsModelConfig built");
+        out
     }
 }
 
@@ -395,15 +413,22 @@ pub struct OfflineTtsConfig {
 
 impl OfflineTtsConfig {
     fn to_sys(&self, cstrings: &mut Vec<CString>) -> sys::OfflineTtsConfig {
-        sys::OfflineTtsConfig {
-            model: self
-                .model
-                .to_sys(cstrings),
-            rule_fsts: to_c_ptr(&self.rule_fsts, cstrings),
+        eprintln!("[dbg] to_sys: entering OfflineTtsConfig::to_sys");
+        let model = self.model.to_sys(cstrings);
+        eprintln!("[dbg] to_sys: model done");
+        let rule_fsts = to_c_ptr(&self.rule_fsts, cstrings);
+        eprintln!("[dbg] to_sys: rule_fsts done");
+        let rule_fars = to_c_ptr(&self.rule_fars, cstrings);
+        eprintln!("[dbg] to_sys: rule_fars done");
+        let out = sys::OfflineTtsConfig {
+            model,
+            rule_fsts,
             max_num_sentences: self.max_num_sentences,
-            rule_fars: to_c_ptr(&self.rule_fars, cstrings),
+            rule_fars,
             silence_scale: self.silence_scale,
-        }
+        };
+        eprintln!("[dbg] to_sys: OfflineTtsConfig built");
+        out
     }
 }
 
@@ -420,6 +445,15 @@ pub struct GenerationConfig {
     pub reference_text: Option<String>,
     pub num_steps: i32,
     pub extra: Option<HashMap<String, serde_json::Value>>,
+
+    /// Pre-phonemized input as Unicode codepoints. Each inner vector is one
+    /// sentence. When set, it is used in place of the `text` argument; leave
+    /// empty to use `text` with a lexicon. Mutually exclusive with `tokens`.
+    pub phoneme_codepoints: Option<Vec<Vec<i32>>>,
+
+    /// Pre-tokenized input, e.g., Chinese pinyin like "zhong1". Each inner
+    /// vector is one sentence. Mutually exclusive with `phoneme_codepoints`.
+    pub tokens: Option<Vec<Vec<String>>>,
 }
 
 impl Default for GenerationConfig {
@@ -433,6 +467,8 @@ impl Default for GenerationConfig {
             reference_text: None,
             num_steps: 5,
             extra: None,
+            phoneme_codepoints: None,
+            tokens: None,
         }
     }
 }
@@ -530,7 +566,9 @@ impl OfflineTts {
     pub fn create(config: &OfflineTtsConfig) -> Option<Self> {
         let mut cstrings = Vec::new();
         let sys_config = config.to_sys(&mut cstrings);
+        eprintln!("[dbg] create: to_sys done, calling SherpaOnnxCreateOfflineTts");
         let ptr = unsafe { sys::SherpaOnnxCreateOfflineTts(&sys_config) };
+        eprintln!("[dbg] create: SherpaOnnxCreateOfflineTts returned");
         if ptr.is_null() {
             None
         } else {
@@ -594,6 +632,33 @@ impl OfflineTts {
             None => (ptr::null(), 0),
         };
 
+        // Flatten phoneme_codepoints; the C API takes a flat array plus the
+        // length of each sentence.
+        let mut flat_codepoints: Vec<i32> = Vec::new();
+        let mut codepoint_lens: Vec<i32> = Vec::new();
+        if let Some(sentences) = &config.phoneme_codepoints {
+            for sentence in sentences {
+                flat_codepoints.extend_from_slice(sentence);
+                codepoint_lens.push(sentence.len() as i32);
+            }
+        }
+        let has_codepoints = !codepoint_lens.is_empty() && !flat_codepoints.is_empty();
+
+        // Flatten tokens the same way. The C strings are kept alive in
+        // `cstrings` until the call returns.
+        let mut flat_tokens: Vec<*const c_char> = Vec::new();
+        let mut token_lens: Vec<i32> = Vec::new();
+        if let Some(sentences) = &config.tokens {
+            for sentence in sentences {
+                for tok in sentence {
+                    cstrings.push(CString::new(tok.as_str()).unwrap_or_default());
+                    flat_tokens.push(cstrings.last().unwrap().as_ptr());
+                }
+                token_lens.push(sentence.len() as i32);
+            }
+        }
+        let has_tokens = !token_lens.is_empty() && !flat_tokens.is_empty();
+
         let sys_gen_config = sys::SherpaOnnxGenerationConfig {
             silence_scale: config.silence_scale,
             speed: config.speed,
@@ -604,6 +669,36 @@ impl OfflineTts {
             reference_text: c_ref_text,
             num_steps: config.num_steps,
             extra: c_extra.as_ptr(),
+            phoneme_codepoints: if has_codepoints {
+                flat_codepoints.as_ptr()
+            } else {
+                ptr::null()
+            },
+            phoneme_codepoints_lens: if has_codepoints {
+                codepoint_lens.as_ptr()
+            } else {
+                ptr::null()
+            },
+            phoneme_codepoints_num_sentences: if has_codepoints {
+                codepoint_lens.len() as i32
+            } else {
+                0
+            },
+            tokens: if has_tokens {
+                flat_tokens.as_ptr()
+            } else {
+                ptr::null()
+            },
+            tokens_lens: if has_tokens {
+                token_lens.as_ptr()
+            } else {
+                ptr::null()
+            },
+            tokens_num_sentences: if has_tokens {
+                token_lens.len() as i32
+            } else {
+                0
+            },
         };
 
         let (c_callback, c_arg): (

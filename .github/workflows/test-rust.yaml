@@ -33,12 +33,10 @@ jobs:
         with:
           key: ${{ matrix.os }}-rust-${{ matrix.link_mode }}
 
-      - name: Cache installed libs
-        id: cache-libs
-        uses: actions/cache@v4
-        with:
-          path: build/install
-          key: rust-libs-${{ matrix.os }}-${{ matrix.link_mode }}-${{ hashFiles('CMakeLists.txt') }}
+      # NOTE: caching build/install is disabled on purpose. The old cache key
+      # only hashed CMakeLists.txt, so a struct/ABI change in c-api.h could
+      # restore prebuilt libs that disagree with the Rust FFI structs and
+      # crash at runtime. The libs are rebuilt from source every run.
 
       - name: Update version
         shell: bash
@@ -53,7 +51,6 @@ jobs:
           arch: ${{ matrix.os == 'windows-11-arm' && 'amd64_arm64' || 'x64' }}
 
       - name: Configure sherpa-onnx
-        if: steps.cache-libs.outputs.cache-hit != 'true'
         shell: bash
         run: |
           export CMAKE_CXX_COMPILER_LAUNCHER=ccache
@@ -96,7 +93,6 @@ jobs:
           fi
 
       - name: Build sherpa-onnx
-        if: steps.cache-libs.outputs.cache-hit != 'true'
         shell: bash
         run: |
           export CMAKE_CXX_COMPILER_LAUNCHER=ccache

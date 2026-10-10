@@ -51,6 +51,7 @@ pub struct OfflineTtsKittenModelConfig {
     pub tokens: *const c_char,
     pub data_dir: *const c_char,
     pub length_scale: c_float,
+    pub lexicon: *const c_char,
 }
 
 #[repr(C)]
@@ -138,6 +139,12 @@ pub struct SherpaOnnxGenerationConfig {
     pub reference_text: *const c_char,
     pub num_steps: i32,
     pub extra: *const c_char,
+    pub phoneme_codepoints: *const i32,
+    pub phoneme_codepoints_lens: *const i32,
+    pub phoneme_codepoints_num_sentences: i32,
+    pub tokens: *const *const c_char,
+    pub tokens_lens: *const i32,
+    pub tokens_num_sentences: i32,
 }
 
 pub type SherpaOnnxGeneratedAudioProgressCallbackWithArg =
