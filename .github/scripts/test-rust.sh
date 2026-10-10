@@ -9,30 +9,6 @@ trap 'bash ../.github/scripts/show-rust-binary-info.sh --all || true' EXIT
 
 bash ./run-version.sh
 
-bash ./run-qwen3-asr.sh
-rm -rf sherpa-onnx-qwen3-*
-
-bash ./run-funasr-nano.sh
-rm -rf sherpa-onnx-funasr-nano-*
-
-bash ./run-audio-tagging-zipformer.sh
-rm -rf sherpa-onnx-zipformer-small-audio-tagging-2024-04-15
-
-bash ./run-audio-tagging-ced.sh
-rm -rf sherpa-onnx-ced-mini-audio-tagging-2024-04-19
-
-bash ./run-speaker-embedding-extractor.sh
-bash ./run-speaker-embedding-manager.sh
-rm -f 3dspeaker_speech_campplus_sv_zh-cn_16k-common.onnx
-rm -rf sr-data
-
-bash ./run-speaker-embedding-cosine-similarity.sh
-rm -f wespeaker_zh_cnceleb_resnet34.onnx fangjun-sr-1.wav fangjun-sr-2.wav leijun-sr-1.wav
-
-bash ./run-offline-speaker-diarization.sh
-rm -rf sherpa-onnx-pyannote-segmentation-3-0
-rm -f 3dspeaker_speech_eres2net_base_sv_zh-cn_3dspeaker_16k.onnx 0-four-speakers-zh.wav
-
 bash ./run-vits-en-lexicon.sh
 bash ./run-vits-en-phonemize.sh
 rm -rf vits-piper-en_US-amy-low
@@ -69,6 +45,30 @@ rm -rf sherpa-onnx-supertonic-*
 bash ./run-zipvoice-tts-lexicon.sh
 rm -rf sherpa-onnx-zipvoice-*
 rm -f vocos_24khz.onnx lexicon-en-us.txt
+
+bash ./run-qwen3-asr.sh
+rm -rf sherpa-onnx-qwen3-*
+
+bash ./run-funasr-nano.sh
+rm -rf sherpa-onnx-funasr-nano-*
+
+bash ./run-audio-tagging-zipformer.sh
+rm -rf sherpa-onnx-zipformer-small-audio-tagging-2024-04-15
+
+bash ./run-audio-tagging-ced.sh
+rm -rf sherpa-onnx-ced-mini-audio-tagging-2024-04-19
+
+bash ./run-speaker-embedding-extractor.sh
+bash ./run-speaker-embedding-manager.sh
+rm -f 3dspeaker_speech_campplus_sv_zh-cn_16k-common.onnx
+rm -rf sr-data
+
+bash ./run-speaker-embedding-cosine-similarity.sh
+rm -f wespeaker_zh_cnceleb_resnet34.onnx fangjun-sr-1.wav fangjun-sr-2.wav leijun-sr-1.wav
+
+bash ./run-offline-speaker-diarization.sh
+rm -rf sherpa-onnx-pyannote-segmentation-3-0
+rm -f 3dspeaker_speech_eres2net_base_sv_zh-cn_3dspeaker_16k.onnx 0-four-speakers-zh.wav
 
 bash ./run-online-punctuation.sh
 rm -rf sherpa-onnx-online-punct-*
