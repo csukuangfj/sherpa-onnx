@@ -39,7 +39,15 @@ tts_config = sherpa_onnx.OfflineTtsConfig(
 tts = sherpa_onnx.OfflineTts(tts_config)
 
 text = "Today as always, men fall into two groups: slaves and free men."
-sentences = phonemize_espeak(text, "en-us")
+# The espeak-ng voice for the phonemizer is taken from the model metadata.
+# Fall back to en-us if the model has no language information.
+lang = tts.lang
+if not lang:
+    print("Warning: the model has no language information. Falling back to en-us.")
+    lang = "en-us"
+print("Phonemizer language:", lang)
+
+sentences = phonemize_espeak(text, lang)
 phoneme_codepoints = [[ord(c) for c in sentence] for sentence in sentences]
 
 gen_config = sherpa_onnx.GenerationConfig()

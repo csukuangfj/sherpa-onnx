@@ -67,7 +67,7 @@ def get_initial_final(token):
     return ans
 
 
-def tokenize_mixed(text):
+def tokenize_mixed(text, lang):
     """Tokenize mixed Chinese+English text for ZipVoice.
 
     Chinese: pypinyin -> initial0 final_tone format
@@ -106,7 +106,7 @@ def tokenize_mixed(text):
             seg = seg.strip()
             if not seg:
                 continue
-            sentences = phonemize_espeak(seg, "en-us")
+            sentences = phonemize_espeak(seg, lang)
             for sentence in sentences:
                 for c in sentence:
                     all_tokens.append(c)
@@ -138,8 +138,16 @@ ref_text = "各位村民, 大家新年好! 近期, 湖北省武汉市等多个�
 text = "在这个快速发展的时代，人工智能artificial intelligence技术正在改变我们的生活方式。语音合成speech synthesis作为重要应用之一，让机器能够用自然流畅的语音与人类进行交流。"
 
 # Tokenize reference text and generated text separately
-ref_tokens = tokenize_mixed(ref_text)
-gen_tokens = tokenize_mixed(text)
+# The espeak-ng voice for English segments is taken from the model metadata.
+# Fall back to en-us if the model has no language information.
+lang = tts.lang
+if not lang:
+    print("Warning: the model has no language information. Falling back to en-us.")
+    lang = "en-us"
+print("Phonemizer language:", lang)
+
+ref_tokens = tokenize_mixed(ref_text, lang)
+gen_tokens = tokenize_mixed(text, lang)
 
 gen_config = sherpa_onnx.GenerationConfig()
 gen_config.sid = 0

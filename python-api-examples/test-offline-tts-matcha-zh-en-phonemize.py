@@ -85,7 +85,7 @@ for fst_path in rule_fsts:
 print(f"Normalized text: {text}")
 
 
-def tokenize_mixed(text):
+def tokenize_mixed(text, lang):
     """Split text into Chinese and non-Chinese segments, tokenize each.
 
     Returns a list of sentences, each sentence is a list of token strings.
@@ -129,7 +129,7 @@ def tokenize_mixed(text):
             seg = seg.strip()
             if not seg:
                 continue
-            sentences = phonemize_espeak(seg, "en-us")
+            sentences = phonemize_espeak(seg, lang)
             for sentence in sentences:
                 for c in sentence:
                     all_tokens.append(c)
@@ -137,7 +137,15 @@ def tokenize_mixed(text):
     return [all_tokens]
 
 
-tokens = tokenize_mixed(text)
+# The espeak-ng voice for English segments is taken from the model metadata.
+# Fall back to en-us if the model has no language information.
+lang = tts.lang
+if not lang:
+    print("Warning: the model has no language information. Falling back to en-us.")
+    lang = "en-us"
+print("Phonemizer language:", lang)
+
+tokens = tokenize_mixed(text, lang)
 print(f"Total tokens: {len(tokens[0])}")
 
 gen_config = sherpa_onnx.GenerationConfig()

@@ -39,7 +39,7 @@ except Exception as ex:
 _zh_g2p = zh.ZHG2P()
 
 
-def tokenize_mixed(text):
+def tokenize_mixed(text, lang):
     """Tokenize mixed Chinese+English text for Kokoro.
 
     Chinese: misaki zh.ZHG2P -> IPA phonemes (individual characters)
@@ -81,7 +81,7 @@ def tokenize_mixed(text):
             seg = seg.strip()
             if not seg:
                 continue
-            sentences = phonemize_espeak(seg, "en-us")
+            sentences = phonemize_espeak(seg, lang)
             for sentence in sentences:
                 for c in sentence:
                     all_tokens.append(c)
@@ -118,7 +118,15 @@ for tn in rule_fsts:
 
 print(f"Normalized text: {text}")
 
-tokens = tokenize_mixed(text)
+# The espeak-ng voice for English segments is taken from the model metadata.
+# Fall back to en-us if the model has no language information.
+lang = tts.lang
+if not lang:
+    print("Warning: the model has no language information. Falling back to en-us.")
+    lang = "en-us"
+print("Phonemizer language:", lang)
+
+tokens = tokenize_mixed(text, lang)
 print(f"Total tokens: {len(tokens[0])}")
 
 gen_config = sherpa_onnx.GenerationConfig()
