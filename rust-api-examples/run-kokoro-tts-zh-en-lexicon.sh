@@ -7,4 +7,4 @@ if [ ! -f ./kokoro-multi-lang-v1_0/model.onnx ]; then
   rm kokoro-multi-lang-v1_0.tar.bz2
 fi
 
-cargo run --example kokoro_tts_zh_en
+cargo run --example kokoro_tts_zh_en_lexicon

@@ -21,16 +21,15 @@ fn main() {
                     "./sherpa-onnx-zipvoice-distill-int8-zh-en-emilia/decoder.int8.onnx".into(),
                 ),
                 vocoder: Some("./vocos_24khz.onnx".into()),
-                data_dir: Some(
-                    "./sherpa-onnx-zipvoice-distill-int8-zh-en-emilia/espeak-ng-data".into(),
-                ),
                 lexicon: Some(
-                    "./sherpa-onnx-zipvoice-distill-int8-zh-en-emilia/lexicon.txt".into(),
+                    "./sherpa-onnx-zipvoice-distill-int8-zh-en-emilia/lexicon.txt,./lexicon-en-us.txt"
+                        .into(),
                 ),
                 feat_scale: 0.1,
                 t_shift: 0.5,
                 target_rms: 0.1,
                 guidance_scale: 1.0,
+                ..Default::default()
             },
             num_threads: 2,
             debug: false,

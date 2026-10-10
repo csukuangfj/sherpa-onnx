@@ -1,22 +1,21 @@
 // Copyright (c) 2026 Xiaomi Corporation
 //
-// This file demonstrates how to use Matcha TTS with sherpa-onnx's Rust API
+// This file demonstrates how to use Kokoro TTS with sherpa-onnx's Rust API
 // for offline English text-to-speech.
 
 use sherpa_onnx::{
-    GenerationConfig, OfflineTts, OfflineTtsConfig, OfflineTtsMatchaModelConfig,
+    GenerationConfig, OfflineTts, OfflineTtsConfig, OfflineTtsKokoroModelConfig,
 };
 use std::time::Instant;
 
 fn main() {
     let config = OfflineTtsConfig {
         model: sherpa_onnx::OfflineTtsModelConfig {
-            matcha: OfflineTtsMatchaModelConfig {
-                acoustic_model: Some("./matcha-icefall-en_US-ljspeech/model-steps-3.onnx".into()),
-                vocoder: Some("./vocos-22khz-univ.onnx".into()),
-                tokens: Some("./matcha-icefall-en_US-ljspeech/tokens.txt".into()),
-                data_dir: Some("./matcha-icefall-en_US-ljspeech/espeak-ng-data".into()),
-                noise_scale: 0.667,
+            kokoro: OfflineTtsKokoroModelConfig {
+                model: Some("./kokoro-en-v0_19/model.onnx".into()),
+                voices: Some("./kokoro-en-v0_19/voices.bin".into()),
+                tokens: Some("./kokoro-en-v0_19/tokens.txt".into()),
+                lexicon: Some("./lexicon-en-us.txt".into()),
                 length_scale: 1.0,
                 ..Default::default()
             },
@@ -69,7 +68,7 @@ fn main() {
         elapsed_seconds, duration, rtf
     );
 
-    let filename = "./generated-matcha-en-rust.wav";
+    let filename = "./generated-kokoro-en-rust.wav";
     if audio.save(filename) {
         println!("Saved to: {}", filename);
     } else {

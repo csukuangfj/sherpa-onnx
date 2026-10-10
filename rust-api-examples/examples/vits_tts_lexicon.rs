@@ -20,9 +20,9 @@ struct Args {
     #[arg(long)]
     tokens: String,
 
-    /// Path to espeak-ng-data
+    /// Path to lexicon.txt
     #[arg(long)]
-    data_dir: String,
+    lexicon: String,
 
     /// Input text to synthesize
     #[arg(long)]
@@ -60,7 +60,7 @@ fn main() {
                 noise_scale: 0.667,
                 noise_scale_w: 0.8,
                 length_scale: 1.0,
-                data_dir: Some(args.data_dir.clone()),
+                lexicon: Some(args.lexicon.clone()),
                 ..Default::default()
             },
             num_threads: args.num_threads,

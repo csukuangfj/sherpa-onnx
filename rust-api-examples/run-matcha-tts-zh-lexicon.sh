@@ -11,4 +11,4 @@ if [ ! -f ./vocos-22khz-univ.onnx ]; then
   curl -SL -O https://github.com/k2-fsa/sherpa-onnx/releases/download/vocoder-models/vocos-22khz-univ.onnx
 fi
 
-cargo run --example matcha_tts_zh
+cargo run --example matcha_tts_zh_lexicon
