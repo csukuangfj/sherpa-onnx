@@ -231,7 +231,12 @@ jobs:
 
       - uses: actions/setup-go@v5
         with:
-          go-version: '>=1.17'
+          # windows/arm64 needs Go >= 1.27: Go 1.26 cgo passes the MinGW-only
+          # -mthreads flag, which clang rejects when it targets
+          # aarch64-pc-windows-msvc (the ABI used to link the MSVC-built
+          # sherpa-onnx-c-api.dll). Go 1.27 passes -pthread instead.
+          # Other platforms keep the flexible spec.
+          go-version: ${{ matrix.os == 'windows-11-arm' && '1.27.x' || '>=1.17' }}
 
       - name: Set up MinGW for x64
         if: matrix.os == 'windows-2022' && matrix.arch == 'x64'
