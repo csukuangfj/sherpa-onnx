@@ -586,6 +586,13 @@ int32_t OfflineTts::NumSpeakers() const {
   return SherpaOnnxOfflineTtsNumSpeakers(p_);
 }
 
+std::string OfflineTts::Lang() const {
+  const char *s = SherpaOnnxOfflineTtsLang(p_);
+  std::string ans = s;
+  SherpaOnnxDestroyOfflineTtsLang(s);
+  return ans;
+}
+
 GeneratedAudio OfflineTts::Generate(const std::string &text,
                                     int32_t sid /*= 0*/, float speed /*= 1.0*/,
                                     OfflineTtsCallback callback /*= nullptr*/,

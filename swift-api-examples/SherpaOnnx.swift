@@ -1401,6 +1401,14 @@ public class SherpaOnnxOfflineTtsWrapper {
     return SherpaOnnxOfflineTtsNumSpeakers(tts)
   }
 
+  /// The language/voice of the model, e.g., "en-us". Empty if not available.
+  public var lang: String {
+    guard let p = SherpaOnnxOfflineTtsLang(tts) else { return "" }
+    let ans = String(cString: p)
+    SherpaOnnxDestroyOfflineTtsLang(p)
+    return ans
+  }
+
   /// Constructor taking a model config
   public init(
     config: UnsafePointer<SherpaOnnxOfflineTtsConfig>!

@@ -136,6 +136,14 @@ class OfflineTts {
     return val is JSNumber ? val.toDartInt : 0;
   }
 
+  /// Return the language/voice of the model, e.g., "en-us".
+  /// Returns an empty string if such information is not available.
+  String get lang {
+    final handle = ptr as JSObject;
+    final val = handle.getProperty('lang'.toJS);
+    return val is JSString ? val.toDart : "";
+  }
+
   dynamic ptr;
   OfflineTtsConfig config;
   bool _freed = false;

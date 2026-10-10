@@ -510,6 +510,13 @@ JNIEXPORT jint JNICALL Java_com_k2fsa_sherpa_onnx_OfflineTts_getNumSpeakers(
 }
 
 SHERPA_ONNX_EXTERN_C
+JNIEXPORT jstring JNICALL Java_com_k2fsa_sherpa_onnx_OfflineTts_getLang(
+    JNIEnv *env, jobject /*obj*/, jlong ptr) {
+  std::string lang = reinterpret_cast<sherpa_onnx::OfflineTts *>(ptr)->Lang();
+  return env->NewStringUTF(lang.c_str());
+}
+
+SHERPA_ONNX_EXTERN_C
 JNIEXPORT jobject JNICALL Java_com_k2fsa_sherpa_onnx_OfflineTts_generateImpl(
     JNIEnv *env, jobject /*obj*/, jlong ptr, jstring text, jint sid,
     jfloat speed) {

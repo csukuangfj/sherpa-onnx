@@ -162,6 +162,9 @@ class OfflineTts {
   // If it supports only a single speaker, then it return 0 or 1.
   int32_t NumSpeakers() const;
 
+  // Language/voice of the model, e.g., "en-us". Empty if not available.
+  std::string Lang() const;
+
  private:
   std::unique_ptr<OfflineTtsImpl> impl_;
 };

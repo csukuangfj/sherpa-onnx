@@ -1270,6 +1270,16 @@ typedef SherpaOnnxOfflineTtsNumSpeakersNative =
 typedef SherpaOnnxOfflineTtsNumSpeakers =
     int Function(Pointer<SherpaOnnxOfflineTts>);
 
+typedef SherpaOnnxOfflineTtsLangNative =
+    Pointer<Utf8> Function(Pointer<SherpaOnnxOfflineTts>);
+
+typedef SherpaOnnxOfflineTtsLang =
+    Pointer<Utf8> Function(Pointer<SherpaOnnxOfflineTts>);
+
+typedef SherpaOnnxDestroyOfflineTtsLangNative = Void Function(Pointer<Utf8>);
+
+typedef SherpaOnnxDestroyOfflineTtsLang = void Function(Pointer<Utf8>);
+
 typedef SherpaOnnxOfflineTtsGenerateNative =
     Pointer<SherpaOnnxGeneratedAudio> Function(
       Pointer<SherpaOnnxOfflineTts>,
@@ -1968,6 +1978,8 @@ class SherpaOnnxBindings {
   static SherpaOnnxDestroyOfflineTts? destroyOfflineTts;
   static SherpaOnnxOfflineTtsSampleRate? offlineTtsSampleRate;
   static SherpaOnnxOfflineTtsNumSpeakers? offlineTtsNumSpeakers;
+  static SherpaOnnxOfflineTtsLang? offlineTtsLang;
+  static SherpaOnnxDestroyOfflineTtsLang? destroyOfflineTtsLang;
   static SherpaOnnxOfflineTtsGenerate? offlineTtsGenerate;
   static SherpaOnnxDestroyOfflineTtsGeneratedAudio?
   destroyOfflineTtsGeneratedAudio;
@@ -2458,6 +2470,18 @@ class SherpaOnnxBindings {
     offlineTtsNumSpeakers ??= dynamicLibrary
         .lookup<NativeFunction<SherpaOnnxOfflineTtsNumSpeakersNative>>(
           'SherpaOnnxOfflineTtsNumSpeakers',
+        )
+        .asFunction();
+
+    offlineTtsLang ??= dynamicLibrary
+        .lookup<NativeFunction<SherpaOnnxOfflineTtsLangNative>>(
+          'SherpaOnnxOfflineTtsLang',
+        )
+        .asFunction();
+
+    destroyOfflineTtsLang ??= dynamicLibrary
+        .lookup<NativeFunction<SherpaOnnxDestroyOfflineTtsLangNative>>(
+          'SherpaOnnxDestroyOfflineTtsLang',
         )
         .asFunction();
 

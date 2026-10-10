@@ -24,6 +24,11 @@ public class OfflineTts {
         return getNumSpeakers(ptr);
     }
 
+    /** Returns the language/voice of the model, e.g., "en-us". Empty if not available. */
+    public String getLang() {
+        return getLang(ptr);
+    }
+
     /** Generates audio for the given text using the default speaker (sid=0) and speed=1.0. */
     public GeneratedAudio generate(String text) {
         return generate(text, 0, 1.0f);
@@ -127,6 +132,8 @@ public class OfflineTts {
     private native int getSampleRate(long ptr);
 
     private native int getNumSpeakers(long ptr);
+
+    private native String getLang(long ptr);
 
     private native GeneratedAudio generateImpl(long ptr, String text, int sid, float speed);
 

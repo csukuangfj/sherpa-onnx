@@ -209,6 +209,7 @@ type
    Handle: Pointer;
    SampleRate: Integer;
    NumSpeakers: Integer;
+   Lang: AnsiString;
    _Config: TSherpaOnnxOfflineTtsConfig;
   public
     constructor Create(Config: TSherpaOnnxOfflineTtsConfig);
@@ -232,6 +233,8 @@ type
     property GetHandle: Pointer Read Handle;
     property GetSampleRate: Integer Read SampleRate;
     property GetNumSpeakers: Integer Read NumSpeakers;
+    { Language/voice of the model, e.g., 'en-us'. Empty if not available. }
+    property GetLang: AnsiString Read Lang;
   end;
 
   TSherpaOnnxWave = record
@@ -1493,6 +1496,12 @@ function SherpaOnnxOfflineTtsSampleRate(Tts: Pointer): cint32; cdecl;
   external SherpaOnnxLibName;
 
 function SherpaOnnxOfflineTtsNumSpeakers(Tts: Pointer): cint32; cdecl;
+  external SherpaOnnxLibName;
+
+function SherpaOnnxOfflineTtsLang(Tts: Pointer): PAnsiChar; cdecl;
+  external SherpaOnnxLibName;
+
+procedure SherpaOnnxDestroyOfflineTtsLang(S: PAnsiChar); cdecl;
   external SherpaOnnxLibName;
 
 function SherpaOnnxOfflineTtsGenerate(Tts: Pointer;
@@ -2999,6 +3008,7 @@ end;
 constructor TSherpaOnnxOfflineTts.Create(Config: TSherpaOnnxOfflineTtsConfig);
 var
   C: SherpaOnnxOfflineTtsConfig;
+  P: PAnsiChar;
 begin
   C := Default(SherpaOnnxOfflineTtsConfig);
   Self._Config := Config;
@@ -3077,6 +3087,9 @@ begin
 
   Self.SampleRate := SherpaOnnxOfflineTtsSampleRate(Self.Handle);
   Self.NumSpeakers := SherpaOnnxOfflineTtsNumSpeakers(Self.Handle);
+  P := SherpaOnnxOfflineTtsLang(Self.Handle);
+  Self.Lang := P;
+  SherpaOnnxDestroyOfflineTtsLang(P);
 end;
 
 destructor TSherpaOnnxOfflineTts.Destroy;

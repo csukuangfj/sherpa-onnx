@@ -837,6 +837,11 @@ class OfflineTts {
     this.handle = handle;
     this.sampleRate = Module._SherpaOnnxOfflineTtsSampleRate(this.handle);
     this.numSpeakers = Module._SherpaOnnxOfflineTtsNumSpeakers(this.handle);
+    {
+      const p = Module._SherpaOnnxOfflineTtsLang(this.handle);
+      this.lang = p ? Module.UTF8ToString(p) : '';
+      Module._SherpaOnnxDestroyOfflineTtsLang(p);
+    }
     this.Module = Module
   }
 

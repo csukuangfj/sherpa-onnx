@@ -99,6 +99,12 @@ static constexpr const char *kNumSpeakersDoc = R"doc(
 Return the number of speakers supported by the model.
 )doc";
 
+static constexpr const char *kLangDoc = R"doc(
+Return the language/voice of the model, e.g., "en-us".
+
+Returns an empty string if such information is not available.
+)doc";
+
 void PybindOfflineTts(py::module *m) {
   PybindOfflineTtsConfig(m);
   PybindGeneratedAudio(m);
@@ -112,6 +118,7 @@ void PybindOfflineTts(py::module *m) {
                              kSampleRateDoc)
       .def_property_readonly("num_speakers", &PyClass::NumSpeakers,
                              kNumSpeakersDoc)
+      .def_property_readonly("lang", &PyClass::Lang, kLangDoc)
       .def(
           "generate",
           [](const PyClass &self, const std::string &text, int64_t sid,

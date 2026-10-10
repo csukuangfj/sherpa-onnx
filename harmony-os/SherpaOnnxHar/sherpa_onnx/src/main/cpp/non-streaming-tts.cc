@@ -526,6 +526,35 @@ static Napi::Number OfflineTtsNumSpeakersWrapper(
   return Napi::Number::New(env, num_speakers);
 }
 
+static Napi::String OfflineTtsLangWrapper(const Napi::CallbackInfo &info) {
+  Napi::Env env = info.Env();
+
+  if (info.Length() != 1) {
+    std::ostringstream os;
+    os << "Expect only 1 argument. Given: " << info.Length();
+
+    Napi::TypeError::New(env, os.str()).ThrowAsJavaScriptException();
+
+    return {};
+  }
+
+  if (!info[0].IsExternal()) {
+    Napi::TypeError::New(env, "Argument 0 should be an offline tts pointer.")
+        .ThrowAsJavaScriptException();
+
+    return {};
+  }
+
+  const SherpaOnnxOfflineTts *tts =
+      info[0].As<Napi::External<SherpaOnnxOfflineTts>>().Data();
+
+  const char *s = SherpaOnnxOfflineTtsLang(tts);
+  std::string lang = s;
+  SherpaOnnxDestroyOfflineTtsLang(s);
+
+  return Napi::String::New(env, lang);
+}
+
 // synchronous version
 static Napi::Object OfflineTtsGenerateWithConfigWrapper(
     const Napi::CallbackInfo &info) {
@@ -1335,6 +1364,9 @@ void InitNonStreamingTts(Napi::Env env, Napi::Object exports) {
 
   exports.Set(Napi::String::New(env, "getOfflineTtsNumSpeakers"),
               Napi::Function::New(env, OfflineTtsNumSpeakersWrapper));
+
+  exports.Set(Napi::String::New(env, "getOfflineTtsLang"),
+              Napi::Function::New(env, OfflineTtsLangWrapper));
 
   exports.Set(Napi::String::New(env, "offlineTtsGenerate"),
               Napi::Function::New(env, OfflineTtsGenerateWrapper));

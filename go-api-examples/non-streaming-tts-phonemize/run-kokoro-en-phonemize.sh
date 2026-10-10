@@ -10,18 +10,13 @@ if [ ! -f ./kokoro-en-v0_19/model.onnx ]; then
   rm kokoro-en-v0_19.tar.bz2
 fi
 
-if [ ! -f ./lexicon-en-us.txt ]; then
-  curl -SL -O https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/lexicon-en-us.txt
-fi
-
 go mod tidy
 go build
 
-./non-streaming-tts \
+./non-streaming-tts-phonemize \
   --kokoro-model=./kokoro-en-v0_19/model.onnx \
   --kokoro-voices=./kokoro-en-v0_19/voices.bin \
   --kokoro-tokens=./kokoro-en-v0_19/tokens.txt \
-  --kokoro-lexicon=./lexicon-en-us.txt \
   --debug=1 \
-  --output-filename=./test-kokoro-en.wav \
+  --output-filename=./test-kokoro-en-phonemize.wav \
   "Friends fell out often because life was changing so fast. The easiest thing in the world was to lose touch with someone."

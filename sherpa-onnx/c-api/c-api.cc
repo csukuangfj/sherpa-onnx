@@ -1647,6 +1647,19 @@ int32_t SherpaOnnxOfflineTtsNumSpeakers(const SherpaOnnxOfflineTts *tts) {
   return tts->impl->NumSpeakers();
 }
 
+const char *SherpaOnnxOfflineTtsLang(const SherpaOnnxOfflineTts *tts) {
+  std::string lang = tts->impl->Lang();
+  char *p = new char[lang.size() + 1];
+  std::copy(lang.begin(), lang.end(), p);
+  p[lang.size()] = 0;
+  return p;
+}
+
+void SherpaOnnxDestroyOfflineTtsLang(const char *s) {
+  if (!s) return;
+  delete[] s;
+}
+
 static const SherpaOnnxGeneratedAudio *SherpaOnnxOfflineTtsGenerateInternal(
     const SherpaOnnxOfflineTts *tts, const char *text, int32_t sid, float speed,
     std::function<int32_t(const float *, int32_t, float)> callback) {
@@ -2030,6 +2043,18 @@ int32_t SherpaOnnxOfflineTtsSampleRate(const SherpaOnnxOfflineTts *tts) {
 int32_t SherpaOnnxOfflineTtsNumSpeakers(const SherpaOnnxOfflineTts *tts) {
   SHERPA_ONNX_LOGE("TTS is not enabled. Please rebuild sherpa-onnx");
   return 0;
+}
+
+const char *SherpaOnnxOfflineTtsLang(const SherpaOnnxOfflineTts *tts) {
+  SHERPA_ONNX_LOGE("TTS is not enabled. Please rebuild sherpa-onnx");
+  char *p = new char[1];
+  p[0] = 0;
+  return p;
+}
+
+void SherpaOnnxDestroyOfflineTtsLang(const char *s) {
+  if (!s) return;
+  delete[] s;
 }
 
 const SherpaOnnxGeneratedAudio *SherpaOnnxOfflineTtsGenerate(

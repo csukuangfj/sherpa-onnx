@@ -2600,6 +2600,26 @@ SHERPA_ONNX_API int32_t
 SherpaOnnxOfflineTtsNumSpeakers(const SherpaOnnxOfflineTts *tts);
 
 /**
+ * @brief Return the language/voice of the model, e.g., "en-us".
+ *
+ * The returned string is empty if such information is not available. It is
+ * never NULL; free it with SherpaOnnxDestroyOfflineTtsLang().
+ *
+ * @param tts A pointer returned by SherpaOnnxCreateOfflineTts().
+ * @return Language/voice of the model. Free it with
+ *         SherpaOnnxDestroyOfflineTtsLang().
+ */
+SHERPA_ONNX_API const char *
+SherpaOnnxOfflineTtsLang(const SherpaOnnxOfflineTts *tts);
+
+/**
+ * @brief Free a string returned by SherpaOnnxOfflineTtsLang().
+ *
+ * @param s A pointer returned by SherpaOnnxOfflineTtsLang().
+ */
+SHERPA_ONNX_API void SherpaOnnxDestroyOfflineTtsLang(const char *s);
+
+/**
  * @brief Generate speech from text using the simple sid/speed interface.
  *
  * @deprecated Use SherpaOnnxOfflineTtsGenerateWithConfig() instead.

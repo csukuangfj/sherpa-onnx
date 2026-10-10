@@ -9,7 +9,10 @@
 #   * *-phonemize.py   -- phonemize outside sherpa-onnx (piper_phonemize,
 #                         pypinyin, misaki) and pass phoneme_codepoints/tokens
 #
-# Requires: piper_phonemize, pypinyin, misaki, ordered-set, soundfile
+# Requires: piper_phonemize, pypinyin, misaki[zh], kaldifst, soundfile
+#
+# Note: misaki keeps its Chinese dependencies behind the "zh" extra, so
+# "misaki[zh]" (not bare "misaki") is required for `from misaki import zh`.
 set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/common.sh"
@@ -25,10 +28,22 @@ echo "EXE is $EXE"
 echo "PATH: $PATH"
 
 python3 -m pip install --upgrade soundfile
-python3 -m pip install --upgrade pypinyin misaki ordered-set
+python3 -m pip install --upgrade pypinyin 'misaki[zh]' kaldifst
 python3 -m pip install --upgrade piper_phonemize -f https://k2-fsa.github.io/icefall/piper_phonemize.html
 
-python3 -c "import piper_phonemize, pypinyin, misaki; print('phonemizer deps OK')"
+# Import exactly what the examples import -- bare "import misaki" does NOT
+# exercise misaki.zh, which is where the extras-gated deps (cn2an, jieba,
+# pypinyin-dict) are needed.
+python3 -c "
+import kaldifst
+import numpy
+import soundfile
+import piper_phonemize
+from pypinyin import Style, lazy_pinyin
+from pypinyin.contrib.tone_convert import to_finals_tone3, to_initials
+from misaki import zh
+print('phonemizer deps OK')
+"
 
 # test waves are saved in ./tts
 mkdir -p ./tts

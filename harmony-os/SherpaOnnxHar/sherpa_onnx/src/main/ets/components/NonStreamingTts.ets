@@ -1,5 +1,6 @@
 import {
   createOfflineTts,
+  getOfflineTtsLang,
   getOfflineTtsNumSpeakers,
   getOfflineTtsSampleRate,
   offlineTtsGenerate,
@@ -144,6 +145,8 @@ export class OfflineTts {
   public config: OfflineTtsConfig;
   public numSpeakers: number;
   public sampleRate: number;
+  // Language/voice of the model, e.g., "en-us". Empty if not available.
+  public lang: string;
   private handle: object;
 
   constructor(config: OfflineTtsConfig, mgr?: object) {
@@ -152,6 +155,7 @@ export class OfflineTts {
 
     this.numSpeakers = getOfflineTtsNumSpeakers(this.handle);
     this.sampleRate = getOfflineTtsSampleRate(this.handle);
+    this.lang = getOfflineTtsLang(this.handle);
   }
 
   /*

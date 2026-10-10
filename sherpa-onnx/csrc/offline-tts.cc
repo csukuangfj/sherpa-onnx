@@ -371,6 +371,8 @@ int32_t OfflineTts::SampleRate() const { return impl_->SampleRate(); }
 
 int32_t OfflineTts::NumSpeakers() const { return impl_->NumSpeakers(); }
 
+std::string OfflineTts::Lang() const { return impl_->Lang(); }
+
 #if __ANDROID_API__ >= 9
 template OfflineTts::OfflineTts(AAssetManager *mgr,
                                 const OfflineTtsConfig &config);

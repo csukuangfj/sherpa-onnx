@@ -159,6 +159,10 @@ extern "C" {
 
     pub fn SherpaOnnxOfflineTtsNumSpeakers(tts: *const SherpaOnnxOfflineTts) -> i32;
 
+    pub fn SherpaOnnxOfflineTtsLang(tts: *const SherpaOnnxOfflineTts) -> *const c_char;
+
+    pub fn SherpaOnnxDestroyOfflineTtsLang(s: *const c_char);
+
     pub fn SherpaOnnxOfflineTtsGenerateWithConfig(
         tts: *const SherpaOnnxOfflineTts,
         text: *const c_char,

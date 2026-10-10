@@ -36,7 +36,7 @@ jobs:
           - os: macos-latest
             arch: arm64
             index: 3
-            tests: "non-streaming-medasr-ctc-decode-files non-streaming-omnilingual-asr-ctc-decode-files non-streaming-tts streaming-decode-files"
+            tests: "non-streaming-medasr-ctc-decode-files non-streaming-omnilingual-asr-ctc-decode-files non-streaming-tts non-streaming-tts-phonemize streaming-decode-files"
           - os: macos-latest
             arch: arm64
             index: 4
@@ -65,7 +65,7 @@ jobs:
           - os: macos-15-intel
             arch: amd64
             index: 3
-            tests: "non-streaming-medasr-ctc-decode-files non-streaming-omnilingual-asr-ctc-decode-files non-streaming-tts streaming-decode-files"
+            tests: "non-streaming-medasr-ctc-decode-files non-streaming-omnilingual-asr-ctc-decode-files non-streaming-tts non-streaming-tts-phonemize streaming-decode-files"
           - os: macos-15-intel
             arch: amd64
             index: 4
@@ -94,7 +94,7 @@ jobs:
           - os: ubuntu-latest
             arch: amd64
             index: 3
-            tests: "non-streaming-medasr-ctc-decode-files non-streaming-omnilingual-asr-ctc-decode-files non-streaming-tts streaming-decode-files"
+            tests: "non-streaming-medasr-ctc-decode-files non-streaming-omnilingual-asr-ctc-decode-files non-streaming-tts non-streaming-tts-phonemize streaming-decode-files"
           - os: ubuntu-latest
             arch: amd64
             index: 4
@@ -123,7 +123,7 @@ jobs:
           - os: ubuntu-22.04-arm
             arch: arm64
             index: 3
-            tests: "non-streaming-medasr-ctc-decode-files non-streaming-omnilingual-asr-ctc-decode-files non-streaming-tts streaming-decode-files"
+            tests: "non-streaming-medasr-ctc-decode-files non-streaming-omnilingual-asr-ctc-decode-files non-streaming-tts non-streaming-tts-phonemize streaming-decode-files"
           - os: ubuntu-22.04-arm
             arch: arm64
             index: 4
@@ -152,7 +152,7 @@ jobs:
           - os: windows-2022
             arch: x64
             index: 3
-            tests: "non-streaming-medasr-ctc-decode-files non-streaming-omnilingual-asr-ctc-decode-files non-streaming-tts streaming-decode-files"
+            tests: "non-streaming-medasr-ctc-decode-files non-streaming-omnilingual-asr-ctc-decode-files non-streaming-tts non-streaming-tts-phonemize streaming-decode-files"
           - os: windows-2022
             arch: x64
             index: 4
@@ -181,7 +181,7 @@ jobs:
           - os: windows-2022
             arch: x86
             index: 3
-            tests: "non-streaming-medasr-ctc-decode-files non-streaming-omnilingual-asr-ctc-decode-files non-streaming-tts streaming-decode-files"
+            tests: "non-streaming-medasr-ctc-decode-files non-streaming-omnilingual-asr-ctc-decode-files non-streaming-tts non-streaming-tts-phonemize streaming-decode-files"
           - os: windows-2022
             arch: x86
             index: 4
@@ -210,7 +210,7 @@ jobs:
           - os: windows-11-arm
             arch: arm64
             index: 3
-            tests: "non-streaming-medasr-ctc-decode-files non-streaming-omnilingual-asr-ctc-decode-files non-streaming-tts streaming-decode-files"
+            tests: "non-streaming-medasr-ctc-decode-files non-streaming-omnilingual-asr-ctc-decode-files non-streaming-tts non-streaming-tts-phonemize streaming-decode-files"
           - os: windows-11-arm
             arch: arm64
             index: 4

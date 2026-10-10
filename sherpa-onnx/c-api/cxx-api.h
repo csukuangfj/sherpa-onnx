@@ -1152,6 +1152,11 @@ class SHERPA_ONNX_API OfflineTts
   /** @brief Return the number of supported speakers. */
   int32_t NumSpeakers() const;
 
+  /** @brief Return the language/voice of the model, e.g., "en-us".
+   *
+   * Returns an empty string if such information is not available. */
+  std::string Lang() const;
+
   /**
    * @brief Generate speech using the simple speaker-id and speed interface.
    *

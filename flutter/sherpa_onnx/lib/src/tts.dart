@@ -395,6 +395,26 @@ class OfflineTts {
     return SherpaOnnxBindings.offlineTtsNumSpeakers?.call(ptr) ?? 0;
   }
 
+  /// Return the language/voice of the model, e.g., "en-us".
+  /// Returns an empty string if such information is not available.
+  String get lang {
+    if (SherpaOnnxBindings.offlineTtsLang == null) {
+      throw Exception("Please initialize sherpa-onnx first");
+    }
+
+    if (ptr == nullptr) {
+      return "";
+    }
+
+    final p = SherpaOnnxBindings.offlineTtsLang?.call(ptr);
+    if (p == null) {
+      return "";
+    }
+    final ans = p.toDartString();
+    SherpaOnnxBindings.destroyOfflineTtsLang?.call(p);
+    return ans;
+  }
+
   Pointer<SherpaOnnxOfflineTts> ptr;
   OfflineTtsConfig config;
 }

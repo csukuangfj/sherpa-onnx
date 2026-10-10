@@ -548,6 +548,21 @@ impl OfflineTts {
         unsafe { sys::SherpaOnnxOfflineTtsNumSpeakers(self.ptr) }
     }
 
+    /// Return the language/voice of the model, e.g., "en-us".
+    ///
+    /// Returns an empty string if such information is not available.
+    pub fn lang(&self) -> String {
+        unsafe {
+            let p = sys::SherpaOnnxOfflineTtsLang(self.ptr);
+            if p.is_null() {
+                return String::new();
+            }
+            let s = std::ffi::CStr::from_ptr(p).to_string_lossy().into_owned();
+            sys::SherpaOnnxDestroyOfflineTtsLang(p);
+            s
+        }
+    }
+
     /// Generate audio for `text`.
     ///
     /// The optional callback receives the samples generated so far together

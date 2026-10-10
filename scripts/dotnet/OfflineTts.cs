@@ -236,6 +236,20 @@ namespace SherpaOnnx
             }
         }
 
+        /// <summary>
+        /// Language/voice of the model, e.g., "en-us". Empty if not available.
+        /// </summary>
+        public string Lang
+        {
+            get
+            {
+                IntPtr p = SherpaOnnxOfflineTtsLang(_handle.Handle);
+                string ans = Marshal.PtrToStringAnsi(p) ?? "";
+                SherpaOnnxDestroyOfflineTtsLang(p);
+                return ans;
+            }
+        }
+
         [DllImport(Dll.Filename)]
         private static extern IntPtr SherpaOnnxCreateOfflineTts(ref OfflineTtsConfig config);
 
@@ -247,6 +261,12 @@ namespace SherpaOnnx
 
         [DllImport(Dll.Filename)]
         private static extern int SherpaOnnxOfflineTtsNumSpeakers(IntPtr handle);
+
+        [DllImport(Dll.Filename)]
+        private static extern IntPtr SherpaOnnxOfflineTtsLang(IntPtr handle);
+
+        [DllImport(Dll.Filename)]
+        private static extern void SherpaOnnxDestroyOfflineTtsLang(IntPtr s);
 
         [DllImport(Dll.Filename)]
         private static extern IntPtr SherpaOnnxOfflineTtsGenerate(IntPtr handle, [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.I1)] byte[] utf8Text, int sid, float speed);

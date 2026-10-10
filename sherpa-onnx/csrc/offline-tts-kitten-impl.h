@@ -120,6 +120,8 @@ class OfflineTtsKittenImpl : public OfflineTtsImpl {
     return model_->GetMetaData().num_speakers;
   }
 
+  std::string Lang() const override { return model_->GetMetaData().voice; }
+
   /**
    *
    * Supported options in GenerationConfig:

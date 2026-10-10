@@ -17,6 +17,7 @@ self.Module = {
         type: "sherpa-onnx-tts-ready",
         modelType: getDefaultOfflineTtsModelType(),
         numSpeakers: tts.numSpeakers,
+        lang: tts.lang,
       });
     } catch (e) {
       self.postMessage({
