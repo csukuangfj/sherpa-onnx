@@ -67,7 +67,7 @@ fn main() {
         elapsed_seconds, duration, rtf
     );
 
-    let filename = "./generated-kokoro-zh-en-rust.wav";
+    let filename = "./generated-kokoro-zh-en-lexicon-rust.wav";
     if audio.save(filename) {
         println!("Saved to: {}", filename);
     } else {

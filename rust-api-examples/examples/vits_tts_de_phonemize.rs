@@ -15,9 +15,9 @@ use std::time::Instant;
 fn main() {
     println!("piper-phonemize version: {}", piper_phonemize::get_version());
 
-    // "" uses the espeak-ng-data embedded in piper-phonemize. It has nothing
-    // to do with sherpa-onnx; sherpa-onnx itself does not use espeak-ng anymore.
-    piper_phonemize::initialize("").expect("Failed to initialize piper-phonemize");
+    // Note: the espeak-ng-data used by piper-phonemize is embedded in the
+    // crate and initialized automatically on first use. It has nothing to do
+    // with sherpa-onnx; sherpa-onnx itself does not use espeak-ng anymore.
 
     let config = OfflineTtsConfig {
         model: sherpa_onnx::OfflineTtsModelConfig {
@@ -101,7 +101,7 @@ fn main() {
         elapsed_seconds, duration, rtf
     );
 
-    let filename = "./generated-vits-de-rust.wav";
+    let filename = "./generated-vits-de-phonemize-rust.wav";
     if audio.save(filename) {
         println!("Saved to: {}", filename);
     } else {

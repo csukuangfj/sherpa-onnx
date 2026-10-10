@@ -14,8 +14,10 @@ cpal = { version = "0.16", optional = true } # cross-platform audio I/O
 ctrlc = "3.4"
 
 # External phonemizer used only by the *-phonemize examples. Optional so the
-# lexicon-based examples never build it.
-piper-phonemize = { version = "1.5.2", default-features = false, optional = true }
+# lexicon-based examples never build it. It is always linked statically (its
+# own default feature) so the examples run without extra library-path setup,
+# no matter how sherpa-onnx itself is linked.
+piper-phonemize = { version = "1.5.2", optional = true }
 
 [features]
 # Default to static linking so users can run examples without setting library paths
@@ -25,8 +27,8 @@ default = ["static"]
 mic = ["cpal"]
 # Feature for the *-phonemize examples
 phonemize = ["dep:piper-phonemize"]
-static = ["sherpa-onnx/static", "piper-phonemize?/static"]
-shared = ["sherpa-onnx/shared", "piper-phonemize?/shared"]
+static = ["sherpa-onnx/static"]
+shared = ["sherpa-onnx/shared"]
 
 [[example]]
 name = "vits_tts_phonemize"

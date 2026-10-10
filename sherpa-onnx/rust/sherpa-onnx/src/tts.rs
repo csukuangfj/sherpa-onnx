@@ -367,23 +367,14 @@ pub struct OfflineTtsModelConfig {
 
 impl OfflineTtsModelConfig {
     fn to_sys(&self, cstrings: &mut Vec<CString>) -> sys::OfflineTtsModelConfig {
-        eprintln!("[dbg] to_sys: entering OfflineTtsModelConfig::to_sys");
         let vits = self.vits.to_sys(cstrings);
-        eprintln!("[dbg] to_sys: vits done");
         let provider = to_c_ptr(&self.provider, cstrings);
-        eprintln!("[dbg] to_sys: provider done");
         let matcha = self.matcha.to_sys(cstrings);
-        eprintln!("[dbg] to_sys: matcha done");
         let kokoro = self.kokoro.to_sys(cstrings);
-        eprintln!("[dbg] to_sys: kokoro done");
         let kitten = self.kitten.to_sys(cstrings);
-        eprintln!("[dbg] to_sys: kitten done");
         let zipvoice = self.zipvoice.to_sys(cstrings);
-        eprintln!("[dbg] to_sys: zipvoice done");
         let pocket = self.pocket.to_sys(cstrings);
-        eprintln!("[dbg] to_sys: pocket done");
         let supertonic = self.supertonic.to_sys(cstrings);
-        eprintln!("[dbg] to_sys: supertonic done");
         let out = sys::OfflineTtsModelConfig {
             vits,
             num_threads: self.num_threads,
@@ -396,7 +387,6 @@ impl OfflineTtsModelConfig {
             pocket,
             supertonic,
         };
-        eprintln!("[dbg] to_sys: OfflineTtsModelConfig built");
         out
     }
 }
@@ -413,13 +403,9 @@ pub struct OfflineTtsConfig {
 
 impl OfflineTtsConfig {
     fn to_sys(&self, cstrings: &mut Vec<CString>) -> sys::OfflineTtsConfig {
-        eprintln!("[dbg] to_sys: entering OfflineTtsConfig::to_sys");
         let model = self.model.to_sys(cstrings);
-        eprintln!("[dbg] to_sys: model done");
         let rule_fsts = to_c_ptr(&self.rule_fsts, cstrings);
-        eprintln!("[dbg] to_sys: rule_fsts done");
         let rule_fars = to_c_ptr(&self.rule_fars, cstrings);
-        eprintln!("[dbg] to_sys: rule_fars done");
         let out = sys::OfflineTtsConfig {
             model,
             rule_fsts,
@@ -427,7 +413,6 @@ impl OfflineTtsConfig {
             rule_fars,
             silence_scale: self.silence_scale,
         };
-        eprintln!("[dbg] to_sys: OfflineTtsConfig built");
         out
     }
 }
@@ -566,9 +551,7 @@ impl OfflineTts {
     pub fn create(config: &OfflineTtsConfig) -> Option<Self> {
         let mut cstrings = Vec::new();
         let sys_config = config.to_sys(&mut cstrings);
-        eprintln!("[dbg] create: to_sys done, calling SherpaOnnxCreateOfflineTts");
         let ptr = unsafe { sys::SherpaOnnxCreateOfflineTts(&sys_config) };
-        eprintln!("[dbg] create: SherpaOnnxCreateOfflineTts returned");
         if ptr.is_null() {
             None
         } else {

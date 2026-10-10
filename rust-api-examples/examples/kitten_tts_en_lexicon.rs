@@ -68,7 +68,7 @@ fn main() {
         elapsed_seconds, duration, rtf
     );
 
-    let filename = "./generated-kitten-en-rust.wav";
+    let filename = "./generated-kitten-en-lexicon-rust.wav";
     if audio.save(filename) {
         println!("Saved to: {}", filename);
     } else {

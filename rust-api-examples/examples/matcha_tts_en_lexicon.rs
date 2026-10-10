@@ -69,7 +69,7 @@ fn main() {
         elapsed_seconds, duration, rtf
     );
 
-    let filename = "./generated-matcha-en-rust.wav";
+    let filename = "./generated-matcha-en-lexicon-rust.wav";
     if audio.save(filename) {
         println!("Saved to: {}", filename);
     } else {
