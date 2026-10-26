@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - refactor-kokoro-2
+      - fix-kokoro-int8-stft-nan
 
   workflow_dispatch:
 
@@ -20,7 +21,8 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        version: ["0.19", "1.0", "1.1-zh", "nabra"]
+        #version: ["0.19", "1.0", "1.1-zh", "nabra"]
+        version: ["1.0", "1.1-zh", "nabra"]
         python-version: ["3.10"]
 
     steps:
