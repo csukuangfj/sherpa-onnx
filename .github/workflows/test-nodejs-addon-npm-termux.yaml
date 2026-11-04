@@ -1,0 +1,83 @@
+name: test-node-addon-npm-termux
+
+on:
+  push:
+    branches:
+      - master
+      - node-addon-termux
+    paths:
+      - '.github/workflows/test-nodejs-addon-npm-termux.yaml'
+      - 'cmake/**'
+      - 'sherpa-onnx/csrc/*'
+      - 'sherpa-onnx/c-api/*'
+      - 'scripts/node-addon-api/**'
+      - 'scripts/node-addon-api/*.js'
+      - 'nodejs-addon-examples/**'
+      - '.github/scripts/test-nodejs-addon-npm.sh'
+
+  workflow_dispatch:
+
+concurrency:
+  group: test-node-addon-npm-termux-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  test-node-addon-npm-termux:
+    name: termux aarch64
+    runs-on: ubuntu-24.04-arm
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Update version
+        shell: bash
+        run: |
+          ./new-release.sh
+          git diff .
+
+      - name: Run tests (docker manually)
+        shell: bash
+        run: |
+          docker run --rm \
+              --user 0:0 \
+              --volume ${{ github.workspace }}/:/shared/ \
+              -w /shared \
+              termux/termux-docker:aarch64 \
+            bash -c '
+              set -e
+              apt update -y
+              apt install -y git nodejs libc++ curl tar bzip2 gzip unzip
+              apt install -y xz-utils || true
+
+              node --version
+              npm --version
+
+              git config --global --add safe.directory /shared
+
+              d=nodejs-addon-examples
+              echo "dir: $d"
+              cd $d
+              npm install --verbose
+              git status
+              ls -lh
+              ls -lh node_modules
+
+              export LD_LIBRARY_PATH=$PWD/node_modules/sherpa-onnx-termux-arm64:$LD_LIBRARY_PATH
+
+              cd /shared
+
+              .github/scripts/test-nodejs-addon-npm.sh
+            '
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tts-waves-termux-aarch64
+          path: |
+            nodejs-addon-examples/test-*-lexicon.wav
+            nodejs-addon-examples/test-*-phonemize.wav
+          if-no-files-found: warn

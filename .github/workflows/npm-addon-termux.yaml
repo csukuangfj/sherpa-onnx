@@ -1,0 +1,160 @@
+name: npm-addon-termux
+
+on:
+  push:
+    branches:
+      - node-addon
+      - node-addon-termux
+  workflow_dispatch:
+
+concurrency:
+  group: npm-addon-termux-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  npm-addon-termux-aarch64:
+    runs-on: ubuntu-24.04-arm
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Update version
+        shell: bash
+        run: |
+          ./new-release.sh
+          git diff .
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Show .npmrc
+        shell: bash
+        run: |
+          echo $PWD
+          echo $HOME
+
+          find $HOME -name .npmrc
+
+          cat /home/runner/work/_temp/.npmrc
+          cp -v /home/runner/work/_temp/.npmrc ./
+
+      - name: Build sherpa-onnx and the node addon (docker manually)
+        shell: bash
+        run: |
+          docker run --rm \
+              --user 0:0 \
+              --volume ${{ github.workspace }}/:/shared/ \
+              -w /shared \
+              termux/termux-docker:aarch64 \
+            bash -c '
+              set -e
+              apt update -y
+              apt install -y cmake make git libc++ clang nodejs
+              apt install -y android-liblog || true
+              apt install -y libandroid-dev || true
+              apt install -y android-libandroid || true
+
+              node --version
+              npm --version
+              uname -a
+
+              cd /shared
+
+              mkdir build
+              cd build
+              cmake \
+                -DCMAKE_BUILD_TYPE=Release \
+                -DCMAKE_INSTALL_PREFIX=./install \
+                -DBUILD_SHARED_LIBS=ON \
+                -DSHERPA_ONNX_ENABLE_WEBSOCKET=OFF \
+                -DSHERPA_ONNX_ENABLE_PORTAUDIO=OFF \
+                -DSHERPA_ONNX_ENABLE_BINARY=OFF \
+                -DSHERPA_ONNX_ENABLE_JNI=OFF \
+                -DSHERPA_ONNX_LINK_LIBSTDCPP_STATICALLY=OFF \
+                ..
+              make -j$(nproc)
+              make install
+              cd ..
+
+              d=$PWD
+              export SHERPA_ONNX_INSTALL_DIR=$d/build/install
+
+              pushd scripts/node-addon-api/
+              npm i
+
+              ./node_modules/.bin/cmake-js compile --log-level verbose
+              popd
+
+              owner=${{ github.repository_owner }}
+              export owner
+
+              .github/scripts/node-addon/run.sh
+
+              ls -lh ./sherpa-onnx-node
+
+              tar czvf sherpa-onnx-termux-arm64.tgz sherpa-onnx-node
+            '
+
+      - name: Load the addon (docker manually)
+        shell: bash
+        run: |
+          docker run --rm \
+              --user 0:0 \
+              --volume ${{ github.workspace }}/:/shared/ \
+              -w /shared \
+              termux/termux-docker:aarch64 \
+            bash -c '
+              set -e
+              apt update -y
+              apt install -y libc++ clang nodejs
+
+              echo "=== process.platform / process.arch ==="
+              node -p "process.platform + \" \" + process.arch"
+
+              # hide the build tree so the addon can only find its shared
+              # libraries via the $ORIGIN rpath of the npm package
+              mv /shared/build /shared/build.hidden
+
+              echo "=== readelf -d sherpa-onnx.node ==="
+              readelf -d sherpa-onnx-node/sherpa-onnx.node
+
+              echo "=== load the addon directly ==="
+              cd sherpa-onnx-node
+              node -e "const a = require(\"./sherpa-onnx.node\"); console.log(process.platform, process.arch, a.version, a.onnxruntimeVersion)"
+              cd ..
+
+              echo "=== load via the JS loader, as npm users would ==="
+              mkdir -p /tmp/loader-test/node_modules/sherpa-onnx-node
+              cp scripts/node-addon-api/lib/*.js /tmp/loader-test/node_modules/sherpa-onnx-node/
+              cp -r sherpa-onnx-node /tmp/loader-test/node_modules/sherpa-onnx-termux-arm64
+              cd /tmp/loader-test
+              node -e "const s = require(\"./node_modules/sherpa-onnx-node/sherpa-onnx.js\"); console.log(\"loader ok:\", process.platform, process.arch, s.version)"
+
+              mv /shared/build.hidden /shared/build
+            '
+
+      - name: Display files to be published
+        shell: bash
+        run: |
+          ls -lh ./sherpa-onnx-node
+          tar cjvf ./sherpa-onnx-node.tar.bz2 ./sherpa-onnx-node
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sherpa-onnx-termux-arm64
+          path: ./sherpa-onnx-node.tar.bz2
+
+      - name: Publish
+        shell: bash
+        run: |
+          cd ./sherpa-onnx-node
+          # https://docs.npmjs.com/trusted-publishers
+          npm publish --access public

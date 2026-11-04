@@ -2,7 +2,13 @@ const os = require('os');
 
 let addon = null;
 
-const platform = os.platform() === 'win32' ? 'win' : os.platform();
+// node in Termux reports "android" (or "linux" for a node built from
+// source there); we publish sherpa-onnx-termux-<arch> for it
+const isTermux = os.platform() === 'android' || !!process.env.TERMUX_VERSION ||
+    (process.env.PREFIX || '').includes('com.termux');
+
+const platform =
+    os.platform() === 'win32' ? 'win' : (isTermux ? 'termux' : os.platform());
 const arch = os.arch();
 
 try {
@@ -27,6 +33,9 @@ try {
     } else if (platform === 'linux') {
       // @ts-expect-error
       addon = require('../sherpa-onnx-linux-arm64/sherpa-onnx.node')
+    } else if (platform === 'termux') {
+      // @ts-expect-error
+      addon = require('../sherpa-onnx-termux-arm64/sherpa-onnx.node')
     }
   } else if (arch === 'ia32') {
     if (platform === 'win') {
@@ -61,6 +70,9 @@ if (!addon) {
       } else if (platform === 'linux') {
         // @ts-expect-error
         addon = require('./node_modules/sherpa-onnx-linux-arm64/sherpa-onnx.node')
+      } else if (platform === 'termux') {
+        // @ts-expect-error
+        addon = require('./node_modules/sherpa-onnx-termux-arm64/sherpa-onnx.node')
       }
     } else if (arch === 'ia32') {
       if (platform === 'win') {

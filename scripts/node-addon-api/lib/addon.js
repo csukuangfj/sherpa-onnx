@@ -5,9 +5,15 @@ const os = require('os');
 const path = require('path');
 const addonStaticImport = require('./addon-static-import');
 
+// node in Termux reports "android" (or "linux" for a node built from
+// source there); we publish sherpa-onnx-termux-<arch> for it
+const isTermux = os.platform() === 'android' || !!process.env.TERMUX_VERSION ||
+    (process.env.PREFIX || '').includes('com.termux');
+
 // Package name triggered spam for sherpa-onnx-win32-x64
 // so we have renamed it to sherpa-onnx-win-x64
-const platform = os.platform() === 'win32' ? 'win' : os.platform();
+const platform =
+    os.platform() === 'win32' ? 'win' : (isTermux ? 'termux' : os.platform());
 const arch = os.arch();
 const platform_arch = `${platform}-${arch}`;
 const possible_paths = [
@@ -59,7 +65,7 @@ if (!addon) {
     msg += ':$DYLD_LIBRARY_PATH\n';
   }
 
-  if (os.platform() == 'linux' &&
+  if ((os.platform() == 'linux' || isTermux) &&
       (!process.env.LD_LIBRARY_PATH ||
        !process.env.LD_LIBRARY_PATH.includes(
            `node_modules/sherpa-onnx-${platform_arch}`))) {

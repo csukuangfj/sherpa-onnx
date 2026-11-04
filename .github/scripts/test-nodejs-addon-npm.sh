@@ -87,8 +87,12 @@ fi
 
 node ./test_tts_non_streaming_kitten_en_lexicon.js
 node ./test_tts_non_streaming_kitten_en_lexicon_sync.js
-node ./test_tts_non_streaming_kitten_en_phonemize.js
-node ./test_tts_non_streaming_kitten_en_phonemize_sync.js
+if [[ $platform != "android" ]]; then
+  # piper-phonemize-node (used by the *_phonemize.js examples) has no
+  # prebuilt binary for Termux (android); skip them there.
+  node ./test_tts_non_streaming_kitten_en_phonemize.js
+  node ./test_tts_non_streaming_kitten_en_phonemize_sync.js
+fi
 
 rm -rf kitten-nano-en-v0_1-fp16
 
@@ -114,8 +118,10 @@ download_and_extract https://github.com/k2-fsa/sherpa-onnx/releases/download/tts
 
 node ./test_tts_non_streaming_kokoro_en_lexicon.js
 node ./test_tts_non_streaming_kokoro_en_lexicon_async.js
-node ./test_tts_non_streaming_kokoro_en_phonemize.js
-node ./test_tts_non_streaming_kokoro_en_phonemize_async.js
+if [[ $platform != "android" ]]; then
+  node ./test_tts_non_streaming_kokoro_en_phonemize.js
+  node ./test_tts_non_streaming_kokoro_en_phonemize_async.js
+fi
 ls -lh *.wav
 rm -rf kokoro-en-v0_19
 
@@ -124,8 +130,10 @@ download https://github.com/k2-fsa/sherpa-onnx/releases/download/vocoder-models/
 
 node ./test_tts_non_streaming_matcha_icefall_en_lexicon.js
 node ./test_tts_non_streaming_matcha_icefall_en_lexicon_async.js
-node ./test_tts_non_streaming_matcha_icefall_en_phonemize.js
-node ./test_tts_non_streaming_matcha_icefall_en_phonemize_async.js
+if [[ $platform != "android" ]]; then
+  node ./test_tts_non_streaming_matcha_icefall_en_phonemize.js
+  node ./test_tts_non_streaming_matcha_icefall_en_phonemize_async.js
+fi
 rm vocos-22khz-univ.onnx
 rm -rf matcha-icefall-en_US-ljspeech
 
@@ -143,14 +151,18 @@ download_and_extract https://github.com/k2-fsa/sherpa-onnx/releases/download/tts
 node ./test_tts_non_streaming_vits_piper_en_lexicon.js
 node ./test_tts_non_streaming_vits_piper_en_lexicon_async.js
 node ./test_tts_async_callback_stress_lexicon.js ./vits-piper-en_GB-cori-medium 30
-node ./test_tts_non_streaming_vits_piper_en_phonemize.js
-node ./test_tts_non_streaming_vits_piper_en_phonemize_async.js
-node ./test_tts_async_callback_stress_phonemize.js ./vits-piper-en_GB-cori-medium 30
+if [[ $platform != "android" ]]; then
+  node ./test_tts_non_streaming_vits_piper_en_phonemize.js
+  node ./test_tts_non_streaming_vits_piper_en_phonemize_async.js
+  node ./test_tts_async_callback_stress_phonemize.js ./vits-piper-en_GB-cori-medium 30
+fi
 
 download_and_extract https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/vits-piper-de_DE-glados-low.tar.bz2
 
-node ./test_tts_non_streaming_vits_piper_de_phonemize.js
-node ./test_tts_non_streaming_vits_piper_de_phonemize_async.js
+if [[ $platform != "android" ]]; then
+  node ./test_tts_non_streaming_vits_piper_de_phonemize.js
+  node ./test_tts_non_streaming_vits_piper_de_phonemize_async.js
+fi
 
 rm -rf vits-piper-de_DE-glados-low
 rm -f lexicon-en-us.txt

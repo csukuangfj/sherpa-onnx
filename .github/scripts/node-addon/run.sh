@@ -21,6 +21,12 @@ if [[ $platform == win32 ]]; then
   platform2=win
 fi
 
+# node in Termux reports "android"; we publish sherpa-onnx-termux-<arch>
+# with "os": ["android"] so npm installs it only on Termux.
+if [[ $platform == android ]]; then
+  platform2=termux
+fi
+
 
 SHERPA_ONNX_VERSION=$(grep "SHERPA_ONNX_VERSION" ./CMakeLists.txt  | cut -d " " -f 2  | cut -d '"' -f 2)
 echo "SHERPA_ONNX_VERSION $SHERPA_ONNX_VERSION"
@@ -48,6 +54,12 @@ cp $src_dir/README-optional.md $dst/README.md
 
 cp -fv build/install/lib/lib* $dst/ || true
 cp -fv build/install/lib/*dll $dst/ || true
+
+# Termux: bundle libc++_shared.so so the addon can be loaded without
+# LD_LIBRARY_PATH even if node has not already loaded it.
+if [[ $platform == android ]]; then
+  cp -fv "${PREFIX:-/data/data/com.termux/files/usr}"/lib/libc++_shared.so $dst/ || true
+fi
 
 cp scripts/node-addon-api/build/Release/sherpa-onnx.node $dst/
 
