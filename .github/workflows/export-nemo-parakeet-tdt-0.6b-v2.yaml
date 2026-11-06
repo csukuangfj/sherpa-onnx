@@ -3,7 +3,7 @@ name: export-nemo-parakeet-tdt-0.6b
 on:
   push:
     branches:
-      - export-nemo-parakeet-tdt-0.6b-v2
+      - test-parakeet
   workflow_dispatch:
 
 concurrency:
@@ -23,7 +23,8 @@ jobs:
       matrix:
         os: [macos-latest]
         python-version: ["3.10"]
-        version: ["v2", "v3", "ultra"]
+        #version: ["v2", "v3", "ultra"]
+        version: ["ultra"]
 
     steps:
       - uses: actions/checkout@v4
