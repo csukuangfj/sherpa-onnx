@@ -26,8 +26,7 @@ jobs:
         # tarfile extract(filter=...) (PEP 706, backported in 3.10.12) and
         # nemo_toolkit's restore_from() crashes on it.
         python-version: ["3.11"]
-        #version: ["v2", "v3", "ultra"]
-        version: ["ultra"]
+        version: ["v2", "v3", "ultra", "redux"]
 
     steps:
       - uses: actions/checkout@v4
@@ -87,6 +86,19 @@ jobs:
         shell: bash
         run: |
           cd scripts/nemo/parakeet-tdt-0.6b-ultra
+          ./run.sh
+
+          ls -lh *.onnx
+          mv -v *.onnx ../../..
+          mv -v *.weights ../../..
+          mv -v tokens.txt ../../..
+          mv *.wav ../../../
+
+      - name: Run ${{ matrix.version }}
+        if: matrix.version == 'redux'
+        shell: bash
+        run: |
+          cd scripts/nemo/parakeet-tdt-0.6b-redux
           ./run.sh
 
           ls -lh *.onnx
