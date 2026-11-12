@@ -26,7 +26,8 @@ jobs:
         # tarfile extract(filter=...) (PEP 706, backported in 3.10.12) and
         # nemo_toolkit's restore_from() crashes on it.
         python-version: ["3.11"]
-        version: ["v2", "v3", "ultra", "redux"]
+        #version: ["v2", "v3", "ultra", "redux"]
+        version: ["redux"]
 
     steps:
       - uses: actions/checkout@v4
