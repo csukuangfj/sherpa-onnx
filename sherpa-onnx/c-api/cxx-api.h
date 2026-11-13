@@ -619,6 +619,20 @@ struct OfflineQwen3ASRModelConfig {
   int32_t seed = 42;
 };
 
+/** @brief Offline Audio8-ASR-0.1B model configuration. */
+struct OfflineAudio8AsrModelConfig {
+  /** Encoder ONNX model file. */
+  std::string encoder;
+  /** Decoder ONNX model file (KV cache). */
+  std::string decoder;
+  /** Tokenizer directory (with `vocab.json` and `merges.txt`). */
+  std::string tokenizer;
+  /** Number of KV cache slots in the decoder graph. */
+  int32_t max_total_len = 512;
+  /** Maximum number of new tokens to generate. */
+  int32_t max_new_tokens = 128;
+};
+
 /**
  * @brief Acoustic model configuration for offline ASR.
  *
@@ -677,6 +691,7 @@ struct OfflineModelConfig {
   OfflineFireRedAsrCtcModelConfig fire_red_asr_ctc;
   /** Qwen3-ASR configuration. */
   OfflineQwen3ASRModelConfig qwen3_asr;
+  OfflineAudio8AsrModelConfig audio8_asr;
   /** Cohere Transcribe configuration. */
   OfflineCohereTranscribeModelConfig cohere_transcribe;
 };

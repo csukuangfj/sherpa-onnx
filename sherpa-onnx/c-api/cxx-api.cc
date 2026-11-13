@@ -357,6 +357,17 @@ static SherpaOnnxOfflineRecognizerConfig Convert(
   c.model_config.funasr_nano.hotwords =
       config.model_config.funasr_nano.hotwords.c_str();
 
+  c.model_config.audio8_asr.encoder =
+      config.model_config.audio8_asr.encoder.c_str();
+  c.model_config.audio8_asr.decoder =
+      config.model_config.audio8_asr.decoder.c_str();
+  c.model_config.audio8_asr.tokenizer =
+      config.model_config.audio8_asr.tokenizer.c_str();
+  c.model_config.audio8_asr.max_total_len =
+      config.model_config.audio8_asr.max_total_len;
+  c.model_config.audio8_asr.max_new_tokens =
+      config.model_config.audio8_asr.max_new_tokens;
+
   c.model_config.qwen3_asr.conv_frontend =
       config.model_config.qwen3_asr.conv_frontend.c_str();
   c.model_config.qwen3_asr.encoder =
