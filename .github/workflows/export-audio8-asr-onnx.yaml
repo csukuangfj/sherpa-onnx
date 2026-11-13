@@ -6,6 +6,9 @@
 name: export-audio8-asr-onnx
 
 on:
+  push:
+    branches:
+      - audio8-asr
   workflow_dispatch:
     inputs:
       int8:
