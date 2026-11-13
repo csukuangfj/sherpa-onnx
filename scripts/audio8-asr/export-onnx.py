@@ -28,6 +28,7 @@ Usage:
 
 from __future__ import annotations
 
+import onnx
 import argparse
 import json
 import math
@@ -447,7 +448,7 @@ def main() -> None:
         "audio_token_id": AUDIO_TOKEN_ID,
         "vocab_size": int(lm.config.vocab_size),
     }
-    add_meta_data(filename=str(out / "encoder.onnx"), meta_data=meta_data)
+    add_meta_data(filename=str(out / "encoder.onnx"), meta_data=meta)
 
     if args.int8:
         from onnxruntime.quantization import QuantType, quantize_dynamic
