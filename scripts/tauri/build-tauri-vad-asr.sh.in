@@ -46,6 +46,14 @@ detect_platform() {
 PLATFORM="$(detect_platform)"
 log "Detected platform: $PLATFORM"
 
+# Keep cargo's target dir short on Windows: rustc writes .natvis files into
+# deeply nested build dirs and link.exe fails with LNK1104 when the full
+# path exceeds MAX_PATH (260).
+if [[ "$PLATFORM" == windows* ]]; then
+  export CARGO_TARGET_DIR="$(cygpath -m "${RUNNER_TEMP:-$SRC_DIR}")/ct"
+fi
+TARGET_DIR="${CARGO_TARGET_DIR:-${SRC_DIR}/target}"
+
 # Rust targets per platform
 RUST_TARGET=""
 case "$PLATFORM" in
@@ -79,6 +87,10 @@ log "Adding Rust target: $RUST_TARGET"
 rustup target add "$RUST_TARGET"
 
 mkdir -p "${PROJECT_DIR}/dist-2"
+
+# Install the npm Tauri CLI (@tauri-apps/cli) used by `npx tauri build`
+log "Installing npm dependencies"
+(cd "${PROJECT_DIR}" && npm install)
 
 {% for model in model_list %}
 
@@ -232,10 +244,10 @@ ls -lhR "${SRC_DIR}/assets/"
 
 # Build
 log "Building for $PLATFORM (target: $RUST_TARGET)"
-cd "${SRC_DIR}"
-cargo tauri build --target "$RUST_TARGET"
+cd "${PROJECT_DIR}"
+npx tauri build --target "$RUST_TARGET"
 log "Build completed for $RUST_TARGET"
-ls -lh "target/${RUST_TARGET}/release/bundle/" || true
+ls -lh "${TARGET_DIR}/${RUST_TARGET}/release/bundle/" || true
 
 # On macOS arm64, also build x64 and create universal binary
 if [[ "$PLATFORM" == "macos-arm64" ]]; then
@@ -243,18 +255,18 @@ if [[ "$PLATFORM" == "macos-arm64" ]]; then
 
   rustup target add "$OTHER_TARGET"
   log "Building for other macOS arch: $OTHER_TARGET"
-  cargo tauri build --target "$OTHER_TARGET"
+  npx tauri build --target "$OTHER_TARGET"
   log "Build completed for $OTHER_TARGET"
 
   # Create universal binary via lipo
   ARTIFACT_PREFIX="vad-asr-${SHERPA_ONNX_VERSION}-${lang}-${short_name}"
-  x64_bin="target/x86_64-apple-darwin/release/non-streaming-speech-recognition-from-file"
-  arm64_bin="target/aarch64-apple-darwin/release/non-streaming-speech-recognition-from-file"
+  x64_bin="${TARGET_DIR}/x86_64-apple-darwin/release/non-streaming-speech-recognition-from-file"
+  arm64_bin="${TARGET_DIR}/aarch64-apple-darwin/release/non-streaming-speech-recognition-from-file"
   binary_name="non-streaming-speech-recognition-from-file"
   app_name="${binary_name}.app"
 
-  arm64_app="target/aarch64-apple-darwin/release/bundle/macos/$app_name"
-  universal_dir="target/universal2-apple-darwin/release/bundle/macos"
+  arm64_app="${TARGET_DIR}/aarch64-apple-darwin/release/bundle/macos/$app_name"
+  universal_dir="${TARGET_DIR}/universal2-apple-darwin/release/bundle/macos"
   mkdir -p "$universal_dir"
   # Copy the full arm64 .app as a starting point (includes Info.plist, icons, etc.)
   cp -a "$arm64_app" "$universal_dir/$app_name"
@@ -288,7 +300,7 @@ log "ARTIFACT_PREFIX=$ARTIFACT_PREFIX"
 
 # Copy platform bundles (dmg, deb, rpm, app, etc.)
 log "Copying platform bundles to dist/"
-cp -r target/${RUST_TARGET}/release/bundle/*/* "${DIST_DIR}/" 2>/dev/null || true
+cp -r ${TARGET_DIR}/${RUST_TARGET}/release/bundle/*/* "${DIST_DIR}/" 2>/dev/null || true
 log "Contents of dist/ after bundle copy:"
 ls -lh "${DIST_DIR}/" || true
 
@@ -305,7 +317,7 @@ if [[ "$PLATFORM" == "macos-arm64" ]]; then
   # Delete native .app — we only ship universal
   rm -rf "${DIST_DIR}/${ARTIFACT_PREFIX}.app"
 
-  app_dir="target/universal2-apple-darwin/release/bundle/macos/${ARTIFACT_PREFIX}-universal.app"
+  app_dir="${TARGET_DIR}/universal2-apple-darwin/release/bundle/macos/${ARTIFACT_PREFIX}-universal.app"
   if [ -d "$app_dir" ]; then
     log "Creating universal .app tar.bz2"
     cd "$(dirname "$app_dir")"
@@ -323,7 +335,7 @@ if [[ "$PLATFORM" == windows-* ]]; then
   PORTABLE_DIR="${DIST_DIR}/${PORTABLE_NAME}"
   log "Creating Windows portable archive: ${PORTABLE_NAME}.zip"
   mkdir -p "${PORTABLE_DIR}"
-  cp -v target/${RUST_TARGET}/release/non-streaming-speech-recognition-from-file.exe "${PORTABLE_DIR}/${ARTIFACT_PREFIX}.exe"
+  cp -v ${TARGET_DIR}/${RUST_TARGET}/release/non-streaming-speech-recognition-from-file.exe "${PORTABLE_DIR}/${ARTIFACT_PREFIX}.exe"
   cp -a "${SRC_DIR}/assets" "${PORTABLE_DIR}/"
   cd "${DIST_DIR}"
   PYTHON=python3
@@ -344,7 +356,7 @@ elif [[ "$PLATFORM" == linux-* ]]; then
   PORTABLE_DIR="${DIST_DIR}/${PORTABLE_NAME}"
   log "Creating Linux portable archive: ${PORTABLE_NAME}.tar.gz"
   mkdir -p "${PORTABLE_DIR}"
-  cp -v target/${RUST_TARGET}/release/non-streaming-speech-recognition-from-file "${PORTABLE_DIR}/${ARTIFACT_PREFIX}"
+  cp -v ${TARGET_DIR}/${RUST_TARGET}/release/non-streaming-speech-recognition-from-file "${PORTABLE_DIR}/${ARTIFACT_PREFIX}"
   cp -a "${SRC_DIR}/assets" "${PORTABLE_DIR}/"
   cd "${DIST_DIR}"
   tar czf "${PORTABLE_NAME}.tar.gz" "${PORTABLE_NAME}/"

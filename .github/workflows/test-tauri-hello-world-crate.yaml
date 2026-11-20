@@ -39,11 +39,6 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@stable
 
-      - name: Install Tauri CLI
-        shell: bash
-        run: |
-          cargo install tauri-cli
-
       - name: Install npm dependencies
         shell: bash
         run: |
@@ -133,11 +128,6 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: aarch64-apple-ios,aarch64-apple-ios-sim
-
-      - name: Install Tauri CLI
-        shell: bash
-        run: |
-          cargo install tauri-cli
 
       - name: Install npm dependencies
         shell: bash
@@ -270,11 +260,6 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@stable
 
-      - name: Install Tauri CLI
-        shell: bash
-        run: |
-          cargo install tauri-cli
-
       - name: Install dependencies
         shell: bash
         run: |
@@ -397,11 +382,6 @@ jobs:
           Write-Host "Using linker: $linker"
           & where.exe link
 
-      - name: Install Tauri CLI
-        shell: bash
-        run: |
-          cargo install tauri-cli
-
       - name: Install npm dependencies
         shell: bash
         run: |
@@ -498,11 +478,6 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
-
-      - name: Install Tauri CLI
-        shell: bash
-        run: |
-          cargo install tauri-cli
 
       - name: Install npm dependencies
         shell: bash
