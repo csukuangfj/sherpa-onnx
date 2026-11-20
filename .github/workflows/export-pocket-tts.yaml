@@ -13,7 +13,7 @@ concurrency:
 
 jobs:
   export-pocket-to-onnx:
-    if: github.repository_owner == 'k2-fsa' || github.repository_owner == 'csukuangfj'
+    # if: github.repository_owner == 'k2-fsa' || github.repository_owner == 'csukuangfj'
     name: export PocketTTS ${{ matrix.version }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -182,7 +182,7 @@ jobs:
           ls -lh $d.tar.bz2
 
       - name: Release
-        if: github.repository_owner == 'csukuangfj'
+        # if: github.repository_owner == 'csukuangfj'
         uses: svenstaro/upload-release-action@v2
         with:
           file_glob: true
