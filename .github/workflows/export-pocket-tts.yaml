@@ -20,7 +20,8 @@ jobs:
       fail-fast: false
       matrix:
         os: [macos-latest]
-        python-version: ["3.10"]
+        # onnxruntime>=1.28 requires Python >= 3.11
+        python-version: ["3.12"]
 
     steps:
       - uses: actions/checkout@v4
@@ -41,7 +42,9 @@ jobs:
       - name: Install Python dependencies
         shell: bash
         run: |
-          pip install "numpy<=1.26.4" onnx==1.17.0 onnxruntime==1.17.1 librosa soundfile \
+          # onnxruntime>=1.28 is built against NumPy 2.x; ml_dtypes is needed
+          # by onnxruntime.quantization but is not declared as its dependency.
+          pip install onnx==1.17.0 onnxruntime==1.28.0 ml_dtypes librosa soundfile \
             torch==2.8.0
 
       - name: Run
@@ -52,7 +55,7 @@ jobs:
           git clone https://github.com/csukuangfj/pocket-tts-onnx-export
           cd pocket-tts-onnx-export
           pip install -r requirements.txt
-          pip install onnx==1.17.0 torch==2.8.0
+          pip install onnx==1.17.0 onnxruntime==1.28.0 torch==2.8.0
           pip list
 
           git grep 'opset_version'
